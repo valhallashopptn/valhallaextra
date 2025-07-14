@@ -15,7 +15,7 @@ const productsCollectionRef = collection(db, 'products');
 
 // Get all products
 export const getProducts = async (): Promise<Product[]> => {
-  const q = query(productsCollectionRef, orderBy('name'));
+  const q = query(productsCollectionRef, orderBy('createdAt', 'desc'));
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Product[];
 };
