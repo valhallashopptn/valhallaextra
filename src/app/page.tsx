@@ -1,8 +1,30 @@
+'use client';
+
 import { ProductCard } from '@/components/ProductCard';
-import { PRODUCTS } from '@/lib/mock-data';
+import { getProducts } from '@/services/productService';
 import type { Product } from '@/lib/types';
+import { useEffect, useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productsFromDb = await getProducts();
+        setProducts(productsFromDb);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   return (
     <div className="space-y-8">
       <div className="text-center">
@@ -15,9 +37,21 @@ export default function Home() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {PRODUCTS.map((product: Product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+        {loading ? (
+          Array.from({ length: 8 }).map((_, i) => (
+             <div key={i} className="flex flex-col space-y-3">
+              <Skeleton className="h-[175px] w-full rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-[200px]" />
+                <Skeleton className="h-4 w-[150px]" />
+              </div>
+            </div>
+          ))
+        ) : (
+          products.map((product: Product) => (
+            <ProductCard key={product.id} product={product} />
+          ))
+        )}
       </div>
     </div>
   );
