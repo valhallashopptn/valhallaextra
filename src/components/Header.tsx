@@ -52,6 +52,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
+            className="relative"
             onClick={() => router.push('/cart')}
             aria-label={`Shopping cart with ${cartCount} items`}
           >
