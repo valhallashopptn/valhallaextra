@@ -6,7 +6,7 @@ import type { Review, Product } from '@/lib/types';
 import { getAllReviews } from '@/services/reviewService';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -149,5 +149,3 @@ export default function ReviewsPage() {
     </div>
   );
 }
-
-    
