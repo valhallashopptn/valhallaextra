@@ -91,10 +91,11 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   const handleSearchResultClick = () => {
     setSearchQuery('');
     setIsSearchOpen(false);
+    setIsMobileMenuOpen(false);
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/10 bg-slate-900/50 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-border/10 bg-background/80 backdrop-blur-sm">
       <div className="container mx-auto px-4 flex h-14 items-center">
         
         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -121,7 +122,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                 </div>
                 
                 <div className="relative w-full">
-                  <form onSubmit={(e) => { e.preventDefault(); router.push(`/products?q=${searchQuery}`) }}>
+                  <form onSubmit={(e) => { e.preventDefault(); router.push(`/products?q=${searchQuery}`); setIsMobileMenuOpen(false); }}>
                     <div className="relative">
                       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
@@ -132,6 +133,25 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onFocus={() => { if(searchQuery) setIsSearchOpen(true)}}
                       />
+                       {isSearchOpen && searchResults.length > 0 && (
+                          <div className="absolute top-full mt-2 w-full rounded-md border bg-card text-card-foreground shadow-lg z-50 max-h-60 overflow-y-auto">
+                            <ul>
+                              {searchResults.map(product => (
+                                <li key={product.id}>
+                                  <Link href={`/product/${product.id}`} className="block hover:bg-muted" onClick={handleSearchResultClick}>
+                                    <div className="flex items-center gap-4 p-2">
+                                      <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="rounded-md object-cover" />
+                                      <div>
+                                        <p className="text-sm font-medium">{product.name}</p>
+                                        <p className="text-xs text-muted-foreground">{product.game}</p>
+                                      </div>
+                                    </div>
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                     </div>
                   </form>
                 </div>
