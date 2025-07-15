@@ -13,7 +13,6 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LeaveReviewDialog } from './LeaveReviewDialog';
-import Image from 'next/image';
 import { PageWrapper } from '@/components/PageWrapper';
 
 function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md' | 'lg' }) {
@@ -133,8 +132,7 @@ export default function ReviewsPage() {
                         &quot;{review.comment}&quot;
                     </blockquote>
                     <div className="mt-4 pt-4 border-t border-border">
-                      <Link href={`/product/${review.productId}`} className="flex items-center gap-2 group">
-                        <Image src={review.productImage || 'https://placehold.co/32x32.png'} alt={review.productName || 'Product image'} width={32} height={32} className="rounded-sm object-cover" />
+                      <Link href={`/product/${review.productId}`} className="group">
                         <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
                           Review for: {review.productName}
                         </span>
