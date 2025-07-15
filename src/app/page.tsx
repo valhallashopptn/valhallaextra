@@ -238,6 +238,13 @@ export default function Home() {
                 ))
                 )}
             </div>
+            <div className="text-center pt-4">
+                <Button asChild variant="outline">
+                    <Link href="/products">
+                        View All Products <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
+            </div>
         </section>
         
         <Separator />
