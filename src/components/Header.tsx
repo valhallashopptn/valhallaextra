@@ -34,18 +34,6 @@ export function Header() {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 0);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
 
   useEffect(() => {
     const fetchAllProducts = async () => {
@@ -99,10 +87,7 @@ export function Header() {
   }
 
   return (
-    <header className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
-        scrolled ? "border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" : "bg-transparent"
-    )}>
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
       <div className="flex h-14 items-center px-4 md:px-6 lg:px-8">
         <div className="mr-4 flex items-center">
           <Link href="/" className="flex items-center space-x-2">
@@ -129,7 +114,7 @@ export function Header() {
                 <Input
                   type="search"
                   placeholder="Search products..."
-                  className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
+                  className="w-full rounded-lg bg-background/50 pl-8 md:w-[200px] lg:w-[320px]"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => { if(searchQuery) setIsSearchOpen(true)}}
