@@ -94,7 +94,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/10 bg-slate-900/50 backdrop-blur-sm">
-      <div className="flex h-14 items-center px-4 md:px-6 lg:px-8">
+      <div className="container mx-auto px-4 flex h-14 items-center">
         
         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
           <SheetTrigger asChild>
@@ -132,6 +132,20 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                   >
                     Reviews
                 </Link>
+                <Link 
+                  href="/about" 
+                  className="text-lg font-medium text-foreground transition-colors hover:text-primary"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    About Us
+                </Link>
+                 <Link 
+                  href="/contact" 
+                  className="text-lg font-medium text-foreground transition-colors hover:text-primary"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Contact Us
+                </Link>
             </nav>
           </SheetContent>
         </Sheet>
@@ -154,6 +168,12 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
             </Link>
              <Link href="/reviews" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
                 Reviews
+            </Link>
+             <Link href="/about" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
+                About Us
+            </Link>
+             <Link href="/contact" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
+                Contact Us
             </Link>
             </nav>
         </div>
