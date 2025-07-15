@@ -103,7 +103,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
               <span className="sr-only">Open Menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-3/4">
+          <SheetContent side="left" className="w-3/4 bg-slate-900/50 backdrop-blur-sm">
             <SheetHeader>
                 <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
             </SheetHeader>
