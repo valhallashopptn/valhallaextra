@@ -2,15 +2,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { Review, Product } from '@/lib/types';
+import type { Review } from '@/lib/types';
 import { getAllReviews } from '@/services/reviewService';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star, MessageSquare } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LeaveReviewDialog } from './LeaveReviewDialog';
 import { PageWrapper } from '@/components/PageWrapper';
@@ -132,9 +130,9 @@ export default function ReviewsPage() {
                         &quot;{review.comment}&quot;
                     </blockquote>
                     <div className="mt-4 pt-4 border-t border-border">
-                      <Link href={`/product/${review.productId}`} className="group text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                        <p className="text-sm font-medium text-muted-foreground">
                           Review for: {review.productName}
-                      </Link>
+                        </p>
                     </div>
                   </CardContent>
               </Card>
