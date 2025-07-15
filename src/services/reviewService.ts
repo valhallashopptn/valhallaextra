@@ -33,12 +33,10 @@ export const getAllReviews = async (): Promise<Review[]> => {
 
 // Add a new review for a product
 export const addReview = async (
-  productId: string,
-  reviewData: Omit<Review, 'id' | 'createdAt' | 'productId'>
+  reviewData: Omit<Review, 'id' | 'createdAt'>
 ) => {
   return await addDoc(reviewsCollectionRef, {
     ...reviewData,
-    productId,
     createdAt: serverTimestamp(),
   });
 };

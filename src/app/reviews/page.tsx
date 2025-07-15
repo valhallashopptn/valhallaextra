@@ -4,16 +4,16 @@
 import { useEffect, useState } from 'react';
 import type { Review, Product } from '@/lib/types';
 import { getAllReviews } from '@/services/reviewService';
-import { getProducts } from '@/services/productService';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Star, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { LeaveReviewDialog } from './LeaveReviewDialog';
+import Image from 'next/image';
 
 function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md' | 'lg' }) {
   const starClasses = size === 'sm' ? 'h-4 w-4' : size === 'md' ? 'h-5 w-5' : 'h-6 w-6';
@@ -45,33 +45,29 @@ function AverageRatingDisplay({ rating, count }: { rating: number, count: number
 
 export default function ReviewsPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  const fetchReviews = async () => {
+    try {
+      setLoading(true);
+      const reviewsData = await getAllReviews();
+      setReviews(reviewsData);
+    } catch (error) {
+      console.error('Failed to fetch reviews:', error);
+      toast({ title: 'Error', description: 'Could not load reviews.', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchReviewsAndProducts = async () => {
-      try {
-        setLoading(true);
-        const [reviewsData, productsData] = await Promise.all([
-          getAllReviews(),
-          getProducts(),
-        ]);
-        setReviews(reviewsData);
-        setProducts(productsData);
-      } catch (error) {
-        console.error('Failed to fetch reviews:', error);
-        toast({ title: 'Error', description: 'Could not load reviews.', variant: 'destructive' });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchReviewsAndProducts();
+    fetchReviews();
   }, [toast]);
 
-  const getProductName = (productId: string) => {
-    return products.find(p => p.id === productId)?.name || 'Product';
-  };
+  const onReviewSubmitted = () => {
+    fetchReviews();
+  }
 
   const averageRating = reviews.length > 0
     ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
@@ -92,17 +88,11 @@ export default function ReviewsPage() {
             ) : (
                 <div className="flex flex-col items-center gap-4">
                     <AverageRatingDisplay rating={averageRating} count={reviews.length} />
-                    <Button asChild>
-                        <Link href="/products">
-                            <MessageSquare className="mr-2 h-4 w-4" />
-                            Leave Your Own Review
-                        </Link>
-                    </Button>
+                    <LeaveReviewDialog onReviewSubmitted={onReviewSubmitted} />
                 </div>
             )}
         </div>
       </div>
-
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {loading ? (
@@ -125,21 +115,26 @@ export default function ReviewsPage() {
             reviews.map(review => (
             <Card key={review.id} className="flex flex-col">
                 <CardContent className="p-6 flex flex-col flex-grow">
-                <div className="flex items-center gap-4">
-                    <Avatar className="h-12 w-12">
-                        <AvatarFallback>{review.userEmail.charAt(0).toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                        <p className="font-semibold text-lg">{review.userEmail.split('@')[0]}</p>
-                        <StarRating rating={review.rating} size="sm" />
-                    </div>
-                </div>
-                <blockquote className="mt-4 text-muted-foreground flex-grow">
-                    &quot;{review.comment}&quot;
-                </blockquote>
-                <div className="mt-4 pt-4 border-t border-border">
-                    <Badge variant="secondary">Product: {getProductName(review.productId)}</Badge>
-                </div>
+                  <div className="flex items-center gap-4">
+                      <Avatar className="h-12 w-12">
+                          <AvatarFallback>{review.userEmail.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                          <p className="font-semibold text-lg">{review.userEmail.split('@')[0]}</p>
+                          <StarRating rating={review.rating} size="sm" />
+                      </div>
+                  </div>
+                  <blockquote className="mt-4 text-muted-foreground flex-grow">
+                      &quot;{review.comment}&quot;
+                  </blockquote>
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <Link href={`/product/${review.productId}`} className="flex items-center gap-2 group">
+                      <Image src={review.productImage} alt={review.productName} width={32} height={32} className="rounded-sm object-cover" />
+                      <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
+                        Review for: {review.productName}
+                      </span>
+                    </Link>
+                  </div>
                 </CardContent>
             </Card>
             ))

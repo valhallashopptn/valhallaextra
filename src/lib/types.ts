@@ -1,3 +1,4 @@
+
 import type { User as FirebaseUser } from 'firebase/auth';
 import type { Timestamp } from 'firebase/firestore';
 
@@ -39,6 +40,8 @@ export type User = FirebaseUser;
 export interface Review {
     id: string;
     productId: string;
+    productName: string;
+    productImage: string;
     userId: string;
     userEmail: string;
     rating: number;
