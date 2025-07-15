@@ -121,7 +121,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                     </span>
                 </div>
                 
-                <div className="relative w-full" ref={searchRef}>
+                <div className="relative w-full">
                   <form onSubmit={(e) => { e.preventDefault(); router.push(`/products?q=${searchQuery}`); handleSearchResultClick(); }}>
                     <div className="relative">
                       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -132,6 +132,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onFocus={() => { if(searchQuery) setIsSearchOpen(true)}}
+                        autoFocus={false}
                       />
                        {isSearchOpen && searchResults.length > 0 && (
                           <div className="absolute top-full mt-2 w-full rounded-md border bg-card text-card-foreground shadow-lg z-50 max-h-60 overflow-y-auto">
