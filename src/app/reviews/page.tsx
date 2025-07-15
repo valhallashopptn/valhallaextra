@@ -63,7 +63,7 @@ export default function ReviewsPage() {
 
   useEffect(() => {
     fetchReviews();
-  }, [toast]);
+  }, []);
 
   const onReviewSubmitted = () => {
     fetchReviews();
@@ -129,7 +129,7 @@ export default function ReviewsPage() {
                   </blockquote>
                   <div className="mt-4 pt-4 border-t border-border">
                     <Link href={`/product/${review.productId}`} className="flex items-center gap-2 group">
-                      <Image src={review.productImage || 'https://placehold.co/32x32.png'} alt={review.productName} width={32} height={32} className="rounded-sm object-cover" />
+                      <Image src={review.productImage || 'https://placehold.co/32x32.png'} alt={review.productName || 'Product image'} width={32} height={32} className="rounded-sm object-cover" />
                       <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
                         Review for: {review.productName}
                       </span>
