@@ -3,7 +3,6 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from '@/components/Providers';
 import { Header } from '@/components/Header';
-import { MobileBottomNav } from '@/components/MobileBottomNav';
 
 export const metadata: Metadata = {
   title: 'TopUp Hub',
@@ -25,10 +24,9 @@ export default function RootLayout({
       <body className="font-body antialiased min-h-screen flex flex-col bg-background">
         <Providers>
           <Header />
-          <main className="flex-grow container mx-auto px-4 py-8 mb-16 md:mb-0">
+          <main className="flex-grow container mx-auto px-4 py-8">
             {children}
           </main>
-          <MobileBottomNav />
           <Toaster />
         </Providers>
       </body>
