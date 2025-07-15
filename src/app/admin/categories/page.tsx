@@ -87,7 +87,7 @@ export default function CategoriesPage() {
                 ) : categories.map(category => (
                   <TableRow key={category.id}>
                     <TableCell>
-                      <Image src={category.imageUrl} alt={category.name} width={40} height={40} className="rounded-md object-cover" />
+                      <Image src={category.imageUrl || 'https://placehold.co/40x40.png'} alt={category.name} width={40} height={40} className="rounded-md object-cover" />
                     </TableCell>
                     <TableCell className="font-medium">{category.name}</TableCell>
                     <TableCell>{new Date(category.createdAt.toDate()).toLocaleDateString()}</TableCell>
