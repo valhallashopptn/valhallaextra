@@ -84,18 +84,18 @@ export function Header() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                   <DropdownMenuItem onSelect={() => router.push('/account')}>
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    <LayoutDashboard className="mr-2 h-4 w-4 text-primary" />
                     <span>Account</span>
                   </DropdownMenuItem>
                    {isAdmin && (
                     <DropdownMenuItem onSelect={() => router.push('/admin')}>
-                      <ShieldCheck className="mr-2 h-4 w-4" />
+                      <ShieldCheck className="mr-2 h-4 w-4 text-green-500" />
                       <span>Admin</span>
                     </DropdownMenuItem>
                   )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
+                  <LogOut className="mr-2 h-4 w-4 text-red-500" />
                   <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>

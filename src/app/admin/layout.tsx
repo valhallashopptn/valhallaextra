@@ -51,7 +51,7 @@ export default function AdminLayout({
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            <SidebarMenuItem>
+            <SidebarMenuItem className="admin-sidebar-menu-item">
               <SidebarMenuButton asChild isActive={pathname === '/admin'}>
                 <Link href="/admin">
                   <LayoutDashboard />
@@ -59,7 +59,7 @@ export default function AdminLayout({
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem>
+            <SidebarMenuItem className="admin-sidebar-menu-item">
               <SidebarMenuButton asChild isActive={pathname === '/admin/products'}>
                 <Link href="/admin/products">
                   <Package />
@@ -67,7 +67,7 @@ export default function AdminLayout({
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem>
+            <SidebarMenuItem className="admin-sidebar-menu-item">
               <SidebarMenuButton asChild isActive={pathname === '/admin/orders'}>
                 <Link href="/admin/orders">
                   <ShoppingCart />

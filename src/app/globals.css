@@ -7,27 +7,27 @@ body {
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
+    --background: 220 40% 5%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
+    --card: 220 40% 5%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    --popover: 220 40% 5%;
     --popover-foreground: 0 0% 98%;
     --primary: 262.1 83.3% 57.8%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 240 3.7% 15.9%;
+    --secondary: 220 20% 12%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
+    --muted: 220 20% 12%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
+    --accent: 220 20% 12%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 220 20% 15%;
+    --input: 220 20% 15%;
     --ring: 262.1 83.3% 57.8%;
     --chart-1: 262 84% 58%;
-    --chart-2: 240 5% 16%;
+    --chart-2: 220 20% 15%;
     --chart-3: 193 84% 58%;
     --chart-4: 49 84% 58%;
     --chart-5: 355 84% 58%;
@@ -42,27 +42,27 @@ body {
     --sidebar-ring: 262.1 83.3% 57.8%;
   }
   .dark {
-    --background: 240 10% 3.9%;
+    --background: 220 40% 5%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
+    --card: 220 40% 5%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    --popover: 220 40% 5%;
     --popover-foreground: 0 0% 98%;
     --primary: 262.1 83.3% 57.8%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 240 3.7% 15.9%;
+    --secondary: 220 20% 12%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
+    --muted: 220 20% 12%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
+    --accent: 220 20% 12%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 220 20% 15%;
+    --input: 220 20% 15%;
     --ring: 262.1 83.3% 57.8%;
     --chart-1: 262 84% 58%;
-    --chart-2: 240 5% 16%;
+    --chart-2: 220 20% 15%;
     --chart-3: 193 84% 58%;
     --chart-4: 49 84% 58%;
     --chart-5: 355 84% 58%;
@@ -83,5 +83,17 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .admin-sidebar-menu-item {
+    @apply relative overflow-hidden;
+  }
+  .admin-sidebar-menu-item > a {
+    @apply transform transition-transform duration-300 ease-in-out;
+  }
+  .admin-sidebar-menu-item:hover > a {
+    @apply translate-x-2;
   }
 }
