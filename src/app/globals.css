@@ -68,13 +68,14 @@ body {
 
 @layer utilities {
   @keyframes pulse-glow {
-    0%, 100% {
-      transform: scale(1);
-      filter: drop-shadow(0 0 4px hsl(var(--primary) / 0.5));
+    0% {
+      box-shadow: 0 0 0 0 hsl(var(--primary) / 0.7);
     }
-    50% {
-      transform: scale(1.1);
-      filter: drop-shadow(0 0 10px hsl(var(--primary) / 0.8));
+    70% {
+      box-shadow: 0 0 0 10px hsl(var(--primary) / 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
     }
   }
 }
@@ -120,6 +121,6 @@ body {
   }
 
   .animate-pulse-glow {
-    animation: pulse-glow 3s infinite ease-in-out;
+    animation: pulse-glow 2.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
   }
 }

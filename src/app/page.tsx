@@ -76,8 +76,8 @@ function FeatureCard({ icon, title, value }: { icon: React.ReactNode, title: str
   return (
     <Card className="bg-background/30 backdrop-blur-sm border-primary/20 transition-all duration-300 hover:-translate-y-2 hover:shadow-lg hover:shadow-primary/20">
       <CardContent className="flex flex-col items-center justify-center p-6 space-y-4 text-center">
-        <div className="p-3 rounded-full bg-primary/10">
-          <div className="p-2 rounded-full bg-primary/20 text-primary animate-pulse-glow">
+        <div className="p-3 rounded-full bg-primary/10 animate-pulse-glow">
+          <div className="p-2 rounded-full bg-primary/20 text-primary">
             {icon}
           </div>
         </div>
