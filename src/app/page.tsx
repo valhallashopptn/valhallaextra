@@ -12,10 +12,10 @@ import { ArrowRight, Search, Package, ShoppingCart, LifeBuoy } from 'lucide-reac
 import { getProducts } from '@/services/productService';
 import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { getSetting } from '@/services/settingsService';
+import { Separator } from '@/components/ui/separator';
 
 function CategoryCard({ category }: { category: Category }) {
   return (
@@ -156,10 +156,10 @@ export default function Home() {
       </div>
       
       {/* Main Content Sections */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16 md:space-y-24">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-24">
          {/* Browse by Category Section */}
-         <div className="space-y-6">
-            <div className="relative text-center mb-4">
+         <section className="space-y-8">
+            <div className="relative text-center">
               <h2 className="text-3xl font-bold font-headline">Browse by Category</h2>
               <div className="absolute top-1/2 right-0 -translate-y-1/2">
                 <Button variant="outline" asChild>
@@ -172,7 +172,7 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loading ? (
                 Array.from({ length: 3 }).map((_, i) => (
-                    <Skeleton key={i} className="h-48 w-full rounded-xl" />
+                    <Skeleton key={i} className="aspect-[3/2] w-full rounded-xl" />
                 ))
                 ) : (
                 featuredCategories.map((category: Category) => (
@@ -180,10 +180,12 @@ export default function Home() {
                 ))
                 )}
             </div>
-        </div>
+        </section>
+
+        <Separator />
 
         {/* Our Products Section */}
-        <div className="space-y-8">
+        <section className="space-y-8">
             <div className="text-center">
                 <h2 className="text-3xl font-bold font-headline">Our Products</h2>
             </div>
@@ -236,16 +238,20 @@ export default function Home() {
                 ))
                 )}
             </div>
-        </div>
+        </section>
         
+        <Separator />
+
         {/* Features Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <FeatureCard icon={<Package size={24} />} title="Products Live" value="120+" />
             <FeatureCard icon={<ShoppingCart size={24} />} title="Transactions Completed" value="15k+" />
             <FeatureCard icon={<LifeBuoy size={24} />} title="Dedicated Support" value="24/7" />
-        </div>
+        </section>
 
       </div>
     </div>
   );
 }
+
+    
