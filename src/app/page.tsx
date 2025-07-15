@@ -177,7 +177,7 @@ export default function Home() {
   return (
     <div className="space-y-24">
       {/* Hero Section */}
-      <div className="relative h-[400px] md:h-[500px] overflow-hidden -mb-24">
+      <section className="relative h-[400px] md:h-[500px] overflow-hidden -mb-24">
         {loading ? (
           <Skeleton className="h-full w-full" />
         ) : (
@@ -204,46 +204,45 @@ export default function Home() {
             </div>
           </>
         )}
-      </div>
+      </section>
       
-      {/* Main Content Sections */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-24">
-         {/* Browse by Category Section */}
-         <section className="space-y-8">
-            <div className="relative text-center md:text-left">
-              <h2 className="text-3xl font-bold font-headline text-center">Browse by Category</h2>
-              <div className="absolute top-1/2 right-0 -translate-y-1/2 hidden md:block">
-                <Button variant="outline" asChild>
-                    <Link href="/products">
-                        View All Categories <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                </Button>
-              </div>
+      {/* Browse by Category Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <div className="relative text-center md:text-left">
+            <h2 className="text-3xl font-bold font-headline text-center">Browse by Category</h2>
+            <div className="absolute top-1/2 right-0 -translate-y-1/2 hidden md:block">
+              <Button variant="outline" asChild>
+                  <Link href="/products">
+                      View All Categories <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+              </Button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {loading ? (
-                Array.from({ length: 3 }).map((_, i) => (
-                    <Skeleton key={i} className="aspect-[3/4] w-full rounded-xl" />
-                ))
-                ) : (
-                featuredCategories.map((category: Category) => (
-                    <CategoryCard key={category.id} category={category} />
-                ))
-                )}
-            </div>
-             <div className="text-center md:hidden">
-                <Button asChild>
-                    <Link href="/products">
-                        View All Categories <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                </Button>
-            </div>
-        </section>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {loading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="aspect-[3/4] w-full rounded-xl" />
+              ))
+              ) : (
+              featuredCategories.map((category: Category) => (
+                  <CategoryCard key={category.id} category={category} />
+              ))
+              )}
+          </div>
+            <div className="text-center md:hidden">
+              <Button asChild>
+                  <Link href="/products">
+                      View All Categories <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+              </Button>
+          </div>
+        </div>
+      </section>
 
-        <Separator />
-
-        {/* Our Products Section */}
-        <section className="space-y-8">
+      {/* Our Products Section */}
+      <section className="bg-card py-16 -mt-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
             <div className="text-center">
                 <h2 className="text-3xl font-bold font-headline">Our Products</h2>
             </div>
@@ -258,7 +257,7 @@ export default function Home() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
-                 <div className="flex items-center gap-2 pb-2 justify-center">
+                  <div className="flex items-center gap-2 pb-2 justify-center">
                     <Button
                         variant={!selectedCategory ? 'default' : 'outline'}
                         onClick={() => setSelectedCategory(null)}
@@ -303,68 +302,66 @@ export default function Home() {
                     </Link>
                 </Button>
             </div>
-        </section>
-      </div>
+          </div>
+      </section>
 
-        {/* Features Section */}
-        <section className="bg-card py-16">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <FeatureCard icon={<Package size={24} />} title="Products Live" value="120+" />
-                  <FeatureCard icon={<ShoppingCart size={24} />} title="Transactions Completed" value="15k+" />
-                  <FeatureCard icon={<LifeBuoy size={24} />} title="Dedicated Support" value="24/7" />
-              </div>
-            </div>
-        </section>
-        
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-24 -mt-24">
-        {/* Reviews Section */}
-        <section className="space-y-8">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold font-headline">What Our Customers Say</h2>
-              <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Real reviews from our awesome community of gamers and digital enthusiasts.</p>
-            </div>
-            
-            {loading ? (
-                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                        <Skeleton key={i} className="h-80 w-full rounded-xl" />
-                    ))}
-                 </div>
-            ) : (
-                <Carousel
-                    opts={{
-                        align: "start",
-                        loop: true,
-                    }}
-                    className="w-full max-w-5xl mx-auto"
-                >
-                    <CarouselContent>
-                        {reviews.map((review) => (
-                        <CarouselItem key={review.id} className="md:basis-1/2 lg:basis-1/3">
-                            <div className="p-1 h-full">
-                                <ReviewCard review={review} />
-                            </div>
-                        </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="hidden lg:flex" />
-                    <CarouselNext className="hidden lg:flex" />
-                </Carousel>
-            )}
+      {/* Features Section */}
+      <section className="bg-background py-16 -mt-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <FeatureCard icon={<Package size={24} />} title="Products Live" value="120+" />
+              <FeatureCard icon={<ShoppingCart size={24} />} title="Transactions Completed" value="15k+" />
+              <FeatureCard icon={<LifeBuoy size={24} />} title="Dedicated Support" value="24/7" />
+          </div>
+        </div>
+      </section>
+      
+      {/* Reviews Section */}
+      <section className="bg-card py-16 -mt-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold font-headline">What Our Customers Say</h2>
+            <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Real reviews from our awesome community of gamers and digital enthusiasts.</p>
+          </div>
+          
+          {loading ? (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                      <Skeleton key={i} className="h-80 w-full rounded-xl" />
+                  ))}
+                </div>
+          ) : (
+              <Carousel
+                  opts={{
+                      align: "start",
+                      loop: true,
+                  }}
+                  className="w-full max-w-5xl mx-auto"
+              >
+                  <CarouselContent>
+                      {reviews.map((review) => (
+                      <CarouselItem key={review.id} className="md:basis-1/2 lg:basis-1/3">
+                          <div className="p-1 h-full">
+                              <ReviewCard review={review} />
+                          </div>
+                      </CarouselItem>
+                      ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="hidden lg:flex" />
+                  <CarouselNext className="hidden lg:flex" />
+              </Carousel>
+          )}
 
-            <div className="text-center pt-4">
-                <Button asChild>
-                    <Link href="/reviews">
-                        <MessageSquare className="mr-2" />
-                        Leave a Review
-                    </Link>
-                </Button>
-            </div>
-        </section>
-      </div>
+          <div className="text-center pt-4">
+              <Button asChild>
+                  <Link href="/reviews">
+                      <MessageSquare className="mr-2" />
+                      Leave a Review
+                  </Link>
+              </Button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
-
-    
