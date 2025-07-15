@@ -91,7 +91,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-neutral-900/30 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-border/10 bg-slate-900/50 backdrop-blur-sm">
       <div className="flex h-14 items-center px-4 md:px-6 lg:px-8">
         <div className="mr-4 flex items-center">
           <Link href="/" className="flex items-center space-x-2">
