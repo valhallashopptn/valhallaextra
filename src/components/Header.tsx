@@ -105,7 +105,11 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
               <span className="sr-only">Open Menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-3/4 bg-background/95 backdrop-blur-sm">
+          <SheetContent 
+            side="left" 
+            className="w-3/4 bg-background/95 backdrop-blur-sm"
+            onOpenAutoFocus={(e) => e.preventDefault()}
+          >
             <SheetHeader>
                 <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
             </SheetHeader>
