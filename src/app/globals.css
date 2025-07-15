@@ -66,6 +66,19 @@ body {
   }
 }
 
+@layer utilities {
+  @keyframes pulse-glow {
+    0%, 100% {
+      transform: scale(1);
+      filter: drop-shadow(0 0 4px hsl(var(--primary) / 0.5));
+    }
+    50% {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 10px hsl(var(--primary) / 0.8));
+    }
+  }
+}
+
 @layer components {
   .admin-sidebar-menu-item {
     @apply relative overflow-hidden;
@@ -104,5 +117,9 @@ body {
 
   .flip-card-back {
     transform: rotateY(180deg);
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 3s infinite ease-in-out;
   }
 }
