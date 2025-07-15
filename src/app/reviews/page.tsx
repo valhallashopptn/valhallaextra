@@ -29,6 +29,20 @@ function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md
   );
 }
 
+function AverageRatingDisplay({ rating, count }: { rating: number, count: number }) {
+  return (
+    <div className="inline-flex items-center gap-3 rounded-full bg-muted px-4 py-2">
+      <div className="flex items-center gap-1">
+        {[...Array(5)].map((_, i) => (
+          <Star key={i} className={cn('h-5 w-5', i < Math.round(rating) ? 'text-primary fill-current' : 'text-muted-foreground/50')} />
+        ))}
+      </div>
+      <span className="text-lg font-bold">{rating.toFixed(1)}</span>
+      <span className="text-muted-foreground">from {count} reviews</span>
+    </div>
+  )
+}
+
 export default function ReviewsPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -73,14 +87,10 @@ export default function ReviewsPage() {
           See what our community is saying about their experience.
         </p>
         {loading ? (
-             <Skeleton className="h-10 w-64 mx-auto mt-6" />
+             <Skeleton className="h-12 w-80 mx-auto mt-6" />
         ) : (
             <div className="mt-6 flex flex-col items-center gap-4">
-                 <div className="flex items-center gap-2 bg-muted p-2 px-4 rounded-full">
-                    <StarRating rating={averageRating} size="lg" />
-                    <span className="text-xl font-bold">{averageRating.toFixed(1)}</span>
-                    <span className="text-muted-foreground">from {reviews.length} reviews</span>
-                </div>
+                 <AverageRatingDisplay rating={averageRating} count={reviews.length} />
                 <Button asChild>
                     <Link href="/products">
                         <MessageSquare className="mr-2 h-4 w-4" />
