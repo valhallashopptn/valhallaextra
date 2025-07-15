@@ -1,13 +1,14 @@
+
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { getProductById } from '@/services/productService';
 import { getReviewsForProduct, addReview } from '@/services/reviewService';
 import type { Product, Review } from '@/lib/types';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
