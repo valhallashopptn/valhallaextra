@@ -64,32 +64,30 @@ export default function Home() {
     <div className="space-y-12">
       <div className="text-center">
         <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
-          Welcome to ApexTop
+          Welcome to TopUp Hub
         </h1>
         <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl">
           Your one-stop shop for instant game top-ups. Fast, secure, and reliable.
         </p>
       </div>
 
-       <Card>
-        <CardHeader>
-            <CardTitle>Browse by Category</CardTitle>
-            <CardDescription>Select a category to find your favorite game top-ups.</CardDescription>
-        </CardHeader>
-        <CardContent>
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 h-[250px]">
-                {loading ? (
-                Array.from({ length: 3 }).map((_, i) => (
-                    <Skeleton key={i} className="h-full w-full rounded-xl" />
-                ))
-                ) : (
-                categories.map((category: Category) => (
-                    <CategoryCard key={category.id} category={category} />
-                ))
-                )}
-            </div>
-        </CardContent>
-       </Card>
+       <div className="space-y-6">
+        <div className="text-center">
+            <h2 className="text-3xl font-bold font-headline">Browse by Category</h2>
+            <p className="text-muted-foreground mt-2">Select a category to find your favorite game top-ups.</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 h-[250px]">
+            {loading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-full w-full rounded-xl" />
+            ))
+            ) : (
+            categories.map((category: Category) => (
+                <CategoryCard key={category.id} category={category} />
+            ))
+            )}
+        </div>
+       </div>
     </div>
   );
 }
