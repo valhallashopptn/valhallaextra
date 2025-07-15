@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, Gamepad2, ShieldCheck, Search } from 'lucide-react';
+import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, Gamepad2, ShieldCheck, Search, MessageSquare } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -98,6 +98,9 @@ export function Header() {
            <nav className="hidden md:flex items-center gap-4 ml-6">
             <Link href="/products" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
                 Products
+            </Link>
+             <Link href="/reviews" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
+                Reviews
             </Link>
             </nav>
         </div>

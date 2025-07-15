@@ -1,3 +1,4 @@
+
 import { db } from '@/lib/firebase';
 import type { Review } from '@/lib/types';
 import {
@@ -22,6 +23,13 @@ export const getReviewsForProduct = async (productId: string): Promise<Review[]>
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Review[];
 };
+
+// Get all reviews
+export const getAllReviews = async (): Promise<Review[]> => {
+    const q = query(reviewsCollectionRef, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({...doc.data(), id: doc.id})) as Review[];
+}
 
 // Add a new review for a product
 export const addReview = async (
