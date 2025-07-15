@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LeaveReviewDialog } from './LeaveReviewDialog';
 import Image from 'next/image';
+import { PageWrapper } from '@/components/PageWrapper';
 
 function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md' | 'lg' }) {
   const starClasses = size === 'sm' ? 'h-4 w-4' : size === 'md' ? 'h-5 w-5' : 'h-6 w-6';
@@ -76,70 +77,74 @@ export default function ReviewsPage() {
   return (
     <div className="space-y-12">
       <div className="bg-muted py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
-            Customer Reviews
-            </h1>
-            <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground">
-            See what our community is saying about their experience.
-            </p>
-            {loading ? (
-                <Skeleton className="h-12 w-80 mx-auto" />
-            ) : (
-                <div className="flex flex-col items-center gap-4">
-                    <AverageRatingDisplay rating={averageRating} count={reviews.length} />
-                    <LeaveReviewDialog onReviewSubmitted={onReviewSubmitted} />
-                </div>
-            )}
-        </div>
+        <PageWrapper>
+          <div className="space-y-6 text-center">
+              <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
+              Customer Reviews
+              </h1>
+              <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground">
+              See what our community is saying about their experience.
+              </p>
+              {loading ? (
+                  <Skeleton className="h-12 w-80 mx-auto" />
+              ) : (
+                  <div className="flex flex-col items-center gap-4">
+                      <AverageRatingDisplay rating={averageRating} count={reviews.length} />
+                      <LeaveReviewDialog onReviewSubmitted={onReviewSubmitted} />
+                  </div>
+              )}
+          </div>
+        </PageWrapper>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {loading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i}>
-                    <CardContent className="p-6 space-y-4">
-                        <div className="flex items-center gap-4">
-                            <Skeleton className="h-12 w-12 rounded-full" />
-                            <div className="space-y-2">
-                                <Skeleton className="h-4 w-32" />
-                                <Skeleton className="h-4 w-24" />
-                            </div>
+      <PageWrapper>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {loading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                  <Card key={i}>
+                      <CardContent className="p-6 space-y-4">
+                          <div className="flex items-center gap-4">
+                              <Skeleton className="h-12 w-12 rounded-full" />
+                              <div className="space-y-2">
+                                  <Skeleton className="h-4 w-32" />
+                                  <Skeleton className="h-4 w-24" />
+                              </div>
+                          </div>
+                          <Skeleton className="h-16 w-full" />
+                          <Skeleton className="h-8 w-40" />
+                      </CardContent>
+                  </Card>
+              ))
+          ) : (
+              reviews.map(review => (
+              <Card key={review.id} className="flex flex-col">
+                  <CardContent className="p-6 flex flex-col flex-grow">
+                    <div className="flex items-center gap-4">
+                        <Avatar className="h-12 w-12">
+                            <AvatarFallback>{review.userEmail.charAt(0).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <p className="font-semibold text-lg">{review.userEmail.split('@')[0]}</p>
+                            <StarRating rating={review.rating} size="sm" />
                         </div>
-                        <Skeleton className="h-16 w-full" />
-                        <Skeleton className="h-8 w-40" />
-                    </CardContent>
-                </Card>
-            ))
-        ) : (
-            reviews.map(review => (
-            <Card key={review.id} className="flex flex-col">
-                <CardContent className="p-6 flex flex-col flex-grow">
-                  <div className="flex items-center gap-4">
-                      <Avatar className="h-12 w-12">
-                          <AvatarFallback>{review.userEmail.charAt(0).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                          <p className="font-semibold text-lg">{review.userEmail.split('@')[0]}</p>
-                          <StarRating rating={review.rating} size="sm" />
-                      </div>
-                  </div>
-                  <blockquote className="mt-4 text-muted-foreground flex-grow">
-                      &quot;{review.comment}&quot;
-                  </blockquote>
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <Link href={`/product/${review.productId}`} className="flex items-center gap-2 group">
-                      <Image src={review.productImage || 'https://placehold.co/32x32.png'} alt={review.productName || 'Product image'} width={32} height={32} className="rounded-sm object-cover" />
-                      <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
-                        Review for: {review.productName}
-                      </span>
-                    </Link>
-                  </div>
-                </CardContent>
-            </Card>
-            ))
-        )}
-      </div>
+                    </div>
+                    <blockquote className="mt-4 text-muted-foreground flex-grow">
+                        &quot;{review.comment}&quot;
+                    </blockquote>
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <Link href={`/product/${review.productId}`} className="flex items-center gap-2 group">
+                        <Image src={review.productImage || 'https://placehold.co/32x32.png'} alt={review.productName || 'Product image'} width={32} height={32} className="rounded-sm object-cover" />
+                        <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
+                          Review for: {review.productName}
+                        </span>
+                      </Link>
+                    </div>
+                  </CardContent>
+              </Card>
+              ))
+          )}
+        </div>
+      </PageWrapper>
     </div>
   );
 }

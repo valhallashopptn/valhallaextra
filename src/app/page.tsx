@@ -138,7 +138,7 @@ export default function Home() {
       </div>
       
       {/* Main Content Sections */}
-      <div className="space-y-16 md:space-y-24 container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16 md:space-y-24">
          {/* Browse by Category Section */}
          <div className="space-y-6">
             <div className="text-center space-y-2">

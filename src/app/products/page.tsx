@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { PageWrapper } from '@/components/PageWrapper';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -44,56 +45,58 @@ export default function ProductsPage() {
   }, [products, selectedCategory]);
 
   return (
-    <div className="space-y-8 container mx-auto px-4 py-8">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
-          Game Top-Ups
-        </h1>
-        <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl">
-          Instantly top up your favorite games. Fast, secure, and reliable service.
-        </p>
-      </div>
-      
-       <ScrollArea className="w-full whitespace-nowrap rounded-md">
-        <div className="flex w-max space-x-2 pb-4 justify-center">
-          <Button
-              variant={!selectedCategory ? 'default' : 'outline'}
-              onClick={() => setSelectedCategory(null)}
-              className="rounded-full"
-            >
-              All
-            </Button>
-          {categories.map(category => (
-            <Button
-              key={category.id}
-              variant={selectedCategory === category.id ? 'default' : 'outline'}
-              onClick={() => setSelectedCategory(category.id)}
-              className="rounded-full"
-            >
-              {category.name}
-            </Button>
-          ))}
+    <PageWrapper>
+      <div className="space-y-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
+            Game Top-Ups
+          </h1>
+          <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl">
+            Instantly top up your favorite games. Fast, secure, and reliable service.
+          </p>
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+        
+        <ScrollArea className="w-full whitespace-nowrap rounded-md">
+          <div className="flex w-max space-x-2 pb-4 justify-center">
+            <Button
+                variant={!selectedCategory ? 'default' : 'outline'}
+                onClick={() => setSelectedCategory(null)}
+                className="rounded-full"
+              >
+                All
+              </Button>
+            {categories.map(category => (
+              <Button
+                key={category.id}
+                variant={selectedCategory === category.id ? 'default' : 'outline'}
+                onClick={() => setSelectedCategory(category.id)}
+                className="rounded-full"
+              >
+                {category.name}
+              </Button>
+            ))}
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {loading ? (
-          Array.from({ length: 8 }).map((_, i) => (
-             <div key={i} className="flex flex-col space-y-3">
-              <Skeleton className="h-[175px] w-full rounded-xl" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-[200px]" />
-                <Skeleton className="h-4 w-[150px]" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {loading ? (
+            Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="flex flex-col space-y-3">
+                <Skeleton className="h-[175px] w-full rounded-xl" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-[200px]" />
+                  <Skeleton className="h-4 w-[150px]" />
+                </div>
               </div>
-            </div>
-          ))
-        ) : (
-          filteredProducts.map((product: Product) => (
-            <ProductCard key={product.id} product={product} />
-          ))
-        )}
+            ))
+          ) : (
+            filteredProducts.map((product: Product) => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          )}
+        </div>
       </div>
-    </div>
+    </PageWrapper>
   );
 }

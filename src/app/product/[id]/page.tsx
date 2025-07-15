@@ -19,6 +19,7 @@ import { ReviewForm } from './ReviewForm';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { PageWrapper } from '@/components/PageWrapper';
 
 function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md' }) {
   const starClasses = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
@@ -109,117 +110,123 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto container px-4 py-8">
-        <Skeleton className="aspect-video rounded-xl" />
-        <div className="space-y-6">
-          <Skeleton className="h-8 w-3/4" />
-          <Skeleton className="h-6 w-1/2" />
-          <Skeleton className="h-10 w-1/4" />
-          <Skeleton className="h-12 w-48" />
+      <PageWrapper>
+        <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+          <Skeleton className="aspect-video rounded-xl" />
+          <div className="space-y-6">
+            <Skeleton className="h-8 w-3/4" />
+            <Skeleton className="h-6 w-1/2" />
+            <Skeleton className="h-10 w-1/4" />
+            <Skeleton className="h-12 w-48" />
+          </div>
         </div>
-      </div>
+      </PageWrapper>
     );
   }
 
   if (!product) {
     return (
-      <div className="text-center py-20">
-        <h2 className="text-2xl font-semibold">Product not found</h2>
-        <p className="mt-2 text-muted-foreground">The product you are looking for does not exist.</p>
-        <Button asChild className="mt-6">
-          <Link href="/">Back to Shop</Link>
-        </Button>
-      </div>
+      <PageWrapper>
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold">Product not found</h2>
+          <p className="mt-2 text-muted-foreground">The product you are looking for does not exist.</p>
+          <Button asChild className="mt-6">
+            <Link href="/">Back to Shop</Link>
+          </Button>
+        </div>
+      </PageWrapper>
     );
   }
 
   return (
-    <div className="space-y-12 container mx-auto px-4 py-8">
-      <Card className="overflow-hidden">
-          <div className="grid md:grid-cols-2">
-              <div className="aspect-video relative">
-                  <Image
-                  src={product.imageUrl}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                  data-ai-hint={product.dataAiHint}
-                  />
-              </div>
+    <PageWrapper>
+      <div className="space-y-12">
+        <Card className="overflow-hidden">
+            <div className="grid md:grid-cols-2">
+                <div className="aspect-video relative">
+                    <Image
+                    src={product.imageUrl}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                    data-ai-hint={product.dataAiHint}
+                    />
+                </div>
 
-              <div className="p-8 flex flex-col">
-                  <div className='flex-grow'>
-                      <p className="text-sm font-medium text-muted-foreground">{product.game}</p>
-                      <h1 className="text-4xl font-bold mt-2 font-headline">{product.name}</h1>
-                       <div className="mt-4 flex items-center gap-2">
-                          <StarRating rating={averageRating} />
-                          <span className="text-muted-foreground text-sm">({reviews.length} reviews)</span>
-                        </div>
-                      <p className="text-4xl font-bold text-primary mt-6">${product.price.toFixed(2)}</p>
-                  </div>
-                  
-                  <div className="mt-8">
-                      <Button onClick={handleAddToCart} disabled={isAdded} size="lg" className={cn("w-full md:w-auto transition-all", {
-                          'bg-green-600': isAdded,
-                      })}>
-                          {isAdded ? (
-                              <>
-                              <CheckCircle className="mr-2 h-5 w-5 animate-in fade-in" />
-                              Added to Cart
-                              </>
-                          ) : (
-                              <>
-                              <ShoppingCart className="mr-2 h-5 w-5" />
-                              Add to Cart
-                              </>
-                          )}
-                      </Button>
-                  </div>
-              </div>
-          </div>
-      </Card>
-
-      <Card>
-        <CardHeader>
-            <div className="flex justify-between items-start">
-                <div>
-                    <CardTitle>Customer Reviews</CardTitle>
-                    <div className="mt-2 flex items-center gap-2">
-                        <StarRating rating={averageRating} />
-                        <p className="text-muted-foreground">Based on {reviews.length} reviews</p>
+                <div className="p-8 flex flex-col">
+                    <div className='flex-grow'>
+                        <p className="text-sm font-medium text-muted-foreground">{product.game}</p>
+                        <h1 className="text-4xl font-bold mt-2 font-headline">{product.name}</h1>
+                        <div className="mt-4 flex items-center gap-2">
+                            <StarRating rating={averageRating} />
+                            <span className="text-muted-foreground text-sm">({reviews.length} reviews)</span>
+                          </div>
+                        <p className="text-4xl font-bold text-primary mt-6">${product.price.toFixed(2)}</p>
+                    </div>
+                    
+                    <div className="mt-8">
+                        <Button onClick={handleAddToCart} disabled={isAdded} size="lg" className={cn("w-full md:w-auto transition-all", {
+                            'bg-green-600': isAdded,
+                        })}>
+                            {isAdded ? (
+                                <>
+                                <CheckCircle className="mr-2 h-5 w-5 animate-in fade-in" />
+                                Added to Cart
+                                </>
+                            ) : (
+                                <>
+                                <ShoppingCart className="mr-2 h-5 w-5" />
+                                Add to Cart
+                                </>
+                            )}
+                        </Button>
                     </div>
                 </div>
-                <ReviewForm onSubmit={handleReviewSubmit} />
             </div>
-        </CardHeader>
-        <CardContent>
-            {reviews.length > 0 ? (
-                <div className="space-y-6">
-                    {reviews.map(review => (
-                        <div key={review.id} className="flex gap-4">
-                           <Avatar>
-                                <AvatarFallback>{review.userEmail.charAt(0).toUpperCase()}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                                <div className="flex items-center justify-between">
-                                    <p className="font-semibold">{review.userEmail}</p>
-                                    <span className="text-xs text-muted-foreground">{new Date(review.createdAt.toDate()).toLocaleDateString()}</span>
-                                </div>
-                                <StarRating rating={review.rating} size="sm" />
-                                <p className="mt-2 text-muted-foreground">{review.comment}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            ) : (
-                <div className="text-center text-muted-foreground py-8">
-                    <p>No reviews yet.</p>
-                    <p className="text-sm">Be the first to share your thoughts!</p>
-                </div>
-            )}
-        </CardContent>
-      </Card>
+        </Card>
 
-    </div>
+        <Card>
+          <CardHeader>
+              <div className="flex justify-between items-start">
+                  <div>
+                      <CardTitle>Customer Reviews</CardTitle>
+                      <div className="mt-2 flex items-center gap-2">
+                          <StarRating rating={averageRating} />
+                          <p className="text-muted-foreground">Based on {reviews.length} reviews</p>
+                      </div>
+                  </div>
+                  <ReviewForm onSubmit={handleReviewSubmit} />
+              </div>
+          </CardHeader>
+          <CardContent>
+              {reviews.length > 0 ? (
+                  <div className="space-y-6">
+                      {reviews.map(review => (
+                          <div key={review.id} className="flex gap-4">
+                            <Avatar>
+                                  <AvatarFallback>{review.userEmail.charAt(0).toUpperCase()}</AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1">
+                                  <div className="flex items-center justify-between">
+                                      <p className="font-semibold">{review.userEmail}</p>
+                                      <span className="text-xs text-muted-foreground">{new Date(review.createdAt.toDate()).toLocaleDateString()}</span>
+                                  </div>
+                                  <StarRating rating={review.rating} size="sm" />
+                                  <p className="mt-2 text-muted-foreground">{review.comment}</p>
+                              </div>
+                          </div>
+                      ))}
+                  </div>
+              ) : (
+                  <div className="text-center text-muted-foreground py-8">
+                      <p>No reviews yet.</p>
+                      <p className="text-sm">Be the first to share your thoughts!</p>
+                  </div>
+              )}
+          </CardContent>
+        </Card>
+
+      </div>
+    </PageWrapper>
   );
 }

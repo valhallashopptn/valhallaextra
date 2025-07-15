@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useCart } from '@/context/CartContext';
@@ -12,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { addOrder } from '@/services/orderService';
 import { useState } from 'react';
+import { PageWrapper } from '@/components/PageWrapper';
 
 export default function CartPage() {
   const { cartItems, removeFromCart, cartTotal, clearCart } = useCart();
@@ -69,63 +71,65 @@ export default function CartPage() {
   }
 
   return (
-    <div className="grid md:grid-cols-3 gap-8 container mx-auto px-4 py-8">
-      <div className="md:col-span-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Shopping Cart</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {cartItems.map(item => (
-                <div key={item.id} className="flex items-center space-x-4">
-                  <Image src={item.imageUrl} alt={item.name} width={80} height={80} className="rounded-md object-cover" data-ai-hint={item.dataAiHint} />
-                  <div className="flex-grow">
-                    <p className="font-semibold">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">{item.game}</p>
-                    <p className="text-sm text-primary font-bold">${item.price.toFixed(2)}</p>
+    <PageWrapper>
+      <div className="grid md:grid-cols-3 gap-8">
+        <div className="md:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Shopping Cart</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {cartItems.map(item => (
+                  <div key={item.id} className="flex items-center space-x-4">
+                    <Image src={item.imageUrl} alt={item.name} width={80} height={80} className="rounded-md object-cover" data-ai-hint={item.dataAiHint} />
+                    <div className="flex-grow">
+                      <p className="font-semibold">{item.name}</p>
+                      <p className="text-sm text-muted-foreground">{item.game}</p>
+                      <p className="text-sm text-primary font-bold">${item.price.toFixed(2)}</p>
+                    </div>
+                    <div className="text-right">
+                      <p>Qty: {item.quantity}</p>
+                      <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
                   </div>
-                  <div className="text-right">
-                     <p>Qty: {item.quantity}</p>
-                     <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-      <div>
-        <Card>
-          <CardHeader>
-            <CardTitle>Order Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span>${cartTotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Taxes</span>
-              <span>Calculated at checkout</span>
-            </div>
-            <Separator />
-            <div className="flex justify-between font-bold text-lg">
-              <span>Total</span>
-              <span className='text-primary'>${cartTotal.toFixed(2)}</span>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full" onClick={handleCheckout} disabled={isPlacingOrder}>
-              {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
-            </Button>
-          </CardFooter>
-        </Card>
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Order Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span>${cartTotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Taxes</span>
+                <span>Calculated at checkout</span>
+              </div>
+              <Separator />
+              <div className="flex justify-between font-bold text-lg">
+                <span>Total</span>
+                <span className='text-primary'>${cartTotal.toFixed(2)}</span>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button className="w-full" onClick={handleCheckout} disabled={isPlacingOrder}>
+                {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
       </div>
-    </div>
+    </PageWrapper>
   );
 }
