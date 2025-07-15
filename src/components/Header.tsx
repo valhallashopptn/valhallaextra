@@ -18,12 +18,56 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Input } from './ui/input';
-
+import { useEffect, useState, useRef } from 'react';
+import { getProducts } from '@/services/productService';
+import type { Product } from '@/lib/types';
+import Image from 'next/image';
 
 export function Header() {
   const { cartCount } = useCart();
   const { user, logOut } = useAuth();
   const router = useRouter();
+
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      const products = await getProducts();
+      setAllProducts(products);
+    };
+    fetchAllProducts();
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery.length > 1) {
+      const filtered = allProducts.filter(p => 
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.game.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setSearchResults(filtered);
+      setIsSearchOpen(true);
+    } else {
+      setSearchResults([]);
+      setIsSearchOpen(false);
+    }
+  }, [searchQuery, allProducts]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
 
   const handleLogout = async () => {
     try {
@@ -35,6 +79,11 @@ export function Header() {
   };
 
   const isAdmin = user?.email === 'admin@example.com';
+
+  const handleSearchResultClick = () => {
+    setSearchQuery('');
+    setIsSearchOpen(false);
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -57,7 +106,7 @@ export function Header() {
         </div>
         
         <div className="flex flex-1 items-center justify-end space-x-2 md:space-x-4">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
+          <div className="w-full flex-1 md:w-auto md:flex-none" ref={searchRef}>
             <form>
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -65,7 +114,29 @@ export function Header() {
                   type="search"
                   placeholder="Search products..."
                   className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => { if(searchQuery) setIsSearchOpen(true)}}
                 />
+                 {isSearchOpen && searchResults.length > 0 && (
+                  <div className="absolute top-full mt-2 w-full rounded-md border bg-card text-card-foreground shadow-lg z-50 max-h-96 overflow-y-auto">
+                    <ul>
+                      {searchResults.map(product => (
+                        <li key={product.id}>
+                          <Link href={`/product/${product.id}`} className="block hover:bg-muted" onClick={handleSearchResultClick}>
+                            <div className="flex items-center gap-4 p-2">
+                               <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="rounded-md object-cover" />
+                               <div>
+                                 <p className="text-sm font-medium">{product.name}</p>
+                                 <p className="text-xs text-muted-foreground">{product.game}</p>
+                               </div>
+                            </div>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </form>
           </div>
