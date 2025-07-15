@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/sidebar';
 import { LayoutDashboard, ShoppingCart, Package, PanelLeft, Tag } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
 
 const ADMIN_EMAIL = 'admin@example.com';
 
@@ -48,10 +48,8 @@ export default function AdminLayout({
         <Sidebar>
             <SidebarHeader className="md:hidden flex justify-between p-2">
                  <span className="text-lg font-semibold">Admin Menu</span>
-                 <SidebarTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                        <PanelLeft />
-                    </Button>
+                 <SidebarTrigger>
+                    <PanelLeft />
                  </SidebarTrigger>
             </SidebarHeader>
             <SidebarHeader className="hidden md:flex">
@@ -101,6 +99,7 @@ export default function AdminLayout({
             <div className="p-4 md:p-8">{children}</div>
         </SidebarInset>
         </SidebarProvider>
+         <MobileBottomNav />
     </div>
   );
 }
