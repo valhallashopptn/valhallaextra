@@ -15,7 +15,7 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, ShoppingCart, Package, PanelLeft, Tag } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, PanelLeft, Tag, Palette } from 'lucide-react';
 import Link from 'next/link';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 
@@ -65,6 +65,14 @@ export default function AdminLayout({
                     <Link href="/admin">
                     <LayoutDashboard />
                     Dashboard
+                    </Link>
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+                 <SidebarMenuItem className="admin-sidebar-menu-item">
+                <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/appearance')}>
+                    <Link href="/admin/appearance">
+                    <Palette />
+                    Appearance
                     </Link>
                 </SidebarMenuButton>
                 </SidebarMenuItem>

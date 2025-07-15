@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { getSetting } from '@/services/settingsService';
 
 function CategoryCard({ category }: { category: Category }) {
   return (
@@ -64,6 +65,7 @@ function CategoryCard({ category }: { category: Category }) {
 export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [heroImageUrl, setHeroImageUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -71,12 +73,14 @@ export default function Home() {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const [categoriesFromDb, productsFromDb] = await Promise.all([
+        const [categoriesFromDb, productsFromDb, heroUrl] = await Promise.all([
             getCategories(),
-            getProducts()
+            getProducts(),
+            getSetting('heroImageUrl', 'https://placehold.co/1920x1080.png?text=TopUp+Hub')
         ]);
         setCategories(categoriesFromDb);
         setProducts(productsFromDb);
+        setHeroImageUrl(heroUrl);
       } catch (error) {
         console.error("Failed to fetch data:", error);
       } finally {
@@ -104,19 +108,34 @@ export default function Home() {
   return (
     <div className="space-y-16 md:space-y-24">
       {/* Hero Section */}
-      <Card className="bg-muted border-none rounded-lg">
-        <CardContent className="py-20 md:py-32 text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl font-headline">
-                Your Digital Marketplace
-            </h1>
-            <p className="mt-3 text-lg text-muted-foreground sm:text-xl max-w-2xl mx-auto">
-                Instant top-ups for your favorite games and digital products. Quick, secure, and reliable service at your fingertips.
-            </p>
-            <Button asChild size="lg" className="mt-8">
-                <Link href="/products">Browse Products</Link>
-            </Button>
-        </CardContent>
-      </Card>
+      <div className="relative h-[400px] md:h-[500px] rounded-lg overflow-hidden">
+        {loading ? (
+          <Skeleton className="h-full w-full" />
+        ) : (
+          <>
+            <Image 
+              src={heroImageUrl}
+              alt="Digital Marketplace"
+              fill
+              className="object-cover"
+              data-ai-hint="dark abstract background"
+              priority
+            />
+            <div className="absolute inset-0 bg-black/60"></div>
+            <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-4">
+              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl font-headline">
+                  Your Digital Marketplace
+              </h1>
+              <p className="mt-3 text-lg text-white/80 sm:text-xl max-w-2xl mx-auto">
+                  Instant top-ups for your favorite games and digital products. Quick, secure, and reliable service at your fingertips.
+              </p>
+              <Button asChild size="lg" className="mt-8">
+                  <Link href="/products">Browse Products</Link>
+              </Button>
+            </div>
+          </>
+        )}
+      </div>
       
       {/* Main Content Sections */}
       <div className="space-y-16 md:space-y-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
