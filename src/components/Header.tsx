@@ -164,6 +164,13 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
 
                 <nav className="flex flex-col gap-4 mt-2">
                     <Link 
+                    href="/" 
+                    className="text-lg font-medium text-foreground transition-colors hover:text-primary"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                        Home
+                    </Link>
+                    <Link 
                     href="/products" 
                     className="text-lg font-medium text-foreground transition-colors hover:text-primary"
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -209,6 +216,9 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
             </span>
           </Link>
            <nav className="hidden md:flex items-center gap-4 ml-6">
+            <Link href="/" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
+                Home
+            </Link>
             <Link href="/products" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
                 Products
             </Link>
