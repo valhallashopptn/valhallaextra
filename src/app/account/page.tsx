@@ -41,11 +41,11 @@ export default function AccountPage() {
   }, [user]);
 
   if (loading || !user) {
-    return <div className="text-center">Loading account details...</div>;
+    return <div className="text-center container mx-auto px-4 py-8">Loading account details...</div>;
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 container mx-auto px-4 py-8">
       <div>
         <h1 className="text-3xl font-bold font-headline">My Account</h1>
         <p className="text-muted-foreground">Manage your account and view your order history.</p>

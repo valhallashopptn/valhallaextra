@@ -44,7 +44,7 @@ export default function ProductsPage() {
   }, [products, selectedCategory]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 container mx-auto px-4 py-8">
       <div className="text-center">
         <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
           Game Top-Ups

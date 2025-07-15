@@ -83,11 +83,14 @@ export default function ProductDetailPage() {
     }
     
     try {
-        await addReview(product.id, {
+        await addReview({
             userId: user.uid,
             userEmail: user.email || 'Anonymous',
             rating,
             comment,
+            productId: product.id,
+            productName: product.name,
+            productImage: product.imageUrl,
         });
         const updatedReviews = await getReviewsForProduct(product.id);
         setReviews(updatedReviews);
@@ -106,7 +109,7 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+      <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto container px-4 py-8">
         <Skeleton className="aspect-video rounded-xl" />
         <div className="space-y-6">
           <Skeleton className="h-8 w-3/4" />
@@ -131,7 +134,7 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-12 container mx-auto px-4 py-8">
       <Card className="overflow-hidden">
           <div className="grid md:grid-cols-2">
               <div className="aspect-video relative">

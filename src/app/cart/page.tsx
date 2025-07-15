@@ -69,7 +69,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="grid md:grid-cols-3 gap-8">
+    <div className="grid md:grid-cols-3 gap-8 container mx-auto px-4 py-8">
       <div className="md:col-span-2">
         <Card>
           <CardHeader>

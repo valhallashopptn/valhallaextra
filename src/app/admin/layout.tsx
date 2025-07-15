@@ -40,11 +40,11 @@ export default function AdminLayout({
   }, [user, loading, router]);
 
   if (loading || !user || user.email !== ADMIN_EMAIL) {
-    return <div className="text-center">Loading and verifying admin access...</div>;
+    return <div className="text-center container mx-auto px-4 py-8">Loading and verifying admin access...</div>;
   }
 
   return (
-    <div className="pt-14">
+    <div className="pt-14 md:pt-0">
         <SidebarProvider>
         <Sidebar>
             <SidebarHeader className="md:hidden flex justify-between p-2">

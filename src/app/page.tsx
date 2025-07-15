@@ -108,7 +108,7 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <div className="relative h-[400px] md:h-[500px] overflow-hidden -mt-8">
+      <div className="relative h-[400px] md:h-[500px] overflow-hidden">
         {loading ? (
           <Skeleton className="h-full w-full" />
         ) : (
@@ -138,7 +138,7 @@ export default function Home() {
       </div>
       
       {/* Main Content Sections */}
-      <div className="space-y-16 md:space-y-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="space-y-16 md:space-y-24 container mx-auto px-4 sm:px-6 lg:px-8 py-16">
          {/* Browse by Category Section */}
          <div className="space-y-6">
             <div className="text-center space-y-2">
