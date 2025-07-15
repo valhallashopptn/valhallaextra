@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Search, Package, ShoppingCart, LifeBuoy, Star } from 'lucide-react';
+import { ArrowRight, Search, Package, ShoppingCart, LifeBuoy, Star, MessageSquare } from 'lucide-react';
 import { getProducts } from '@/services/productService';
 import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
@@ -17,7 +17,16 @@ import { cn } from '@/lib/utils';
 import { getSetting } from '@/services/settingsService';
 import { Separator } from '@/components/ui/separator';
 import { getAllReviews } from '@/services/reviewService';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
+import { Badge } from '@/components/ui/badge';
+
 
 function CategoryCard({ category }: { category: Category }) {
   return (
@@ -84,7 +93,7 @@ function FeatureCard({ icon, title, value }: { icon: React.ReactNode, title: str
 function StarRating({ rating, size = 'sm' }: { rating: number, size?: 'sm' | 'md' }) {
   const starClasses = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1 justify-center">
       {[...Array(5)].map((_, i) => (
         <Star
           key={i}
@@ -98,27 +107,21 @@ function StarRating({ rating, size = 'sm' }: { rating: number, size?: 'sm' | 'md
 
 function ReviewCard({ review }: { review: Review }) {
     return (
-        <Card className="flex flex-col">
-            <CardContent className="p-6 flex flex-col flex-grow">
-                <div className="flex items-center gap-4">
-                    <Avatar className="h-12 w-12">
-                        <AvatarFallback>{review.userEmail.charAt(0).toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                        <p className="font-semibold text-lg">{review.userEmail.split('@')[0]}</p>
-                        <StarRating rating={review.rating} size="sm" />
-                    </div>
+        <Card className="flex flex-col text-center h-full">
+            <CardContent className="p-8 flex flex-col flex-grow items-center">
+                <Avatar className="h-24 w-24 mb-4">
+                    <AvatarImage src={`https://i.pravatar.cc/150?u=${review.userId}`} />
+                    <AvatarFallback>{review.userEmail.charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <h4 className="text-xl font-bold font-headline">{review.userEmail.split('@')[0]}</h4>
+                <div className="my-2">
+                    <StarRating rating={review.rating} size="md" />
                 </div>
-                <blockquote className="mt-4 text-muted-foreground flex-grow">
+                <blockquote className="mt-4 text-muted-foreground flex-grow text-center max-w-sm mx-auto">
                     &quot;{review.comment}&quot;
                 </blockquote>
-                <div className="mt-4 pt-4 border-t border-border">
-                    <Link href={`/product/${review.productId}`} className="flex items-center gap-2 group">
-                        <Image src={review.productImage || 'https://placehold.co/32x32.png'} alt={review.productName || 'Product image'} width={32} height={32} className="rounded-sm object-cover" />
-                        <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
-                            Review for: {review.productName}
-                        </span>
-                    </Link>
+                <div className="mt-6">
+                    <Badge variant="secondary">For: {review.productName}</Badge>
                 </div>
             </CardContent>
         </Card>
@@ -158,7 +161,6 @@ export default function Home() {
   }, []);
 
   const featuredCategories = useMemo(() => categories.slice(0, 3), [categories]);
-  const featuredReviews = useMemo(() => reviews.slice(0, 3), [reviews]);
 
   const filteredProducts = useMemo(() => {
     let prods = products;
@@ -309,29 +311,51 @@ export default function Home() {
         
         {/* Reviews Section */}
         <section className="space-y-8">
-            <div className="relative text-center">
+            <div className="text-center">
               <h2 className="text-3xl font-bold font-headline">What Our Customers Say</h2>
-               <div className="absolute top-1/2 right-0 -translate-y-1/2">
-                <Button variant="outline" asChild>
+              <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Real reviews from our awesome community of gamers and digital enthusiasts.</p>
+            </div>
+            
+            {loading ? (
+                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <Skeleton key={i} className="h-80 w-full rounded-xl" />
+                    ))}
+                 </div>
+            ) : (
+                <Carousel
+                    opts={{
+                        align: "start",
+                        loop: true,
+                    }}
+                    className="w-full max-w-5xl mx-auto"
+                >
+                    <CarouselContent>
+                        {reviews.map((review) => (
+                        <CarouselItem key={review.id} className="md:basis-1/2 lg:basis-1/3">
+                            <div className="p-1 h-full">
+                                <ReviewCard review={review} />
+                            </div>
+                        </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="hidden lg:flex" />
+                    <CarouselNext className="hidden lg:flex" />
+                </Carousel>
+            )}
+
+            <div className="text-center pt-4">
+                <Button asChild>
                     <Link href="/reviews">
-                        Read All Reviews <ArrowRight className="ml-2 h-4 w-4" />
+                        <MessageSquare className="mr-2" />
+                        Leave a Review
                     </Link>
                 </Button>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {loading ? (
-                Array.from({ length: 3 }).map((_, i) => (
-                    <Skeleton key={i} className="h-64 w-full rounded-xl" />
-                ))
-                ) : (
-                featuredReviews.map((review: Review) => (
-                    <ReviewCard key={review.id} review={review} />
-                ))
-                )}
             </div>
         </section>
       </div>
     </div>
   );
 }
+
+    

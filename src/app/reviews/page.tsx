@@ -121,6 +121,7 @@ export default function ReviewsPage() {
                   <CardContent className="p-6 flex flex-col flex-grow">
                     <div className="flex items-center gap-4">
                         <Avatar className="h-12 w-12">
+                             <AvatarImage src={`https://i.pravatar.cc/150?u=${review.userId}`} />
                             <AvatarFallback>{review.userEmail.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <div>
@@ -148,3 +149,5 @@ export default function ReviewsPage() {
     </div>
   );
 }
+
+    
