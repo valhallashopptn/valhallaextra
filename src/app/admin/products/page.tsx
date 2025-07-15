@@ -76,7 +76,7 @@ export default function ProductsPage() {
         </div>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-row items-center justify-between p-6">
             <div>
               <CardTitle>Products List</CardTitle>
               <CardDescription>A list of all products in your store.</CardDescription>
@@ -86,7 +86,7 @@ export default function ProductsPage() {
               Add Product
             </Button>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableRow>

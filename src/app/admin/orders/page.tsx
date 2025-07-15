@@ -21,11 +21,11 @@ export default function OrdersPage() {
       </div>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="p-6">
           <CardTitle>All Orders</CardTitle>
           <CardDescription>Review all customer purchases.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
