@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LeaveReviewDialog } from './LeaveReviewDialog';
 import { PageWrapper } from '@/components/PageWrapper';
+import Link from 'next/link';
 
 function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md' | 'lg' }) {
   const starClasses = size === 'sm' ? 'h-4 w-4' : size === 'md' ? 'h-5 w-5' : 'h-6 w-6';
@@ -131,7 +132,10 @@ export default function ReviewsPage() {
                     </blockquote>
                     <div className="mt-4 pt-4 border-t border-border">
                         <p className="text-sm font-medium text-muted-foreground">
-                          Review for: {review.productName}
+                          Review for:{' '}
+                          <Link href={`/product/${review.productId}`} className="text-primary hover:underline">
+                            {review.productName}
+                          </Link>
                         </p>
                     </div>
                   </CardContent>
