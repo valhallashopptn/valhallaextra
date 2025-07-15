@@ -8,6 +8,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -52,23 +53,28 @@ export default function Home() {
         </p>
       </div>
       
-      <div className="flex flex-wrap justify-center gap-2">
-         <Button
-            variant={!selectedCategory ? 'default' : 'outline'}
-            onClick={() => setSelectedCategory(null)}
-          >
-            All
-          </Button>
-        {categories.map(category => (
+       <ScrollArea className="w-full whitespace-nowrap rounded-md">
+        <div className="flex w-max space-x-2 pb-4">
           <Button
-            key={category.id}
-            variant={selectedCategory === category.id ? 'default' : 'outline'}
-            onClick={() => setSelectedCategory(category.id)}
-          >
-            {category.name}
-          </Button>
-        ))}
-      </div>
+              variant={!selectedCategory ? 'default' : 'outline'}
+              onClick={() => setSelectedCategory(null)}
+              className="rounded-full"
+            >
+              All
+            </Button>
+          {categories.map(category => (
+            <Button
+              key={category.id}
+              variant={selectedCategory === category.id ? 'default' : 'outline'}
+              onClick={() => setSelectedCategory(category.id)}
+              className="rounded-full"
+            >
+              {category.name}
+            </Button>
+          ))}
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {loading ? (
