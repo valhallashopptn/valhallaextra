@@ -8,7 +8,8 @@ import {
   doc,
   serverTimestamp,
   query,
-  orderBy
+  orderBy,
+  getDoc
 } from 'firebase/firestore';
 
 const productsCollectionRef = collection(db, 'products');
@@ -19,6 +20,19 @@ export const getProducts = async (): Promise<Product[]> => {
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Product[];
 };
+
+// Get a single product by ID
+export const getProductById = async (id: string): Promise<Product | null> => {
+    const productDocRef = doc(db, 'products', id);
+    const docSnap = await getDoc(productDocRef);
+
+    if (docSnap.exists()) {
+        return { ...docSnap.data(), id: docSnap.id } as Product;
+    } else {
+        console.warn(`No product found with id: ${id}`);
+        return null;
+    }
+}
 
 // Add a new product
 export const addProduct = async (productData: Omit<Product, 'id'>) => {
