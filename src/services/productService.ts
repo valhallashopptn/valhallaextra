@@ -43,7 +43,7 @@ export const addProduct = async (productData: Omit<Product, 'id'>) => {
 };
 
 // Update an existing product
-export const updateProduct = async (id: string, productData: Omit<Product, 'id'>) => {
+export const updateProduct = async (id: string, productData: Partial<Omit<Product, 'id'>>) => {
   const productDoc = doc(db, 'products', id);
   return await updateDoc(productDoc, {
     ...productData,

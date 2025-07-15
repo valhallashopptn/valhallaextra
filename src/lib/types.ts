@@ -1,6 +1,12 @@
 import type { User as FirebaseUser } from 'firebase/auth';
 import type { Timestamp } from 'firebase/firestore';
 
+export interface Category {
+  id: string;
+  name: string;
+  createdAt: Timestamp;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -9,6 +15,8 @@ export interface Product {
   imageUrl: string;
   stock: number;
   dataAiHint: string;
+  categoryId: string;
+  categoryName: string;
 }
 
 export interface CartItem extends Product {

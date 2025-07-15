@@ -2,28 +2,44 @@
 
 import { ProductCard } from '@/components/ProductCard';
 import { getProducts } from '@/services/productService';
-import type { Product } from '@/lib/types';
-import { useEffect, useState } from 'react';
+import { getCategories } from '@/services/categoryService';
+import type { Product, Category } from '@/lib/types';
+import { useEffect, useState, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchInitialData = async () => {
       try {
-        const productsFromDb = await getProducts();
+        const [productsFromDb, categoriesFromDb] = await Promise.all([
+          getProducts(),
+          getCategories()
+        ]);
         setProducts(productsFromDb);
+        setCategories(categoriesFromDb);
       } catch (error) {
-        console.error("Failed to fetch products:", error);
+        console.error("Failed to fetch initial data:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchInitialData();
   }, []);
+  
+  const filteredProducts = useMemo(() => {
+    if (!selectedCategory) {
+      return products;
+    }
+    return products.filter(p => p.categoryId === selectedCategory);
+  }, [products, selectedCategory]);
 
   return (
     <div className="space-y-8">
@@ -34,6 +50,24 @@ export default function Home() {
         <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl">
           Instantly top up your favorite games. Fast, secure, and reliable service.
         </p>
+      </div>
+      
+      <div className="flex flex-wrap justify-center gap-2">
+         <Button
+            variant={!selectedCategory ? 'default' : 'outline'}
+            onClick={() => setSelectedCategory(null)}
+          >
+            All
+          </Button>
+        {categories.map(category => (
+          <Button
+            key={category.id}
+            variant={selectedCategory === category.id ? 'default' : 'outline'}
+            onClick={() => setSelectedCategory(category.id)}
+          >
+            {category.name}
+          </Button>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -48,7 +82,7 @@ export default function Home() {
             </div>
           ))
         ) : (
-          products.map((product: Product) => (
+          filteredProducts.map((product: Product) => (
             <ProductCard key={product.id} product={product} />
           ))
         )}

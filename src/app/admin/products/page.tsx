@@ -5,47 +5,54 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { getProducts, addProduct, updateProduct } from '@/services/productService';
-import type { Product } from '@/lib/types';
+import { getCategories } from '@/services/categoryService';
+import type { Product, Category } from '@/lib/types';
 import { PlusCircle, Edit } from 'lucide-react';
 import { ProductForm } from '../ProductForm';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
+import { Badge } from '@/components/ui/badge';
 
 export default function ProductsPage() {
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   useEffect(() => {
-    fetchProducts();
+    fetchData();
   }, []);
 
-  const fetchProducts = async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
-      const productsFromDb = await getProducts();
+      const [productsFromDb, categoriesFromDb] = await Promise.all([
+        getProducts(),
+        getCategories()
+      ]);
       setProducts(productsFromDb);
+      setCategories(categoriesFromDb);
     } catch (error) {
-      console.error("Failed to fetch products:", error);
-      toast({ title: 'Error', description: 'Could not load products.', variant: 'destructive' });
+      console.error("Failed to fetch data:", error);
+      toast({ title: 'Error', description: 'Could not load products or categories.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFormSubmit = async (productData: Omit<Product, 'id'>) => {
+  const handleFormSubmit = async (data: Omit<Product, 'id'>) => {
     try {
       if (editingProduct) {
-        await updateProduct(editingProduct.id, productData);
+        await updateProduct(editingProduct.id, data);
         toast({ title: 'Success', description: 'Product updated successfully.' });
       } else {
-        await addProduct(productData);
+        await addProduct(data);
         toast({ title: 'Success', description: 'Product added successfully.' });
       }
-      await fetchProducts();
+      await fetchData();
       setIsDialogOpen(false);
       setEditingProduct(null);
     } catch (error) {
@@ -62,7 +69,7 @@ export default function ProductsPage() {
   const handleAddNew = () => {
     setEditingProduct(null);
     setIsDialogOpen(true);
-  }
+  };
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
@@ -92,6 +99,7 @@ export default function ProductsPage() {
                 <TableRow>
                   <TableHead>Image</TableHead>
                   <TableHead>Name</TableHead>
+                  <TableHead>Category</TableHead>
                   <TableHead>Game</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Stock</TableHead>
@@ -102,7 +110,7 @@ export default function ProductsPage() {
                 {loading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                      <TableCell colSpan={6} className="text-center">Loading...</TableCell>
+                      <TableCell colSpan={7} className="text-center">Loading...</TableCell>
                     </TableRow>
                   ))
                 ) : products.map(product => (
@@ -111,6 +119,9 @@ export default function ProductsPage() {
                       <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="rounded-md object-cover" />
                     </TableCell>
                     <TableCell className="font-medium">{product.name}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{product.categoryName}</Badge>
+                    </TableCell>
                     <TableCell>{product.game}</TableCell>
                     <TableCell>${product.price.toFixed(2)}</TableCell>
                     <TableCell>{product.stock}</TableCell>
@@ -135,6 +146,7 @@ export default function ProductsPage() {
           onSubmit={handleFormSubmit}
           initialData={editingProduct}
           onCancel={() => setIsDialogOpen(false)}
+          categories={categories}
         />
       </DialogContent>
     </Dialog>

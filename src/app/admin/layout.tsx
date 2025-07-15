@@ -15,8 +15,9 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, ShoppingCart, Package } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, PanelLeft, Tag } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 const ADMIN_EMAIL = 'admin@example.com';
 
@@ -45,11 +46,20 @@ export default function AdminLayout({
     <div className="pt-14">
         <SidebarProvider>
         <Sidebar>
-            <SidebarHeader>
-            <div className="flex items-center gap-2">
-                <SidebarTrigger />
-                <span className="text-lg font-semibold">Admin Panel</span>
-            </div>
+            <SidebarHeader className="md:hidden flex justify-between p-2">
+                 <span className="text-lg font-semibold">Admin Menu</span>
+                 <SidebarTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <PanelLeft />
+                        <span className="sr-only">Toggle Sidebar</span>
+                    </Button>
+                 </SidebarTrigger>
+            </SidebarHeader>
+            <SidebarHeader className="hidden md:flex">
+                <div className="flex items-center gap-2">
+                    <SidebarTrigger />
+                    <span className="text-lg font-semibold">Admin Panel</span>
+                </div>
             </SidebarHeader>
             <SidebarContent>
             <SidebarMenu>
@@ -62,7 +72,15 @@ export default function AdminLayout({
                 </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem className="admin-sidebar-menu-item">
-                <SidebarMenuButton asChild isActive={pathname === '/admin/products'}>
+                <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/categories')}>
+                    <Link href="/admin/categories">
+                    <Tag />
+                    Categories
+                    </Link>
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem className="admin-sidebar-menu-item">
+                <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/products')}>
                     <Link href="/admin/products">
                     <Package />
                     Products
@@ -70,7 +88,7 @@ export default function AdminLayout({
                 </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem className="admin-sidebar-menu-item">
-                <SidebarMenuButton asChild isActive={pathname === '/admin/orders'}>
+                <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/orders')}>
                     <Link href="/admin/orders">
                     <ShoppingCart />
                     Orders
