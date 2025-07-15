@@ -17,19 +17,44 @@ import { Card, CardContent } from '@/components/ui/card';
 
 function CategoryCard({ category }: { category: Category }) {
   return (
-    <Link href={`/products?category=${category.id}`} className="group relative block overflow-hidden rounded-lg">
-        <Image
-          src={category.imageUrl || 'https://placehold.co/300x200.png'}
-          alt={category.name}
-          width={300}
-          height={200}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          data-ai-hint="game category"
-        />
-        <div className="absolute inset-0 bg-black/60"></div>
-        <div className="absolute inset-0 flex items-end p-4">
-          <h3 className="text-xl font-bold text-white">{category.name}</h3>
+    <Link href={`/products?category=${category.id}`}>
+      <div className="flip-card aspect-[3/2] rounded-lg">
+        <div className="flip-card-inner rounded-lg">
+          <div className="flip-card-front overflow-hidden rounded-lg">
+            <div className="relative h-full w-full">
+              <Image
+                src={category.imageUrl || 'https://placehold.co/300x200.png'}
+                alt={category.name}
+                fill
+                className="object-cover"
+                data-ai-hint="game category"
+              />
+              <div className="absolute inset-0 bg-black/60"></div>
+              <div className="absolute inset-0 flex items-end p-4">
+                <h3 className="text-xl font-bold text-white">{category.name}</h3>
+              </div>
+            </div>
+          </div>
+          <div className="flip-card-back overflow-hidden rounded-lg">
+             <div className="relative h-full w-full">
+                <Image
+                    src={category.backImageUrl || 'https://placehold.co/300x200.png'}
+                    alt={`${category.name} (back)`}
+                    fill
+                    className="object-cover"
+                    data-ai-hint="game category alternative"
+                />
+                <div className="absolute inset-0 bg-black/60"></div>
+                 <div className="absolute inset-0 flex items-center justify-center p-4">
+                    <div className="text-center text-white">
+                        <h3 className="text-xl font-bold">{category.name}</h3>
+                        <p className="text-sm mt-1">View Products</p>
+                    </div>
+                </div>
+            </div>
+          </div>
         </div>
+      </div>
     </Link>
   );
 }
@@ -78,8 +103,8 @@ export default function Home() {
   return (
     <div className="space-y-16 md:space-y-24">
       {/* Hero Section */}
-      <Card className="bg-muted border-none text-center">
-        <CardContent className="py-20 md:py-32">
+      <Card className="bg-muted border-none">
+        <CardContent className="py-20 md:py-32 text-center">
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl font-headline">
                 Your Digital Marketplace
             </h1>

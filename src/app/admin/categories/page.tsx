@@ -18,7 +18,8 @@ import Image from 'next/image';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Category name must be at least 2 characters.' }),
-  imageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/600x400.png'),
+  imageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/300x200.png'),
+  backImageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/300x200.png'),
 });
 
 type CategoryFormData = z.infer<typeof formSchema>;
@@ -30,7 +31,7 @@ export default function CategoriesPage() {
 
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: '', imageUrl: 'https://placehold.co/600x400.png' },
+    defaultValues: { name: '', imageUrl: 'https://placehold.co/300x200.png', backImageUrl: 'https://placehold.co/300x200.png' },
   });
 
   useEffect(() => {
@@ -52,7 +53,7 @@ export default function CategoriesPage() {
 
   const handleFormSubmit = async (data: CategoryFormData) => {
     try {
-      await addCategory({ name: data.name, imageUrl: data.imageUrl });
+      await addCategory({ name: data.name, imageUrl: data.imageUrl, backImageUrl: data.backImageUrl });
       toast({ title: 'Success', description: 'Category added successfully.' });
       form.reset();
       await fetchCategories();
@@ -125,9 +126,22 @@ export default function CategoriesPage() {
                   name="imageUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Image URL</FormLabel>
+                      <FormLabel>Front Image URL</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://placehold.co/600x400.png" {...field} />
+                        <Input placeholder="https://placehold.co/300x200.png" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="backImageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Back Image URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://placehold.co/300x200.png" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
