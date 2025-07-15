@@ -141,13 +141,15 @@ export default function Home() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16 md:space-y-24">
          {/* Browse by Category Section */}
          <div className="space-y-6">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-3xl font-bold font-headline">Browse by Category</h2>
+            <div className="relative text-center mb-4">
+              <h2 className="text-3xl font-bold font-headline">Browse by Category</h2>
+              <div className="absolute top-1/2 right-0 -translate-y-1/2">
                 <Button variant="outline" asChild>
                     <Link href="/products">
                         View All Categories <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                 </Button>
+              </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loading ? (
