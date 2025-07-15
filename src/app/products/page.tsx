@@ -86,7 +86,7 @@ export default function ProductsPage() {
                         <Button
                             variant={!selectedCategory ? 'default' : 'outline'}
                             onClick={() => setSelectedCategory(null)}
-                            className="rounded-full flex-shrink-0"
+                            className="flex-shrink-0"
                         >
                             All
                         </Button>
@@ -95,7 +95,7 @@ export default function ProductsPage() {
                             key={category.id}
                             variant={selectedCategory === category.id ? 'default' : 'outline'}
                             onClick={() => setSelectedCategory(category.id)}
-                            className="rounded-full flex-shrink-0"
+                            className="flex-shrink-0"
                             >
                             {category.name}
                             </Button>
