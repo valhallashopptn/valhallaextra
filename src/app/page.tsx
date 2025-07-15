@@ -175,199 +175,195 @@ export default function Home() {
 
 
   return (
-    <div className="space-y-16">
+    <div>
       {/* Hero Section */}
-      <div className="-mt-8">
-        <section className="relative h-[400px] md:h-[500px] overflow-hidden">
-          {loading ? (
-            <Skeleton className="h-full w-full" />
-          ) : (
-            <>
-              <Image 
-                src={heroImageUrl}
-                alt="Digital Marketplace"
-                fill
-                className="object-cover"
-                data-ai-hint="dark abstract background"
-                priority
-              />
-              <div className="absolute inset-0 bg-black/60"></div>
-              <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-4">
-                <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl font-headline">
-                    Your Digital Marketplace
-                </h1>
-                <p className="mt-3 text-lg text-white/80 sm:text-xl max-w-2xl mx-auto">
-                    Instant top-ups for your favorite games and digital products. Quick, secure, and reliable service at your fingertips.
-                </p>
-                <Button asChild size="lg" className="mt-8">
-                    <Link href="/products">Browse Products</Link>
+      <section className="relative h-[400px] md:h-[500px] overflow-hidden">
+        {loading ? (
+          <Skeleton className="h-full w-full" />
+        ) : (
+          <>
+            <Image 
+              src={heroImageUrl}
+              alt="Digital Marketplace"
+              fill
+              className="object-cover"
+              data-ai-hint="dark abstract background"
+              priority
+            />
+            <div className="absolute inset-0 bg-black/60"></div>
+            <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-4">
+              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl font-headline">
+                  Your Digital Marketplace
+              </h1>
+              <p className="mt-3 text-lg text-white/80 sm:text-xl max-w-2xl mx-auto">
+                  Instant top-ups for your favorite games and digital products. Quick, secure, and reliable service at your fingertips.
+              </p>
+              <Button asChild size="lg" className="mt-8">
+                  <Link href="/products">Browse Products</Link>
+              </Button>
+            </div>
+          </>
+        )}
+      </section>
+      
+      <div className="space-y-16">
+        {/* Browse by Category Section */}
+        <section className="bg-background pt-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <div className="relative text-center md:text-left">
+              <h2 className="text-3xl font-bold font-headline text-center">Browse by Category</h2>
+              <div className="absolute top-1/2 right-0 -translate-y-1/2 hidden md:block">
+                <Button variant="outline" asChild>
+                    <Link href="/products">
+                        View All Categories <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
                 </Button>
               </div>
-            </>
-          )}
-        </section>
-      </div>
-      
-      <Separator />
-
-      {/* Browse by Category Section */}
-      <section className="bg-background pt-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <div className="relative text-center md:text-left">
-            <h2 className="text-3xl font-bold font-headline text-center">Browse by Category</h2>
-            <div className="absolute top-1/2 right-0 -translate-y-1/2 hidden md:block">
-              <Button variant="outline" asChild>
-                  <Link href="/products">
-                      View All Categories <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-              </Button>
             </div>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="aspect-[3/4] w-full rounded-xl" />
-              ))
-              ) : (
-              featuredCategories.map((category: Category) => (
-                  <CategoryCard key={category.id} category={category} />
-              ))
-              )}
-          </div>
-            <div className="text-center md:hidden">
-              <Button asChild>
-                  <Link href="/products">
-                      View All Categories <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-              </Button>
-          </div>
-        </div>
-      </section>
-
-      <Separator />
-
-      {/* Our Products Section */}
-      <section className="bg-background py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-            <div className="text-center">
-                <h2 className="text-3xl font-bold font-headline">Our Products</h2>
-            </div>
-            
-            <div className="flex flex-col md:flex-row gap-4">
-                <div className="relative flex-grow">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input 
-                        placeholder="Search products..."
-                        className="pl-10"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
-                  <div className="flex items-center gap-2 pb-2 justify-center">
-                    <Button
-                        variant={!selectedCategory ? 'default' : 'outline'}
-                        onClick={() => setSelectedCategory(null)}
-                        className={cn("flex-shrink-0", !selectedCategory && "bg-primary text-primary-foreground")}
-                    >
-                        All
-                    </Button>
-                    {featuredCategories.map((category, index) => (
-                        <Button
-                        key={category.id}
-                        variant={selectedCategory === category.id ? 'default' : 'outline'}
-                        onClick={() => setSelectedCategory(category.id)}
-                        className={cn("flex-shrink-0", selectedCategory === category.id && (index % 2 === 0 ? "bg-accent text-accent-foreground" : "bg-primary text-primary-foreground"))}
-                        >
-                        {category.name}
-                        </Button>
-                    ))}
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 {loading ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="flex flex-col space-y-3">
-                    <Skeleton className="h-[175px] w-full rounded-xl" />
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-[200px]" />
-                        <Skeleton className="h-4 w-[150px]" />
-                    </div>
-                    </div>
+                Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="aspect-[3/4] w-full rounded-xl" />
                 ))
                 ) : (
-                filteredProducts.map((product: Product) => (
-                    <ProductCard key={product.id} product={product} />
+                featuredCategories.map((category: Category) => (
+                    <CategoryCard key={category.id} category={category} />
                 ))
                 )}
             </div>
-            <div className="text-center pt-4">
-                <Button asChild variant="outline">
+              <div className="text-center md:hidden">
+                <Button asChild>
                     <Link href="/products">
-                        View All Products <ArrowRight className="ml-2 h-4 w-4" />
+                        View All Categories <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                 </Button>
             </div>
           </div>
-      </section>
+        </section>
 
-      {/* Features Section */}
-      <section className="bg-card py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FeatureCard icon={<Package size={24} />} title="Products Live" value="120+" />
-              <FeatureCard icon={<ShoppingCart size={24} />} title="Transactions Completed" value="15k+" />
-              <FeatureCard icon={<LifeBuoy size={24} />} title="Dedicated Support" value="24/7" />
-          </div>
-        </div>
-      </section>
-      
-      {/* Reviews Section */}
-      <section className="bg-background py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold font-headline">What Our Customers Say</h2>
-            <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Real reviews from our awesome community of gamers and digital enthusiasts.</p>
-          </div>
-          
-          {loading ? (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                      <Skeleton key={i} className="h-80 w-full rounded-xl" />
-                  ))}
-                </div>
-          ) : (
-              <Carousel
-                  opts={{
-                      align: "start",
-                      loop: true,
-                  }}
-                  className="w-full max-w-5xl mx-auto"
-              >
-                  <CarouselContent>
-                      {reviews.map((review) => (
-                      <CarouselItem key={review.id} className="md:basis-1/2 lg:basis-1/3">
-                          <div className="p-1 h-full">
-                              <ReviewCard review={review} />
-                          </div>
-                      </CarouselItem>
+        {/* Our Products Section */}
+        <section className="bg-background py-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+              <div className="text-center">
+                  <h2 className="text-3xl font-bold font-headline">Our Products</h2>
+              </div>
+              
+              <div className="flex flex-col md:flex-row gap-4">
+                  <div className="relative flex-grow">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                      <Input 
+                          placeholder="Search products..."
+                          className="pl-10"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                  </div>
+                    <div className="flex items-center gap-2 pb-2 justify-center">
+                      <Button
+                          variant={!selectedCategory ? 'default' : 'outline'}
+                          onClick={() => setSelectedCategory(null)}
+                          className={cn("flex-shrink-0", !selectedCategory && "bg-primary text-primary-foreground")}
+                      >
+                          All
+                      </Button>
+                      {featuredCategories.map((category, index) => (
+                          <Button
+                          key={category.id}
+                          variant={selectedCategory === category.id ? 'default' : 'outline'}
+                          onClick={() => setSelectedCategory(category.id)}
+                          className={cn("flex-shrink-0", selectedCategory === category.id && (index % 2 === 0 ? "bg-accent text-accent-foreground" : "bg-primary text-primary-foreground"))}
+                          >
+                          {category.name}
+                          </Button>
                       ))}
-                  </CarouselContent>
-                  <CarouselPrevious className="hidden lg:flex" />
-                  <CarouselNext className="hidden lg:flex" />
-              </Carousel>
-          )}
+                  </div>
+              </div>
 
-          <div className="text-center pt-4">
-              <Button asChild>
-                  <Link href="/reviews">
-                      <MessageSquare className="mr-2" />
-                      Leave a Review
-                  </Link>
-              </Button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {loading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="flex flex-col space-y-3">
+                      <Skeleton className="h-[175px] w-full rounded-xl" />
+                      <div className="space-y-2">
+                          <Skeleton className="h-4 w-[200px]" />
+                          <Skeleton className="h-4 w-[150px]" />
+                      </div>
+                      </div>
+                  ))
+                  ) : (
+                  filteredProducts.map((product: Product) => (
+                      <ProductCard key={product.id} product={product} />
+                  ))
+                  )}
+              </div>
+              <div className="text-center pt-4">
+                  <Button asChild variant="outline">
+                      <Link href="/products">
+                          View All Products <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                  </Button>
+              </div>
+            </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="bg-card py-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <FeatureCard icon={<Package size={24} />} title="Products Live" value="120+" />
+                <FeatureCard icon={<ShoppingCart size={24} />} title="Transactions Completed" value="15k+" />
+                <FeatureCard icon={<LifeBuoy size={24} />} title="Dedicated Support" value="24/7" />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+        
+        {/* Reviews Section */}
+        <section className="bg-background py-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold font-headline">What Our Customers Say</h2>
+              <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Real reviews from our awesome community of gamers and digital enthusiasts.</p>
+            </div>
+            
+            {loading ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <Skeleton key={i} className="h-80 w-full rounded-xl" />
+                    ))}
+                  </div>
+            ) : (
+                <Carousel
+                    opts={{
+                        align: "start",
+                        loop: true,
+                    }}
+                    className="w-full max-w-5xl mx-auto"
+                >
+                    <CarouselContent>
+                        {reviews.map((review) => (
+                        <CarouselItem key={review.id} className="md:basis-1/2 lg:basis-1/3">
+                            <div className="p-1 h-full">
+                                <ReviewCard review={review} />
+                            </div>
+                        </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="hidden lg:flex" />
+                    <CarouselNext className="hidden lg:flex" />
+                </Carousel>
+            )}
+
+            <div className="text-center pt-4">
+                <Button asChild>
+                    <Link href="/reviews">
+                        <MessageSquare className="mr-2" />
+                        Leave a Review
+                    </Link>
+                </Button>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
