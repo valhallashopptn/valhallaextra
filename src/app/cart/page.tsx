@@ -10,14 +10,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { addOrder } from '@/services/orderService';
+import { useState } from 'react';
 
 export default function CartPage() {
   const { cartItems, removeFromCart, cartTotal, clearCart } = useCart();
   const { user } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!user) {
       toast({
         title: 'Authentication required',
@@ -28,12 +31,28 @@ export default function CartPage() {
       return;
     }
     
-    // In a real app, you would process payment here.
-    // We'll simulate a successful order.
-    console.log('Order placed for user:', user.email, 'with items:', cartItems);
-    
-    clearCart();
-    router.push('/order-confirmation');
+    setIsPlacingOrder(true);
+    try {
+      await addOrder({
+        userId: user.uid,
+        userEmail: user.email || 'Anonymous',
+        items: cartItems,
+        total: cartTotal,
+      });
+
+      clearCart();
+      router.push('/order-confirmation');
+
+    } catch (error) {
+       toast({
+        title: 'Order Failed',
+        description: 'There was a problem placing your order. Please try again.',
+        variant: 'destructive',
+      });
+      console.error("Failed to place order:", error);
+    } finally {
+        setIsPlacingOrder(false);
+    }
   };
 
   if (cartItems.length === 0) {
@@ -101,8 +120,8 @@ export default function CartPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full" onClick={handleCheckout}>
-              Place Order
+            <Button className="w-full" onClick={handleCheckout} disabled={isPlacingOrder}>
+              {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
             </Button>
           </CardFooter>
         </Card>

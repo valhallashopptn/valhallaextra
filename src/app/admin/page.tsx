@@ -1,9 +1,9 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { MOCK_ORDERS } from '@/lib/mock-data';
 import { getProducts } from '@/services/productService';
-import type { Product } from '@/lib/types';
+import { getAllOrders } from '@/services/orderService';
+import type { Product, Order } from '@/lib/types';
 import { useEffect, useState } from 'react';
 import { Package, DollarSign, ShoppingCart } from 'lucide-react';
 
@@ -16,13 +16,16 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const products = await getProducts();
+        const [products, orders] = await Promise.all([
+          getProducts(),
+          getAllOrders()
+        ]);
+        
         setProductCount(products.length);
-
-        const orders = MOCK_ORDERS; // Using mock orders for now
         setOrderCount(orders.length);
         const revenue = orders.reduce((sum, order) => sum + order.total, 0);
         setTotalRevenue(revenue);
+
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
       } finally {

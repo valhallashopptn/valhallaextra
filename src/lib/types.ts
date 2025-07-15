@@ -26,10 +26,12 @@ export interface CartItem extends Product {
 }
 
 export interface Order {
-  id:string;
-  date: string;
+  id: string;
+  userId: string;
+  userEmail: string;
   items: CartItem[];
   total: number;
+  createdAt: Timestamp;
 }
 
 export type User = FirebaseUser;

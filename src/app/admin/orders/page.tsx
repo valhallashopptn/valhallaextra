@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MOCK_ORDERS } from '@/lib/mock-data';
+import { getAllOrders } from '@/services/orderService';
+import type { Order } from '@/lib/types';
 import {
   Table,
   TableBody,
@@ -11,8 +13,27 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function OrdersPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+        const allOrders = await getAllOrders();
+        setOrders(allOrders);
+      } catch (error) {
+        console.error("Failed to fetch orders:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrders();
+  }, []);
+
   return (
     <div className="space-y-8">
       <div>
@@ -31,15 +52,27 @@ export default function OrdersPage() {
               <TableRow>
                 <TableHead>Order ID</TableHead>
                 <TableHead>Date</TableHead>
+                <TableHead>Customer</TableHead>
                 <TableHead>Items</TableHead>
                 <TableHead className="text-right">Total</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {MOCK_ORDERS.map(order => (
+              {loading ? (
+                 Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+                      <TableCell className="text-right"><Skeleton className="h-4 w-16" /></TableCell>
+                    </TableRow>
+                ))
+              ) : orders.map(order => (
                 <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.id}</TableCell>
-                  <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
+                  <TableCell className="font-medium">#{order.id.substring(0, 8)}</TableCell>
+                  <TableCell>{new Date(order.createdAt.toDate()).toLocaleDateString()}</TableCell>
+                  <TableCell>{order.userEmail}</TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {order.items.map(item => (

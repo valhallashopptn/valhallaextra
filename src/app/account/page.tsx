@@ -2,10 +2,11 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MOCK_ORDERS } from '@/lib/mock-data';
+import { getOrdersForUser } from '@/services/orderService';
+import type { Order } from '@/lib/types';
 import {
   Accordion,
   AccordionContent,
@@ -18,12 +19,26 @@ import { Separator } from '@/components/ui/separator';
 export default function AccountPage() {
   const { user, loading, logOut } = useAuth();
   const router = useRouter();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
     }
   }, [user, loading, router]);
+  
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (user) {
+        setOrdersLoading(true);
+        const userOrders = await getOrdersForUser(user.uid);
+        setOrders(userOrders);
+        setOrdersLoading(false);
+      }
+    };
+    fetchOrders();
+  }, [user]);
 
   if (loading || !user) {
     return <div className="text-center">Loading account details...</div>;
@@ -60,14 +75,16 @@ export default function AccountPage() {
               <CardDescription>Review your past purchases</CardDescription>
             </CardHeader>
             <CardContent>
-              {MOCK_ORDERS.length > 0 ? (
+              {ordersLoading ? (
+                <div className="text-center py-8">Loading your orders...</div>
+              ) : orders.length > 0 ? (
                 <Accordion type="single" collapsible className="w-full">
-                  {MOCK_ORDERS.map(order => (
+                  {orders.map(order => (
                      <AccordionItem value={order.id} key={order.id}>
                       <AccordionTrigger>
                         <div className="flex justify-between w-full pr-4">
-                          <span>Order #{order.id}</span>
-                          <span className="text-muted-foreground">{new Date(order.date).toLocaleDateString()}</span>
+                          <span>Order #{order.id.substring(0, 8)}</span>
+                          <span className="text-muted-foreground">{new Date(order.createdAt.toDate()).toLocaleDateString()}</span>
                            <span className="font-bold text-primary">${order.total.toFixed(2)}</span>
                         </div>
                       </AccordionTrigger>
