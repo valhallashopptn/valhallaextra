@@ -75,7 +75,7 @@ export default function ReviewsPage() {
 
   return (
     <div className="space-y-12">
-      <div className="bg-background py-12">
+       <div className="bg-background py-12">
         <PageWrapper>
           <div className="space-y-6 text-center">
               <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
