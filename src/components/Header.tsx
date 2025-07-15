@@ -38,7 +38,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [searchResults, setResults] = useState<Product[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
@@ -56,10 +56,10 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.game.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      setSearchResults(filtered);
+      setResults(filtered);
       setIsSearchOpen(true);
     } else {
-      setSearchResults([]);
+      setResults([]);
       setIsSearchOpen(false);
     }
   }, [searchQuery, allProducts]);
@@ -107,7 +107,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
           </SheetTrigger>
           <SheetContent 
             side="left" 
-            className="w-3/4 bg-background/95 backdrop-blur-sm"
+            className="w-3/4 bg-background/50 backdrop-blur-sm"
             onOpenAutoFocus={(e) => e.preventDefault()}
           >
             <SheetHeader>
