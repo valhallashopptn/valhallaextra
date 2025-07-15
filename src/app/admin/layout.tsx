@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
@@ -41,7 +42,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div>
+    <div className="pt-14">
         <SidebarProvider>
         <Sidebar>
             <SidebarHeader>
@@ -79,7 +80,7 @@ export default function AdminLayout({
             </SidebarMenu>
             </SidebarContent>
         </Sidebar>
-        <SidebarInset className="pt-14">
+        <SidebarInset>
             <div className="p-4 md:p-8">{children}</div>
         </SidebarInset>
         </SidebarProvider>
