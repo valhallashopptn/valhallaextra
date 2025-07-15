@@ -1,210 +1,95 @@
-
 'use client';
 
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { MOCK_ORDERS } from '@/lib/mock-data';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { getProducts, addProduct, updateProduct } from '@/services/productService';
+import { getProducts } from '@/services/productService';
 import type { Product } from '@/lib/types';
-import { PlusCircle, Edit } from 'lucide-react';
-import { ProductForm } from './ProductForm';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { useToast } from '@/hooks/use-toast';
-import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { Package, DollarSign, ShoppingCart } from 'lucide-react';
 
-
-const ADMIN_EMAIL = 'admin@example.com';
-
-export default function AdminPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-  const { toast } = useToast();
-
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+export default function AdminDashboardPage() {
+  const [productCount, setProductCount] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [orderCount, setOrderCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!loading) {
-      if (!user || user.email !== ADMIN_EMAIL) {
-        router.push('/login');
+    async function fetchData() {
+      try {
+        const products = await getProducts();
+        setProductCount(products.length);
+
+        const orders = MOCK_ORDERS; // Using mock orders for now
+        setOrderCount(orders.length);
+        const revenue = orders.reduce((sum, order) => sum + order.total, 0);
+        setTotalRevenue(revenue);
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
+      } finally {
+        setLoading(false);
       }
     }
-  }, [user, loading, router]);
-  
-  useEffect(() => {
-    if (user && user.email === ADMIN_EMAIL) {
-      fetchProducts();
-    }
-  }, [user]);
-
-  const fetchProducts = async () => {
-    const productsFromDb = await getProducts();
-    setProducts(productsFromDb);
-  };
-
-  const handleFormSubmit = async (productData: Omit<Product, 'id'>) => {
-    try {
-      if (editingProduct) {
-        await updateProduct(editingProduct.id, productData);
-        toast({ title: 'Success', description: 'Product updated successfully.' });
-      } else {
-        await addProduct(productData);
-        toast({ title: 'Success', description: 'Product added successfully.' });
-      }
-      await fetchProducts();
-      setIsDialogOpen(false);
-      setEditingProduct(null);
-    } catch (error) {
-       toast({ title: 'Error', description: 'Failed to save product.', variant: 'destructive' });
-       console.error("Failed to save product", error);
-    }
-  };
-  
-  const handleEdit = (product: Product) => {
-    setEditingProduct(product);
-    setIsDialogOpen(true);
-  };
-
-  const handleAddNew = () => {
-    setEditingProduct(null);
-    setIsDialogOpen(true);
-  }
-
-  if (loading || !user || user.email !== ADMIN_EMAIL) {
-    return <div className="text-center">Loading and verifying admin access...</div>;
-  }
+    fetchData();
+  }, []);
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold font-headline">Admin Dashboard</h1>
-        <p className="text-muted-foreground">Manage products and view all customer orders.</p>
+        <h1 className="text-3xl font-bold font-headline">Dashboard</h1>
+        <p className="text-muted-foreground">An overview of your store's performance.</p>
       </div>
 
-      {/* Product Management Section */}
-      <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
-        setIsDialogOpen(isOpen);
-        if (!isOpen) setEditingProduct(null);
-      }}>
+      <div className="grid gap-4 md:grid-cols-3">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Products</CardTitle>
-              <CardDescription>Add, edit, or view your products.</CardDescription>
-            </div>
-             <Button onClick={handleAddNew}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add Product
-            </Button>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Image</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Game</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Stock</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products.map(product => (
-                  <TableRow key={product.id}>
-                    <TableCell>
-                      <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="rounded-md object-cover" />
-                    </TableCell>
-                    <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell>{product.game}</TableCell>
-                    <TableCell>${product.price.toFixed(2)}</TableCell>
-                    <TableCell>{product.stock}</TableCell>
-                    <TableCell className="text-right">
-                       <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}>
-                          <Edit className="h-4 w-4" />
-                       </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            {loading ? (
+                <div className="h-8 w-1/2 animate-pulse rounded-md bg-muted"></div>
+            ) : (
+                <div className="text-2xl font-bold">${totalRevenue.toFixed(2)}</div>
+            )}
           </CardContent>
         </Card>
-        
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
-            <DialogDescription>
-              {editingProduct ? 'Update the details of your product.' : 'Fill in the details for the new product.'}
-            </DialogDescription>
-          </DialogHeader>
-          <ProductForm
-            onSubmit={handleFormSubmit}
-            initialData={editingProduct}
-            onCancel={() => setIsDialogOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
-
-
-      {/* Order Management Section */}
-      <Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Orders</CardTitle>
+            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+                 <div className="h-8 w-1/4 animate-pulse rounded-md bg-muted"></div>
+            ) : (
+                <div className="text-2xl font-bold">{orderCount}</div>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+                 <div className="h-8 w-1/4 animate-pulse rounded-md bg-muted"></div>
+            ) : (
+                 <div className="text-2xl font-bold">{productCount}</div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+      
+       <Card>
         <CardHeader>
-          <CardTitle>All Orders</CardTitle>
-          <CardDescription>A list of all orders placed on the platform.</CardDescription>
+          <CardTitle>Welcome, Admin!</CardTitle>
+          <CardDescription>Use the sidebar to manage your products and view customer orders.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {MOCK_ORDERS.map(order => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.id}</TableCell>
-                  <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {order.items.map(item => (
-                        <Badge key={item.id} variant="secondary">
-                          {item.name} (x{item.quantity})
-                        </Badge>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right font-bold text-primary">${order.total.toFixed(2)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+            <p>This is your central hub for managing the TopUp Hub store. You can add new game credits, update existing ones, and keep an eye on all the orders coming through the platform.</p>
         </CardContent>
-      </Card>
+       </Card>
     </div>
   );
 }
-
