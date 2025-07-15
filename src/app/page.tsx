@@ -1,41 +1,33 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { getCategories } from '@/services/categoryService';
-import type { Category } from '@/lib/types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import type { Category, Product } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { ArrowRight, Search } from 'lucide-react';
+import { getProducts } from '@/services/productService';
+import { ProductCard } from '@/components/ProductCard';
+import { Input } from '@/components/ui/input';
 
 function CategoryCard({ category }: { category: Category }) {
   return (
-    <Link href="/products" className="group block [perspective:1000px]">
-      <div className="relative h-full rounded-xl shadow-md transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
-        <div className="absolute inset-0">
-          <Image
-            src={category.imageUrl || 'https://placehold.co/600x400.png'}
-            alt={category.name}
-            fill
-            className="rounded-xl object-cover"
-            data-ai-hint="game category"
-          />
-           <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
-             <h3 className="text-2xl font-bold text-white">{category.name}</h3>
-           </div>
+    <Link href={`/products?category=${category.id}`} className="group relative block overflow-hidden rounded-lg">
+        <Image
+          src={category.imageUrl || 'https://placehold.co/300x200.png'}
+          alt={category.name}
+          width={300}
+          height={200}
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          data-ai-hint="game category"
+        />
+        <div className="absolute inset-0 bg-black/60"></div>
+        <div className="absolute inset-0 flex items-end p-4">
+          <h3 className="text-xl font-bold text-white">{category.name}</h3>
         </div>
-        <div className="absolute inset-0 h-full w-full rounded-xl bg-card text-center text-slate-200 [transform:rotateY(180deg)] [backface-visibility:hidden]">
-           <Card className="h-full flex flex-col justify-center items-center bg-secondary">
-             <CardHeader>
-                <CardTitle>{category.name}</CardTitle>
-             </CardHeader>
-             <CardContent>
-                <p>Browse all {category.name} products.</p>
-             </CardContent>
-           </Card>
-        </div>
-      </div>
     </Link>
   );
 }
@@ -43,15 +35,22 @@ function CategoryCard({ category }: { category: Category }) {
 
 export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const categoriesFromDb = await getCategories();
-        setCategories(categoriesFromDb);
+        const [categoriesFromDb, productsFromDb] = await Promise.all([
+            getCategories(),
+            getProducts()
+        ]);
+        setCategories(categoriesFromDb.slice(0, 3)); // Show only 3 categories on homepage
+        setProducts(productsFromDb);
       } catch (error) {
-        console.error("Failed to fetch categories:", error);
+        console.error("Failed to fetch data:", error);
       } finally {
         setLoading(false);
       }
@@ -60,26 +59,57 @@ export default function Home() {
     fetchInitialData();
   }, []);
 
+  const filteredProducts = useMemo(() => {
+    let prods = products;
+    if (searchQuery) {
+        prods = prods.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.game.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+    if (selectedCategory) {
+        prods = prods.filter(p => p.categoryId === selectedCategory);
+    }
+    return prods.slice(0, 4); // Show only 4 products on homepage
+  }, [products, searchQuery, selectedCategory]);
+
+
   return (
-    <div className="space-y-12">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
-          Welcome to TopUp Hub
-        </h1>
-        <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl">
-          Your one-stop shop for instant game top-ups. Fast, secure, and reliable.
-        </p>
+    <div className="space-y-16 md:space-y-24">
+      {/* Hero Section */}
+      <div className="relative -mx-4 -mt-8 h-96 overflow-hidden flex items-center justify-center text-center text-white">
+        <Image 
+            src="https://placehold.co/1920x1080.png" 
+            alt="Digital Marketplace" 
+            fill 
+            className="object-cover"
+            data-ai-hint="fantasy battle"
+        />
+        <div className="absolute inset-0 bg-black/60"></div>
+        <div className="relative z-10 max-w-2xl px-4">
+            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl font-headline">
+                Your Digital Marketplace
+            </h1>
+            <p className="mt-3 text-lg text-gray-300 sm:text-xl">
+                Instant top-ups for your favorite games and digital products. Quick, secure, and reliable service at your fingertips.
+            </p>
+            <Button asChild size="lg" className="mt-8">
+                <Link href="/products">Browse Products</Link>
+            </Button>
+        </div>
       </div>
 
+       {/* Browse by Category Section */}
        <div className="space-y-6">
-        <div className="text-center">
+        <div className="flex justify-between items-center">
             <h2 className="text-3xl font-bold font-headline">Browse by Category</h2>
-            <p className="text-muted-foreground mt-2">Select a category to find your favorite game top-ups.</p>
+            <Button variant="ghost" asChild>
+                <Link href="/products">
+                    View All Categories <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+            </Button>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 h-[250px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {loading ? (
             Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-full w-full rounded-xl" />
+                <Skeleton key={i} className="h-48 w-full rounded-xl" />
             ))
             ) : (
             categories.map((category: Category) => (
@@ -88,6 +118,62 @@ export default function Home() {
             )}
         </div>
        </div>
+
+       {/* Our Products Section */}
+        <div className="space-y-8">
+            <div className="text-center">
+                <h2 className="text-3xl font-bold font-headline">Our Products</h2>
+            </div>
+            
+            <div className="flex flex-col md:flex-row gap-4">
+                <div className="relative flex-grow">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input 
+                        placeholder="Search products..."
+                        className="pl-10"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
+                <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                    <Button
+                        variant={!selectedCategory ? 'default' : 'outline'}
+                        onClick={() => setSelectedCategory(null)}
+                        className="rounded-full flex-shrink-0"
+                        >
+                        All
+                    </Button>
+                    {categories.map(category => (
+                        <Button
+                        key={category.id}
+                        variant={selectedCategory === category.id ? 'default' : 'outline'}
+                        onClick={() => setSelectedCategory(category.id)}
+                        className="rounded-full flex-shrink-0"
+                        >
+                        {category.name}
+                        </Button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {loading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="flex flex-col space-y-3">
+                    <Skeleton className="h-[175px] w-full rounded-xl" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-[200px]" />
+                        <Skeleton className="h-4 w-[150px]" />
+                    </div>
+                    </div>
+                ))
+                ) : (
+                filteredProducts.map((product: Product) => (
+                    <ProductCard key={product.id} product={product} />
+                ))
+                )}
+            </div>
+        </div>
     </div>
   );
 }
