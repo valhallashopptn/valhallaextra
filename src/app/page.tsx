@@ -141,7 +141,7 @@ export default function Home() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16 md:space-y-24">
          {/* Browse by Category Section */}
          <div className="space-y-6">
-            <div className="text-center space-y-2">
+            <div className="flex justify-between items-center mb-4">
                 <h2 className="text-3xl font-bold font-headline">Browse by Category</h2>
                 <Button variant="ghost" asChild>
                     <Link href="/products">
