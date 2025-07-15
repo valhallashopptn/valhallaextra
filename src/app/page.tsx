@@ -98,9 +98,9 @@ export default function Home() {
 
        {/* Browse by Category Section */}
        <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="text-center space-y-2">
             <h2 className="text-3xl font-bold font-headline">Browse by Category</h2>
-            <Button variant="ghost" asChild>
+             <Button variant="ghost" asChild>
                 <Link href="/products">
                     View All Categories <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
