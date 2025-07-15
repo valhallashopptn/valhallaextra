@@ -177,7 +177,7 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative h-[400px] md:h-[500px] overflow-hidden">
+      <section className="relative h-[400px] md:h-[500px] overflow-hidden" style={{ marginTop: '-100px' }}>
         {loading ? (
           <Skeleton className="h-full w-full" />
         ) : (
