@@ -19,7 +19,7 @@ body {
     --secondary-foreground: 0 0% 98%;
     --muted: 220 20% 12%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 220 20% 12%;
+    --accent: 188 100% 50%; /* Cyan for active 'Game' button */
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
@@ -54,7 +54,7 @@ body {
     --secondary-foreground: 0 0% 98%;
     --muted: 220 20% 12%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 220 20% 12%;
+    --accent: 188 100% 50%; /* Cyan for active 'Game' button */
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;

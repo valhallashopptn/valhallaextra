@@ -14,6 +14,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 function CategoryCard({ category }: { category: Category }) {
   return (
@@ -103,7 +104,7 @@ export default function Home() {
   return (
     <div className="space-y-16 md:space-y-24">
       {/* Hero Section */}
-      <Card className="bg-muted border-none">
+      <Card className="bg-muted border-none rounded-lg">
         <CardContent className="py-20 md:py-32 text-center">
             <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl font-headline">
                 Your Digital Marketplace
@@ -158,28 +159,25 @@ export default function Home() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
-                <ScrollArea className="w-full md:w-auto whitespace-nowrap">
-                    <div className="flex items-center gap-2 pb-2 justify-center">
+                 <div className="flex items-center gap-2 pb-2 justify-center">
+                    <Button
+                        variant={!selectedCategory ? 'default' : 'outline'}
+                        onClick={() => setSelectedCategory(null)}
+                        className={cn("flex-shrink-0", !selectedCategory && "bg-primary text-primary-foreground")}
+                    >
+                        All
+                    </Button>
+                    {featuredCategories.map((category, index) => (
                         <Button
-                            variant={!selectedCategory ? 'default' : 'outline'}
-                            onClick={() => setSelectedCategory(null)}
-                            className="rounded-full flex-shrink-0"
-                            >
-                            All
+                        key={category.id}
+                        variant={selectedCategory === category.id ? 'default' : 'outline'}
+                        onClick={() => setSelectedCategory(category.id)}
+                        className={cn("flex-shrink-0", selectedCategory === category.id && (index % 2 === 0 ? "bg-accent text-accent-foreground" : "bg-primary text-primary-foreground"))}
+                        >
+                        {category.name}
                         </Button>
-                        {featuredCategories.map(category => (
-                            <Button
-                            key={category.id}
-                            variant={selectedCategory === category.id ? 'default' : 'outline'}
-                            onClick={() => setSelectedCategory(category.id)}
-                            className="rounded-full flex-shrink-0"
-                            >
-                            {category.name}
-                            </Button>
-                        ))}
-                    </div>
-                    <ScrollBar orientation="horizontal" />
-                </ScrollArea>
+                    ))}
+                </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
