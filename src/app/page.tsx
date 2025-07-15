@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Search } from 'lucide-react';
+import { ArrowRight, Search, Package, ShoppingCart, LifeBuoy } from 'lucide-react';
 import { getProducts } from '@/services/productService';
 import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
@@ -58,6 +58,24 @@ function CategoryCard({ category }: { category: Category }) {
         </div>
       </div>
     </Link>
+  );
+}
+
+function FeatureCard({ icon, title, value }: { icon: React.ReactNode, title: string, value: string }) {
+  return (
+    <Card className="bg-card/50 backdrop-blur-sm">
+      <CardContent className="flex flex-col items-center justify-center p-6 space-y-4 text-center">
+        <div className="p-3 rounded-full bg-primary/10">
+          <div className="p-2 rounded-full bg-primary/20 text-primary">
+            {icon}
+          </div>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <p className="text-3xl font-bold text-primary mt-1">{value}</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -219,6 +237,14 @@ export default function Home() {
                 )}
             </div>
         </div>
+        
+        {/* Features Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <FeatureCard icon={<Package size={24} />} title="Products Live" value="120+" />
+            <FeatureCard icon={<ShoppingCart size={24} />} title="Transactions Completed" value="15k+" />
+            <FeatureCard icon={<LifeBuoy size={24} />} title="Dedicated Support" value="24/7" />
+        </div>
+
       </div>
     </div>
   );
