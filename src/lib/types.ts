@@ -1,4 +1,5 @@
 import type { User as FirebaseUser } from 'firebase/auth';
+import type { Timestamp } from 'firebase/firestore';
 
 export interface Product {
   id: string;
@@ -15,10 +16,20 @@ export interface CartItem extends Product {
 }
 
 export interface Order {
-  id: string;
+  id:string;
   date: string;
   items: CartItem[];
   total: number;
 }
 
 export type User = FirebaseUser;
+
+export interface Review {
+    id: string;
+    productId: string;
+    userId: string;
+    userEmail: string;
+    rating: number;
+    comment: string;
+    createdAt: Timestamp;
+}
