@@ -22,6 +22,7 @@ import { useEffect, useState, useRef } from 'react';
 import { getProducts } from '@/services/productService';
 import type { Product } from '@/lib/types';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 export function Header() {
   const { cartCount } = useCart();
@@ -33,6 +34,18 @@ export function Header() {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 0);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchAllProducts = async () => {
@@ -86,7 +99,10 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className={cn(
+        "sticky top-0 z-50 w-full transition-all duration-300",
+        scrolled ? "border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" : "bg-transparent"
+    )}>
       <div className="flex h-14 items-center px-4 md:px-6 lg:px-8">
         <div className="mr-4 flex items-center">
           <Link href="/" className="flex items-center space-x-2">
