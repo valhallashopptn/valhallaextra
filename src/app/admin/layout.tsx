@@ -47,13 +47,7 @@ export default function AdminLayout({
     <div className="pt-14 md:pt-0">
         <SidebarProvider>
             <Sidebar>
-                <SidebarHeader className="md:hidden flex justify-between p-2">
-                    <span className="text-lg font-semibold">Admin Menu</span>
-                    <SidebarTrigger>
-                        <PanelLeft />
-                    </SidebarTrigger>
-                </SidebarHeader>
-                <SidebarHeader className="hidden md:flex">
+                <SidebarHeader>
                     <div className="flex items-center gap-2">
                         <SidebarTrigger />
                         <span className="text-lg font-semibold">Admin Panel</span>
