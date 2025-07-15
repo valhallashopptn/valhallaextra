@@ -74,7 +74,7 @@ function CategoryCard({ category }: { category: Category }) {
 
 function FeatureCard({ icon, title, value }: { icon: React.ReactNode, title: string, value: string }) {
   return (
-    <Card className="bg-card/50 backdrop-blur-sm">
+    <Card className="bg-background/30 backdrop-blur-sm border-primary/20">
       <CardContent className="flex flex-col items-center justify-center p-6 space-y-4 text-center">
         <div className="p-3 rounded-full bg-primary/10">
           <div className="p-2 rounded-full bg-primary/20 text-primary">
@@ -175,9 +175,9 @@ export default function Home() {
 
 
   return (
-    <div>
+    <div className="space-y-24">
       {/* Hero Section */}
-      <div className="relative h-[400px] md:h-[500px] overflow-hidden">
+      <div className="relative h-[400px] md:h-[500px] overflow-hidden -mb-24">
         {loading ? (
           <Skeleton className="h-full w-full" />
         ) : (
@@ -297,18 +297,20 @@ export default function Home() {
                 </Button>
             </div>
         </section>
-        
-        <Separator />
+      </div>
 
         {/* Features Section */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <FeatureCard icon={<Package size={24} />} title="Products Live" value="120+" />
-            <FeatureCard icon={<ShoppingCart size={24} />} title="Transactions Completed" value="15k+" />
-            <FeatureCard icon={<LifeBuoy size={24} />} title="Dedicated Support" value="24/7" />
+        <section className="bg-card py-16">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <FeatureCard icon={<Package size={24} />} title="Products Live" value="120+" />
+                  <FeatureCard icon={<ShoppingCart size={24} />} title="Transactions Completed" value="15k+" />
+                  <FeatureCard icon={<LifeBuoy size={24} />} title="Dedicated Support" value="24/7" />
+              </div>
+            </div>
         </section>
-
-        <Separator />
         
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-24 -mt-24">
         {/* Reviews Section */}
         <section className="space-y-8">
             <div className="text-center">
