@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Input } from './ui/input';
 import { useEffect, useState, useRef } from 'react';
@@ -104,6 +104,9 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-3/4">
+            <SheetHeader>
+                <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+            </SheetHeader>
              <div className="flex items-center space-x-2 pb-4 border-b">
                  {logoUrl ? (
                     <Image src={logoUrl} alt={`${siteTitle} Logo`} width={24} height={24} className="h-6 w-6 text-primary" />
