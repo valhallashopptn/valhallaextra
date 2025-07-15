@@ -8,6 +8,7 @@ import { Inter } from 'next/font/google';
 import { getSettings } from '@/services/settingsService';
 import { themes } from '@/lib/themes';
 import { cn } from '@/lib/utils';
+import { Footer } from '@/components/Footer';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -68,6 +69,7 @@ export default async function RootLayout({
             {children}
           </main>
           <Toaster />
+          <Footer />
         </Providers>
       </body>
     </html>
