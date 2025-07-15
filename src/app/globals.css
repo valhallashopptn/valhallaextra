@@ -67,28 +67,34 @@ body {
 }
 
 @layer utilities {
-  @keyframes tada {
-    0% { transform: scale(1); }
-    10%, 20% { transform: scale(0.9) rotate(-3deg); }
-    30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg); }
-    40%, 60%, 80% { transform: scale(1.1) rotate(-3deg); }
-    100% { transform: scale(1) rotate(0); }
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
-  @keyframes wobble {
-    0% { transform: translateX(0%); }
-    15% { transform: translateX(-25%) rotate(-5deg); }
-    30% { transform: translateX(20%) rotate(3deg); }
-    45% { transform: translateX(-15%) rotate(-3deg); }
-    60% { transform: translateX(10%) rotate(2deg); }
-    75% { transform: translateX(-5%) rotate(-1deg); }
-    100% { transform: translateX(0%); }
+  @keyframes pulse-subtle {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
   }
 
-  @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-30px); }
-    60% { transform: translateY(-15px); }
+  @keyframes rotate-back-and-forth {
+    0%, 100% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(15deg);
+    }
+    75% {
+      transform: rotate(-15deg);
+    }
   }
 }
 
@@ -132,13 +138,13 @@ body {
     transform: rotateY(180deg);
   }
 
-  .animate-tada {
-    animation: tada 2s infinite ease-in-out;
+  .animate-spin-slow {
+    animation: spin-slow 3s linear infinite;
   }
-  .animate-wobble {
-    animation: wobble 2s infinite ease-in-out;
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2.5s infinite ease-in-out;
   }
-  .animate-bounce {
-    animation: bounce 2s infinite ease-in-out;
+  .animate-rotate-back-and-forth {
+    animation: rotate-back-and-forth 2s infinite ease-in-out;
   }
 }

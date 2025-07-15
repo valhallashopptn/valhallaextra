@@ -310,9 +310,9 @@ export default function Home() {
         <section className="bg-card py-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FeatureCard icon={<Package size={32} />} title="Products Live" value="120+" animationClass="animate-tada" />
-                <FeatureCard icon={<ShoppingCart size={32} />} title="Transactions Completed" value="15k+" animationClass="animate-wobble" />
-                <FeatureCard icon={<LifeBuoy size={32} />} title="Dedicated Support" value="24/7" animationClass="animate-bounce" />
+                <FeatureCard icon={<Package size={32} />} title="Products Live" value="120+" animationClass="animate-spin-slow" />
+                <FeatureCard icon={<ShoppingCart size={32} />} title="Transactions Completed" value="15k+" animationClass="animate-pulse-subtle" />
+                <FeatureCard icon={<LifeBuoy size={32} />} title="Dedicated Support" value="24/7" animationClass="animate-rotate-back-and-forth" />
             </div>
           </div>
         </section>
