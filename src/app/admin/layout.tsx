@@ -14,6 +14,7 @@ import {
   SidebarProvider,
   SidebarInset,
   SidebarTrigger,
+  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { LayoutDashboard, ShoppingCart, Package, PanelLeft, Tag, Palette } from 'lucide-react';
 import Link from 'next/link';
@@ -58,8 +59,9 @@ export default function AdminLayout({
                     <span className="text-lg font-semibold">Admin Panel</span>
                 </div>
             </SidebarHeader>
+            <SidebarSeparator />
             <SidebarContent>
-            <SidebarMenu>
+            <SidebarMenu className="mt-4">
                 <SidebarMenuItem className="admin-sidebar-menu-item">
                 <SidebarMenuButton asChild isActive={pathname === '/admin'}>
                     <Link href="/admin">
