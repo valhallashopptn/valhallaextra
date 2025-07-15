@@ -12,6 +12,7 @@ import { ArrowRight, Search } from 'lucide-react';
 import { getProducts } from '@/services/productService';
 import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 function CategoryCard({ category }: { category: Category }) {
   return (
@@ -47,7 +48,7 @@ export default function Home() {
             getCategories(),
             getProducts()
         ]);
-        setCategories(categoriesFromDb.slice(0, 3)); // Show only 3 categories on homepage
+        setCategories(categoriesFromDb);
         setProducts(productsFromDb);
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -58,6 +59,8 @@ export default function Home() {
 
     fetchInitialData();
   }, []);
+
+  const featuredCategories = useMemo(() => categories.slice(0, 3), [categories]);
 
   const filteredProducts = useMemo(() => {
     let prods = products;
@@ -95,83 +98,88 @@ export default function Home() {
             </Button>
         </div>
       </div>
-
-       {/* Browse by Category Section */}
-       <div className="space-y-6">
-        <div className="text-center space-y-2">
-            <h2 className="text-3xl font-bold font-headline">Browse by Category</h2>
-             <Button variant="ghost" asChild>
-                <Link href="/products">
-                    View All Categories <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-            </Button>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {loading ? (
-            Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-48 w-full rounded-xl" />
-            ))
-            ) : (
-            categories.map((category: Category) => (
-                <CategoryCard key={category.id} category={category} />
-            ))
-            )}
-        </div>
-       </div>
-
-       {/* Our Products Section */}
-        <div className="space-y-8">
-            <div className="text-center">
-                <h2 className="text-3xl font-bold font-headline">Our Products</h2>
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-16 md:space-y-24">
+         {/* Browse by Category Section */}
+         <div className="space-y-6">
+            <div className="text-center space-y-2">
+                <h2 className="text-3xl font-bold font-headline">Browse by Category</h2>
+                <Button variant="ghost" asChild>
+                    <Link href="/products">
+                        View All Categories <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
             </div>
-            
-            <div className="flex flex-col md:flex-row gap-4">
-                <div className="relative flex-grow">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input 
-                        placeholder="Search products..."
-                        className="pl-10"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
-                <div className="flex items-center gap-2 overflow-x-auto pb-2">
-                    <Button
-                        variant={!selectedCategory ? 'default' : 'outline'}
-                        onClick={() => setSelectedCategory(null)}
-                        className="rounded-full flex-shrink-0"
-                        >
-                        All
-                    </Button>
-                    {categories.map(category => (
-                        <Button
-                        key={category.id}
-                        variant={selectedCategory === category.id ? 'default' : 'outline'}
-                        onClick={() => setSelectedCategory(category.id)}
-                        className="rounded-full flex-shrink-0"
-                        >
-                        {category.name}
-                        </Button>
-                    ))}
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loading ? (
-                Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="flex flex-col space-y-3">
-                    <Skeleton className="h-[175px] w-full rounded-xl" />
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-[200px]" />
-                        <Skeleton className="h-4 w-[150px]" />
-                    </div>
-                    </div>
+                Array.from({ length: 3 }).map((_, i) => (
+                    <Skeleton key={i} className="h-48 w-full rounded-xl" />
                 ))
                 ) : (
-                filteredProducts.map((product: Product) => (
-                    <ProductCard key={product.id} product={product} />
+                featuredCategories.map((category: Category) => (
+                    <CategoryCard key={category.id} category={category} />
                 ))
                 )}
+            </div>
+        </div>
+
+        {/* Our Products Section */}
+            <div className="space-y-8">
+                <div className="text-center">
+                    <h2 className="text-3xl font-bold font-headline">Our Products</h2>
+                </div>
+                
+                <div className="flex flex-col md:flex-row gap-4">
+                    <div className="relative flex-grow">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input 
+                            placeholder="Search products..."
+                            className="pl-10"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+                    <ScrollArea className="w-full md:w-auto whitespace-nowrap">
+                        <div className="flex items-center gap-2 pb-2 justify-center">
+                            <Button
+                                variant={!selectedCategory ? 'default' : 'outline'}
+                                onClick={() => setSelectedCategory(null)}
+                                className="rounded-full flex-shrink-0"
+                                >
+                                All
+                            </Button>
+                            {featuredCategories.map(category => (
+                                <Button
+                                key={category.id}
+                                variant={selectedCategory === category.id ? 'default' : 'outline'}
+                                onClick={() => setSelectedCategory(category.id)}
+                                className="rounded-full flex-shrink-0"
+                                >
+                                {category.name}
+                                </Button>
+                            ))}
+                        </div>
+                        <ScrollBar orientation="horizontal" />
+                    </ScrollArea>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {loading ? (
+                    Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="flex flex-col space-y-3">
+                        <Skeleton className="h-[175px] w-full rounded-xl" />
+                        <div className="space-y-2">
+                            <Skeleton className="h-4 w-[200px]" />
+                            <Skeleton className="h-4 w-[150px]" />
+                        </div>
+                        </div>
+                    ))
+                    ) : (
+                    filteredProducts.map((product: Product) => (
+                        <ProductCard key={product.id} product={product} />
+                    ))
+                    )}
+                </div>
             </div>
         </div>
     </div>
