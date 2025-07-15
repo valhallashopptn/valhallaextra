@@ -27,6 +27,31 @@ export type Theme = {
 
 export const themes: Theme[] = [
   {
+    name: 'Voidwalker',
+    colors: {
+      background: '224 71% 4%', // #030711
+      foreground: '210 40% 98%',
+      card: '246 54% 10%', // #0f0c27
+      cardForeground: '210 40% 98%',
+      popover: '246 54% 10%',
+      popoverForeground: '210 40% 98%',
+      primary: '252 91% 75%', // #a78bfa
+      primaryForeground: '246 54% 10%',
+      secondary: '217 33% 17%',
+      secondaryForeground: '210 40% 98%',
+      muted: '246 54% 15%',
+      mutedForeground: '215 28% 65%',
+      accent: '190 81% 59%', // #22d3ee
+      accentForeground: '224 71% 4%',
+      destructive: '0 63% 31%',
+      destructiveForeground: '210 40% 98%',
+      border: '246 54% 20%',
+      input: '246 54% 20%',
+      ring: '190 81% 59%',
+    },
+    radius: '0.5rem',
+  },
+  {
     name: 'Glitch-Pop',
     colors: {
       background: '222 84% 5%',
@@ -277,5 +302,3 @@ export const themes: Theme[] = [
     radius: '0.5rem',
   },
 ];
-
-    
