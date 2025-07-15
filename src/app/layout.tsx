@@ -17,7 +17,7 @@ const inter = Inter({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const siteTitle = await getSettings(['siteTitle']).then(s => s.siteTitle || 'TopUp Hub');
+  const siteTitle = await getSettings(['siteTitle']).then(s => s.siteTitle || 'ApexTop');
   return {
     title: {
       default: siteTitle,

@@ -1,11 +1,10 @@
-
-'use client';
-
 import Link from 'next/link';
 import { Logo } from './icons/Logo';
 import { Button } from './ui/button';
 import { Github, Twitter, Facebook } from 'lucide-react';
 import type { ComponentProps } from 'react';
+import { getSettings } from '@/services/settingsService';
+import Image from 'next/image';
 
 function SocialLink({ icon: Icon, ...props }: { icon: React.ElementType } & ComponentProps<typeof Link>) {
     return (
@@ -18,15 +17,21 @@ function SocialLink({ icon: Icon, ...props }: { icon: React.ElementType } & Comp
     );
 }
 
-export function Footer() {
+export async function Footer() {
+  const { siteTitle = 'ApexTop', logoUrl } = await getSettings(['siteTitle', 'logoUrl']);
+
   return (
     <footer className="bg-card border-t border-border mt-auto">
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
           <div className="flex flex-col items-center md:items-start">
             <Link href="/" className="flex items-center space-x-2 mb-4">
-              <Logo className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold font-headline">TopUp Hub</span>
+               {logoUrl ? (
+                <Image src={logoUrl} alt={`${siteTitle} Logo`} width={32} height={32} className="h-8 w-8 text-primary" />
+              ) : (
+                <Logo className="h-8 w-8 text-primary" />
+              )}
+              <span className="text-xl font-bold font-headline">{siteTitle}</span>
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
               Your one-stop shop for instant game top-ups and digital vouchers. Quick, secure, and always on.
@@ -53,7 +58,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-border/50 text-center text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} TopUp Hub. All Rights Reserved.</p>
+            <p>&copy; {new Date().getFullYear()} {siteTitle}. All Rights Reserved.</p>
         </div>
       </div>
     </footer>
