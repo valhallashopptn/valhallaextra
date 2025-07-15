@@ -41,46 +41,48 @@ export default function AdminLayout({
   }
 
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader>
-          <div className="flex items-center gap-2">
-            <SidebarTrigger />
-            <span className="text-lg font-semibold">Admin Panel</span>
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            <SidebarMenuItem className="admin-sidebar-menu-item">
-              <SidebarMenuButton asChild isActive={pathname === '/admin'}>
-                <Link href="/admin">
-                  <LayoutDashboard />
-                  Dashboard
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem className="admin-sidebar-menu-item">
-              <SidebarMenuButton asChild isActive={pathname === '/admin/products'}>
-                <Link href="/admin/products">
-                  <Package />
-                  Products
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem className="admin-sidebar-menu-item">
-              <SidebarMenuButton asChild isActive={pathname === '/admin/orders'}>
-                <Link href="/admin/orders">
-                  <ShoppingCart />
-                  Orders
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarContent>
-      </Sidebar>
-      <SidebarInset>
-        <div className="p-4 md:p-8">{children}</div>
-      </SidebarInset>
-    </SidebarProvider>
+    <div className="pt-14">
+        <SidebarProvider>
+        <Sidebar>
+            <SidebarHeader>
+            <div className="flex items-center gap-2">
+                <SidebarTrigger />
+                <span className="text-lg font-semibold">Admin Panel</span>
+            </div>
+            </SidebarHeader>
+            <SidebarContent>
+            <SidebarMenu>
+                <SidebarMenuItem className="admin-sidebar-menu-item">
+                <SidebarMenuButton asChild isActive={pathname === '/admin'}>
+                    <Link href="/admin">
+                    <LayoutDashboard />
+                    Dashboard
+                    </Link>
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem className="admin-sidebar-menu-item">
+                <SidebarMenuButton asChild isActive={pathname === '/admin/products'}>
+                    <Link href="/admin/products">
+                    <Package />
+                    Products
+                    </Link>
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem className="admin-sidebar-menu-item">
+                <SidebarMenuButton asChild isActive={pathname === '/admin/orders'}>
+                    <Link href="/admin/orders">
+                    <ShoppingCart />
+                    Orders
+                    </Link>
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+            </SidebarContent>
+        </Sidebar>
+        <SidebarInset>
+            <div className="p-4 md:p-8">{children}</div>
+        </SidebarInset>
+        </SidebarProvider>
+    </div>
   );
 }
