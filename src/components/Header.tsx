@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, Gamepad2, ShieldCheck } from 'lucide-react';
+import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, Gamepad2, ShieldCheck, Search } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Input } from './ui/input';
 
 
 export function Header() {
@@ -45,14 +46,29 @@ export function Header() {
               TopUp Hub
             </span>
           </Link>
-           <nav className="hidden md:flex">
+           <nav className="hidden md:flex items-center gap-4">
             <Link href="/" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
+                Home
+            </Link>
+            <Link href="/products" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
                 Products
             </Link>
             </nav>
         </div>
         
-        <div className="flex items-center justify-end space-x-2 md:space-x-4">
+        <div className="flex flex-1 items-center justify-end space-x-2 md:space-x-4">
+          <div className="w-full flex-1 md:w-auto md:flex-none">
+            <form>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search products..."
+                  className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
+                />
+              </div>
+            </form>
+          </div>
           <Button
             variant="ghost"
             size="icon"

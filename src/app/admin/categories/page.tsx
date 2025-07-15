@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -13,9 +14,11 @@ import { getCategories, addCategory } from '@/services/categoryService';
 import type { Category } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { PlusCircle } from 'lucide-react';
+import Image from 'next/image';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Category name must be at least 2 characters.' }),
+  imageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/600x400.png'),
 });
 
 type CategoryFormData = z.infer<typeof formSchema>;
@@ -27,7 +30,7 @@ export default function CategoriesPage() {
 
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: '' },
+    defaultValues: { name: '', imageUrl: 'https://placehold.co/600x400.png' },
   });
 
   useEffect(() => {
@@ -49,7 +52,7 @@ export default function CategoriesPage() {
 
   const handleFormSubmit = async (data: CategoryFormData) => {
     try {
-      await addCategory({ name: data.name });
+      await addCategory({ name: data.name, imageUrl: data.imageUrl });
       toast({ title: 'Success', description: 'Category added successfully.' });
       form.reset();
       await fetchCategories();
@@ -71,6 +74,7 @@ export default function CategoriesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Image</TableHead>
                   <TableHead>Category Name</TableHead>
                   <TableHead>Date Added</TableHead>
                 </TableRow>
@@ -78,10 +82,13 @@ export default function CategoriesPage() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={2} className="text-center">Loading...</TableCell>
+                    <TableCell colSpan={3} className="text-center">Loading...</TableCell>
                   </TableRow>
                 ) : categories.map(category => (
                   <TableRow key={category.id}>
+                    <TableCell>
+                      <Image src={category.imageUrl} alt={category.name} width={40} height={40} className="rounded-md object-cover" />
+                    </TableCell>
                     <TableCell className="font-medium">{category.name}</TableCell>
                     <TableCell>{new Date(category.createdAt.toDate()).toLocaleDateString()}</TableCell>
                   </TableRow>
@@ -108,6 +115,19 @@ export default function CategoriesPage() {
                       <FormLabel>Category Name</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g., PC Games" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://placehold.co/600x400.png" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
