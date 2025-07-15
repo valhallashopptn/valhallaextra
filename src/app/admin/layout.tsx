@@ -41,7 +41,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="pt-14">
+    <div>
         <SidebarProvider>
         <Sidebar>
             <SidebarHeader>
@@ -79,7 +79,7 @@ export default function AdminLayout({
             </SidebarMenu>
             </SidebarContent>
         </Sidebar>
-        <SidebarInset>
+        <SidebarInset className="pt-14">
             <div className="p-4 md:p-8">{children}</div>
         </SidebarInset>
         </SidebarProvider>
