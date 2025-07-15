@@ -13,6 +13,7 @@ import { getProducts } from '@/services/productService';
 import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Card, CardContent } from '@/components/ui/card';
 
 function CategoryCard({ category }: { category: Category }) {
   return (
@@ -77,29 +78,22 @@ export default function Home() {
   return (
     <div className="space-y-16 md:space-y-24">
       {/* Hero Section */}
-      <div className="relative -mx-4 -mt-8 h-96 overflow-hidden flex items-center justify-center text-center text-white">
-        <Image 
-            src="https://placehold.co/1920x1080.png" 
-            alt="Digital Marketplace" 
-            fill 
-            className="object-cover"
-            data-ai-hint="fantasy battle"
-        />
-        <div className="absolute inset-0 bg-black/60"></div>
-        <div className="relative z-10 max-w-2xl px-4">
-            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl font-headline">
+      <Card className="bg-muted border-none text-center">
+        <CardContent className="py-20 md:py-32">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl font-headline">
                 Your Digital Marketplace
             </h1>
-            <p className="mt-3 text-lg text-gray-300 sm:text-xl">
+            <p className="mt-3 text-lg text-muted-foreground sm:text-xl max-w-2xl mx-auto">
                 Instant top-ups for your favorite games and digital products. Quick, secure, and reliable service at your fingertips.
             </p>
             <Button asChild size="lg" className="mt-8">
                 <Link href="/products">Browse Products</Link>
             </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-16 md:space-y-24">
+      {/* Main Content Sections */}
+      <div className="space-y-16 md:space-y-24">
          {/* Browse by Category Section */}
          <div className="space-y-6">
             <div className="text-center space-y-2">
@@ -124,64 +118,64 @@ export default function Home() {
         </div>
 
         {/* Our Products Section */}
-            <div className="space-y-8">
-                <div className="text-center">
-                    <h2 className="text-3xl font-bold font-headline">Our Products</h2>
+        <div className="space-y-8">
+            <div className="text-center">
+                <h2 className="text-3xl font-bold font-headline">Our Products</h2>
+            </div>
+            
+            <div className="flex flex-col md:flex-row gap-4">
+                <div className="relative flex-grow">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input 
+                        placeholder="Search products..."
+                        className="pl-10"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
-                
-                <div className="flex flex-col md:flex-row gap-4">
-                    <div className="relative flex-grow">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input 
-                            placeholder="Search products..."
-                            className="pl-10"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
-                    <ScrollArea className="w-full md:w-auto whitespace-nowrap">
-                        <div className="flex items-center gap-2 pb-2 justify-center">
+                <ScrollArea className="w-full md:w-auto whitespace-nowrap">
+                    <div className="flex items-center gap-2 pb-2 justify-center">
+                        <Button
+                            variant={!selectedCategory ? 'default' : 'outline'}
+                            onClick={() => setSelectedCategory(null)}
+                            className="rounded-full flex-shrink-0"
+                            >
+                            All
+                        </Button>
+                        {featuredCategories.map(category => (
                             <Button
-                                variant={!selectedCategory ? 'default' : 'outline'}
-                                onClick={() => setSelectedCategory(null)}
-                                className="rounded-full flex-shrink-0"
-                                >
-                                All
+                            key={category.id}
+                            variant={selectedCategory === category.id ? 'default' : 'outline'}
+                            onClick={() => setSelectedCategory(category.id)}
+                            className="rounded-full flex-shrink-0"
+                            >
+                            {category.name}
                             </Button>
-                            {featuredCategories.map(category => (
-                                <Button
-                                key={category.id}
-                                variant={selectedCategory === category.id ? 'default' : 'outline'}
-                                onClick={() => setSelectedCategory(category.id)}
-                                className="rounded-full flex-shrink-0"
-                                >
-                                {category.name}
-                                </Button>
-                            ))}
-                        </div>
-                        <ScrollBar orientation="horizontal" />
-                    </ScrollArea>
-                </div>
+                        ))}
+                    </div>
+                    <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+            </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {loading ? (
-                    Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="flex flex-col space-y-3">
-                        <Skeleton className="h-[175px] w-full rounded-xl" />
-                        <div className="space-y-2">
-                            <Skeleton className="h-4 w-[200px]" />
-                            <Skeleton className="h-4 w-[150px]" />
-                        </div>
-                        </div>
-                    ))
-                    ) : (
-                    filteredProducts.map((product: Product) => (
-                        <ProductCard key={product.id} product={product} />
-                    ))
-                    )}
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {loading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="flex flex-col space-y-3">
+                    <Skeleton className="h-[175px] w-full rounded-xl" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-[200px]" />
+                        <Skeleton className="h-4 w-[150px]" />
+                    </div>
+                    </div>
+                ))
+                ) : (
+                filteredProducts.map((product: Product) => (
+                    <ProductCard key={product.id} product={product} />
+                ))
+                )}
             </div>
         </div>
+      </div>
     </div>
   );
 }
