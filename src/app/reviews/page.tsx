@@ -132,10 +132,8 @@ export default function ReviewsPage() {
                         &quot;{review.comment}&quot;
                     </blockquote>
                     <div className="mt-4 pt-4 border-t border-border">
-                      <Link href={`/product/${review.productId}`} className="group">
-                        <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
+                      <Link href={`/product/${review.productId}`} className="group text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
                           Review for: {review.productName}
-                        </span>
                       </Link>
                     </div>
                   </CardContent>
