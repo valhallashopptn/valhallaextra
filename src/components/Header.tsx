@@ -95,7 +95,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/10 bg-background/80 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-border/10 bg-background/50 backdrop-blur-sm">
       <div className="container mx-auto px-4 flex h-14 items-center">
         
         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -105,7 +105,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
               <span className="sr-only">Open Menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-3/4 bg-slate-900/50 backdrop-blur-sm">
+          <SheetContent side="left" className="w-3/4 bg-background/95 backdrop-blur-sm">
             <SheetHeader>
                 <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
             </SheetHeader>
@@ -121,8 +121,8 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                     </span>
                 </div>
                 
-                <div className="relative w-full">
-                  <form onSubmit={(e) => { e.preventDefault(); router.push(`/products?q=${searchQuery}`); setIsMobileMenuOpen(false); }}>
+                <div className="relative w-full" ref={searchRef}>
+                  <form onSubmit={(e) => { e.preventDefault(); router.push(`/products?q=${searchQuery}`); handleSearchResultClick(); }}>
                     <div className="relative">
                       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
@@ -221,7 +221,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
         
         <div className="flex flex-1 items-center justify-end space-x-2 md:space-x-4">
           <div className="relative hidden md:block w-full flex-1 md:w-auto md:flex-none" ref={searchRef}>
-            <form onSubmit={(e) => { e.preventDefault(); router.push(`/products?q=${searchQuery}`) }}>
+            <form onSubmit={(e) => { e.preventDefault(); router.push(`/products?q=${searchQuery}`); handleSearchResultClick(); }}>
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
