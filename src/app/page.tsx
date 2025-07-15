@@ -240,6 +240,8 @@ export default function Home() {
         </div>
       </section>
 
+      <Separator />
+
       {/* Our Products Section */}
       <section className="bg-background py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -367,5 +369,7 @@ export default function Home() {
 }
 
   
+
+    
 
     
