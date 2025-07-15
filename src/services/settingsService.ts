@@ -4,7 +4,9 @@ import {
   doc,
   getDoc,
   setDoc,
-  serverTimestamp
+  serverTimestamp,
+  collection,
+  getDocs
 } from 'firebase/firestore';
 
 // Get a specific setting value
@@ -19,6 +21,21 @@ export const getSetting = async (key: string, defaultValue: string = ''): Promis
     // For now, we'll just return the provided default value
     return defaultValue;
   }
+};
+
+// Get multiple settings at once
+export const getSettings = async (keys: string[]): Promise<Record<string, any>> => {
+    const settings: Record<string, any> = {};
+    const settingsCollectionRef = collection(db, 'settings');
+    const snapshot = await getDocs(settingsCollectionRef);
+
+    snapshot.forEach(doc => {
+        if (keys.includes(doc.id)) {
+            settings[doc.id] = doc.data().value;
+        }
+    });
+
+    return settings;
 };
 
 // Update or create a specific setting

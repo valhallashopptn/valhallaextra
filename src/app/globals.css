@@ -7,74 +7,49 @@ body {
 
 @layer base {
   :root {
-    --background: 224 71% 4%; /* Deep dark slate */
-    --foreground: 210 40% 98%; /* Light gray */
-    --card: 222 47% 11%; /* Dark slate for cards */
+    --background: 224 71% 4%; 
+    --foreground: 210 40% 98%; 
+    --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
-    --primary: 173 97% 48%; /* Electric Teal/Cyan */
+    --primary: 173 97% 48%; 
     --primary-foreground: 224 71% 4%;
-    --secondary: 326 97% 59%; /* Hot Pink/Magenta */
+    --secondary: 326 97% 59%; 
     --secondary-foreground: 210 40% 98%;
     --muted: 222 47% 11%;
     --muted-foreground: 215 28% 65%;
-    --accent: 326 97% 59%; /* Hot Pink/Magenta */
+    --accent: 326 97% 59%; 
     --accent-foreground: 210 40% 98%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
     --border: 217 33% 17%;
     --input: 217 33% 17%;
     --ring: 173 97% 48%;
-    --chart-1: 173 97% 48%;
-    --chart-2: 326 97% 59%;
-    --chart-3: 193 84% 58%;
-    --chart-4: 49 84% 58%;
-    --chart-5: 355 84% 58%;
     --radius: 0.5rem;
-    --sidebar-background: 224 71% 4%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 173 97% 48%;
-    --sidebar-primary-foreground: 224 71% 4%;
-    --sidebar-accent: 222 47% 11%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 173 97% 48%;
   }
 
   .dark {
-    --background: 224 71% 4%; /* Deep dark slate */
-    --foreground: 210 40% 98%; /* Light gray */
-    --card: 222 47% 11%; /* Dark slate for cards */
+    --background: 224 71% 4%; 
+    --foreground: 210 40% 98%; 
+    --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
-    --primary: 173 97% 48%; /* Electric Teal/Cyan */
+    --primary: 173 97% 48%; 
     --primary-foreground: 224 71% 4%;
-    --secondary: 326 97% 59%; /* Hot Pink/Magenta */
+    --secondary: 326 97% 59%; 
     --secondary-foreground: 210 40% 98%;
     --muted: 222 47% 11%;
     --muted-foreground: 215 28% 65%;
-    --accent: 326 97% 59%; /* Hot Pink/Magenta */
+    --accent: 326 97% 59%; 
     --accent-foreground: 210 40% 98%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
     --border: 217 33% 17%;
     --input: 217 33% 17%;
     --ring: 173 97% 48%;
-    --chart-1: 173 97% 48%;
-    --chart-2: 326 97% 59%;
-    --chart-3: 193 84% 58%;
-    --chart-4: 49 84% 58%;
-    --chart-5: 355 84% 58%;
-    --sidebar-background: 224 71% 4%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 173 97% 48%;
-    --sidebar-primary-foreground: 224 71% 4%;
-    --sidebar-accent: 222 47% 11%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 173 97% 48%;
+    --radius: 0.5rem;
   }
 }
 

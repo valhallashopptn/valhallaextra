@@ -12,6 +12,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { getSetting, updateSetting } from '@/services/settingsService';
 import Image from 'next/image';
+import { themes, type Theme } from '@/lib/themes';
+import { Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   heroImageUrl: z.string().url({ message: 'Please enter a valid URL.' }),
@@ -23,6 +26,7 @@ export default function AppearancePage() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [currentImageUrl, setCurrentImageUrl] = useState('');
+  const [activeTheme, setActiveTheme] = useState('Night Runner');
 
   const form = useForm<AppearanceFormData>({
     resolver: zodResolver(formSchema),
@@ -32,31 +36,49 @@ export default function AppearancePage() {
   });
 
   useEffect(() => {
-    const fetchHeroImage = async () => {
+    const fetchSettings = async () => {
       setLoading(true);
       try {
-        const url = await getSetting('heroImageUrl', 'https://placehold.co/1920x1080.png');
-        setCurrentImageUrl(url);
-        form.setValue('heroImageUrl', url);
+        const heroUrl = await getSetting('heroImageUrl', 'https://placehold.co/1920x1080.png');
+        const currentTheme = await getSetting('theme', 'Night Runner');
+        
+        setCurrentImageUrl(heroUrl);
+        form.setValue('heroImageUrl', heroUrl);
+        setActiveTheme(currentTheme);
+
       } catch (error) {
         toast({ title: 'Error', description: 'Could not load current settings.', variant: 'destructive' });
       } finally {
         setLoading(false);
       }
     };
-    fetchHeroImage();
+    fetchSettings();
   }, [form, toast]);
 
   const handleFormSubmit = async (data: AppearanceFormData) => {
     try {
       await updateSetting('heroImageUrl', data.heroImageUrl);
       setCurrentImageUrl(data.heroImageUrl);
-      toast({ title: 'Success', description: 'Appearance settings updated successfully.' });
+      toast({ title: 'Success', description: 'Hero image updated successfully.' });
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to update settings.', variant: 'destructive' });
-      console.error("Failed to update settings", error);
+      toast({ title: 'Error', description: 'Failed to update hero image.', variant: 'destructive' });
+      console.error("Failed to update hero image", error);
     }
   };
+
+  const handleThemeSelect = async (themeName: string) => {
+    try {
+        setActiveTheme(themeName);
+        await updateSetting('theme', themeName);
+        
+        // This is a bit of a hack to force a re-render of the layout with the new theme
+        window.location.reload();
+
+    } catch (error) {
+        toast({ title: 'Error', description: 'Failed to update theme.', variant: 'destructive' });
+        console.error("Failed to update theme", error);
+    }
+  }
   
   const watchedUrl = form.watch('heroImageUrl');
 
@@ -66,6 +88,42 @@ export default function AppearancePage() {
         <h1 className="text-3xl font-bold font-headline">Appearance</h1>
         <p className="text-muted-foreground">Customize the look and feel of your storefront.</p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Store Theme</CardTitle>
+          <CardDescription>Select a theme to change the color scheme of your website.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                {themes.map((theme) => (
+                    <div key={theme.name} className="space-y-2">
+                        <button 
+                            onClick={() => handleThemeSelect(theme.name)}
+                            className={cn(
+                                "relative block w-full aspect-video rounded-lg border-2 transition-all",
+                                activeTheme === theme.name ? 'border-primary ring-2 ring-primary' : 'border-border'
+                            )}
+                        >
+                            <div className="h-full w-full flex flex-col items-center justify-center" style={{ backgroundColor: `hsl(${theme.colors.background})` }}>
+                               <div className="flex gap-2">
+                                    <div className="h-8 w-8 rounded-full" style={{ backgroundColor: `hsl(${theme.colors.primary})` }}></div>
+                                    <div className="h-8 w-8 rounded-full" style={{ backgroundColor: `hsl(${theme.colors.secondary})` }}></div>
+                                    <div className="h-8 w-8 rounded-full" style={{ backgroundColor: `hsl(${theme.colors.accent})` }}></div>
+                               </div>
+                            </div>
+                             {activeTheme === theme.name && (
+                                <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                                    <Check className="h-4 w-4" />
+                                </div>
+                            )}
+                        </button>
+                        <p className="text-center text-sm font-medium">{theme.name}</p>
+                    </div>
+                ))}
+            </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

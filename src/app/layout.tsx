@@ -4,6 +4,9 @@ import { Toaster } from '@/components/ui/toaster';
 import { Providers } from '@/components/Providers';
 import { Header } from '@/components/Header';
 import { Orbitron, Inter } from 'next/font/google';
+import { getSetting } from '@/services/settingsService';
+import { themes } from '@/lib/themes';
+import { cn } from '@/lib/utils';
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -23,13 +26,40 @@ export const metadata: Metadata = {
   description: 'Top up your favorite games.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const themeName = await getSetting('theme', 'Night Runner');
+  const activeTheme = themes.find(t => t.name === themeName) || themes[0];
+  
+  const themeStyle = {
+    '--background': activeTheme.colors.background,
+    '--foreground': activeTheme.colors.foreground,
+    '--card': activeTheme.colors.card,
+    '--card-foreground': activeTheme.colors.cardForeground,
+    '--popover': activeTheme.colors.popover,
+    '--popover-foreground': activeTheme.colors.popoverForeground,
+    '--primary': activeTheme.colors.primary,
+    '--primary-foreground': activeTheme.colors.primaryForeground,
+    '--secondary': activeTheme.colors.secondary,
+    '--secondary-foreground': activeTheme.colors.secondaryForeground,
+    '--muted': activeTheme.colors.muted,
+    '--muted-foreground': activeTheme.colors.mutedForeground,
+    '--accent': activeTheme.colors.accent,
+    '--accent-foreground': activeTheme.colors.accentForeground,
+    '--destructive': activeTheme.colors.destructive,
+    '--destructive-foreground': activeTheme.colors.destructiveForeground,
+    '--border': activeTheme.colors.border,
+    '--input': activeTheme.colors.input,
+    '--ring': activeTheme.colors.ring,
+    '--radius': activeTheme.radius,
+  } as React.CSSProperties;
+
+
   return (
-    <html lang="en" className={`${orbitron.variable} ${inter.variable}`}>
+    <html lang="en" className={cn(orbitron.variable, inter.variable, 'dark')} style={themeStyle}>
       <body className="font-body antialiased min-h-screen flex flex-col bg-background">
         <Providers>
           <Header />
