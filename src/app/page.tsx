@@ -143,7 +143,7 @@ export default function Home() {
          <div className="space-y-6">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-3xl font-bold font-headline">Browse by Category</h2>
-                <Button variant="ghost" asChild>
+                <Button variant="outline" asChild>
                     <Link href="/products">
                         View All Categories <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
