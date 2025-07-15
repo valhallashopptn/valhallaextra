@@ -108,7 +108,7 @@ export default function Home() {
   return (
     <div className="space-y-16 md:space-y-24">
       {/* Hero Section */}
-      <div className="relative h-[400px] md:h-[500px] overflow-hidden">
+      <div className="relative h-[400px] md:h-[500px] overflow-hidden -mt-8">
         {loading ? (
           <Skeleton className="h-full w-full" />
         ) : (

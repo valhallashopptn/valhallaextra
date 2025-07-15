@@ -25,7 +25,7 @@ export default function RootLayout({
       <body className="font-body antialiased min-h-screen flex flex-col bg-background">
         <Providers>
           <Header />
-          <main className="flex-grow px-4 md:px-6 lg:px-8 py-8 mb-16 md:mb-0">
+          <main className="flex-grow py-8 mb-16 md:mb-0">
             {children}
           </main>
           <MobileBottomNav />
