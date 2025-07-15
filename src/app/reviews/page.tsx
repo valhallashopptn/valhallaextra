@@ -30,8 +30,8 @@ function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md
 
 function AverageRatingDisplay({ rating, count }: { rating: number, count: number }) {
   return (
-    <div className="inline-flex items-center gap-3 rounded-full bg-background px-4 py-2">
-       <div className="flex items-center gap-1">
+    <div className="inline-flex items-center gap-3 rounded-lg border border-border bg-background px-4 py-2">
+      <div className="flex items-center gap-1">
         {[...Array(5)].map((_, i) => (
           <Star key={i} className={cn('h-5 w-5', i < Math.round(rating) ? 'text-accent fill-current' : 'text-muted-foreground/50')} />
         ))}
@@ -62,7 +62,7 @@ export default function ReviewsPage() {
 
   useEffect(() => {
     fetchReviews();
-  }, []);
+  }, [toast]);
 
   const onReviewSubmitted = () => {
     fetchReviews();
