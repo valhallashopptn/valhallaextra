@@ -175,9 +175,9 @@ export default function Home() {
 
 
   return (
-    <div className="space-y-24">
+    <div className="space-y-16">
       {/* Hero Section */}
-      <section className="relative h-[400px] md:h-[500px] overflow-hidden -mb-24">
+      <section className="relative h-[400px] md:h-[500px] overflow-hidden">
         {loading ? (
           <Skeleton className="h-full w-full" />
         ) : (
@@ -240,8 +240,10 @@ export default function Home() {
         </div>
       </section>
 
+      <Separator className="my-0" />
+
       {/* Our Products Section */}
-      <section className="bg-card py-16 -mt-24">
+      <section className="bg-card py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
             <div className="text-center">
                 <h2 className="text-3xl font-bold font-headline">Our Products</h2>
@@ -306,7 +308,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="bg-background py-16 -mt-24">
+      <section className="bg-background py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <FeatureCard icon={<Package size={24} />} title="Products Live" value="120+" />
@@ -317,7 +319,7 @@ export default function Home() {
       </section>
       
       {/* Reviews Section */}
-      <section className="bg-card py-16 -mt-24">
+      <section className="bg-card py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="text-center">
             <h2 className="text-3xl font-bold font-headline">What Our Customers Say</h2>
