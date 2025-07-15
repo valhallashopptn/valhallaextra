@@ -93,7 +93,7 @@ export default function Home() {
       </Card>
       
       {/* Main Content Sections */}
-      <div className="space-y-16 md:space-y-24">
+      <div className="space-y-16 md:space-y-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
          {/* Browse by Category Section */}
          <div className="space-y-6">
             <div className="text-center space-y-2">
