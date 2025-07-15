@@ -23,6 +23,7 @@ import { getProducts } from '@/services/productService';
 import type { Product } from '@/lib/types';
 import Image from 'next/image';
 import { Logo } from './icons/Logo';
+import { cn } from '@/lib/utils';
 
 interface HeaderProps {
     siteTitle?: string;
