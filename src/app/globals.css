@@ -121,6 +121,6 @@ body {
   }
 
   .animate-pulse-glow {
-    animation: pulse-glow 2.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
+    animation: pulse-glow 1.5s infinite cubic-bezier(0.4, 0, 0.6, 1);
   }
 }
