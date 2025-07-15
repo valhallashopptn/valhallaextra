@@ -10,28 +10,41 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { getSetting, updateSetting } from '@/services/settingsService';
+import { getSettings, updateSetting } from '@/services/settingsService';
 import Image from 'next/image';
 import { themes, type Theme } from '@/lib/themes';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
-const formSchema = z.object({
+const appearanceFormSchema = z.object({
   heroImageUrl: z.string().url({ message: 'Please enter a valid URL.' }),
 });
+const identityFormSchema = z.object({
+  siteTitle: z.string().min(2, { message: 'Site title must be at least 2 characters.' }),
+  logoUrl: z.string().url({ message: 'Please enter a valid URL.' }).or(z.literal('')),
+});
 
-type AppearanceFormData = z.infer<typeof formSchema>;
+type AppearanceFormData = z.infer<typeof appearanceFormSchema>;
+type IdentityFormData = z.infer<typeof identityFormSchema>;
 
 export default function AppearancePage() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [currentImageUrl, setCurrentImageUrl] = useState('');
   const [activeTheme, setActiveTheme] = useState('Night Runner');
 
-  const form = useForm<AppearanceFormData>({
-    resolver: zodResolver(formSchema),
+  const appearanceForm = useForm<AppearanceFormData>({
+    resolver: zodResolver(appearanceFormSchema),
     defaultValues: {
       heroImageUrl: '',
+    },
+  });
+
+  const identityForm = useForm<IdentityFormData>({
+    resolver: zodResolver(identityFormSchema),
+    defaultValues: {
+      siteTitle: 'TopUp Hub',
+      logoUrl: '',
     },
   });
 
@@ -39,12 +52,12 @@ export default function AppearancePage() {
     const fetchSettings = async () => {
       setLoading(true);
       try {
-        const heroUrl = await getSetting('heroImageUrl', 'https://placehold.co/1920x1080.png');
-        const currentTheme = await getSetting('theme', 'Night Runner');
+        const settings = await getSettings(['heroImageUrl', 'theme', 'siteTitle', 'logoUrl']);
         
-        setCurrentImageUrl(heroUrl);
-        form.setValue('heroImageUrl', heroUrl);
-        setActiveTheme(currentTheme);
+        appearanceForm.setValue('heroImageUrl', settings.heroImageUrl || 'https://placehold.co/1920x1080.png');
+        identityForm.setValue('siteTitle', settings.siteTitle || 'TopUp Hub');
+        identityForm.setValue('logoUrl', settings.logoUrl || '');
+        setActiveTheme(settings.theme || 'Night Runner');
 
       } catch (error) {
         toast({ title: 'Error', description: 'Could not load current settings.', variant: 'destructive' });
@@ -53,12 +66,11 @@ export default function AppearancePage() {
       }
     };
     fetchSettings();
-  }, [form, toast]);
+  }, [appearanceForm, identityForm, toast]);
 
-  const handleFormSubmit = async (data: AppearanceFormData) => {
+  const handleAppearanceSubmit = async (data: AppearanceFormData) => {
     try {
       await updateSetting('heroImageUrl', data.heroImageUrl);
-      setCurrentImageUrl(data.heroImageUrl);
       toast({ title: 'Success', description: 'Hero image updated successfully.' });
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to update hero image.', variant: 'destructive' });
@@ -66,12 +78,23 @@ export default function AppearancePage() {
     }
   };
 
+  const handleIdentitySubmit = async (data: IdentityFormData) => {
+    try {
+      await Promise.all([
+        updateSetting('siteTitle', data.siteTitle),
+        updateSetting('logoUrl', data.logoUrl),
+      ]);
+      toast({ title: 'Success', description: 'Store identity updated successfully.' });
+    } catch (error) {
+       toast({ title: 'Error', description: 'Failed to update store identity.', variant: 'destructive' });
+       console.error("Failed to update store identity", error);
+    }
+  }
+
   const handleThemeSelect = async (themeName: string) => {
     try {
         setActiveTheme(themeName);
         await updateSetting('theme', themeName);
-        
-        // This is a bit of a hack to force a re-render of the layout with the new theme
         window.location.reload();
 
     } catch (error) {
@@ -80,7 +103,7 @@ export default function AppearancePage() {
     }
   }
   
-  const watchedUrl = form.watch('heroImageUrl');
+  const watchedHeroUrl = appearanceForm.watch('heroImageUrl');
 
   return (
     <div className="space-y-8">
@@ -88,6 +111,48 @@ export default function AppearancePage() {
         <h1 className="text-3xl font-bold font-headline">Appearance</h1>
         <p className="text-muted-foreground">Customize the look and feel of your storefront.</p>
       </div>
+
+       <Card>
+        <CardHeader>
+          <CardTitle>Store Identity</CardTitle>
+          <CardDescription>Update your website's name and logo.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...identityForm}>
+            <form onSubmit={identityForm.handleSubmit(handleIdentitySubmit)} className="space-y-4">
+              <FormField
+                control={identityForm.control}
+                name="siteTitle"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Website Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., TopUp Hub" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={identityForm.control}
+                name="logoUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Logo Image URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://example.com/logo.png" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" disabled={identityForm.formState.isSubmitting}>
+                {identityForm.formState.isSubmitting ? 'Saving...' : 'Save Identity'}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -131,10 +196,10 @@ export default function AppearancePage() {
           <CardDescription>Update the main background image on your homepage.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
+          <Form {...appearanceForm}>
+            <form onSubmit={appearanceForm.handleSubmit(handleAppearanceSubmit)} className="space-y-4">
               <FormField
-                control={form.control}
+                control={appearanceForm.control}
                 name="heroImageUrl"
                 render={({ field }) => (
                   <FormItem>
@@ -146,8 +211,8 @@ export default function AppearancePage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? 'Saving...' : 'Save Changes'}
+              <Button type="submit" disabled={appearanceForm.formState.isSubmitting}>
+                {appearanceForm.formState.isSubmitting ? 'Saving...' : 'Save Hero Image'}
               </Button>
             </form>
           </Form>
@@ -159,12 +224,12 @@ export default function AppearancePage() {
             ) : (
                 <div className="aspect-video w-full relative rounded-lg overflow-hidden border">
                     <Image
-                        src={watchedUrl || 'https://placehold.co/1920x1080.png'}
+                        src={watchedHeroUrl || 'https://placehold.co/1920x1080.png'}
                         alt="Hero background preview"
                         fill
                         className="object-cover"
                         data-ai-hint="dark abstract background"
-                        key={watchedUrl} // Re-renders image on URL change
+                        key={watchedHeroUrl} // Re-renders image on URL change
                     />
                 </div>
             )}

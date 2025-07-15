@@ -2,12 +2,11 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, Gamepad2, ShieldCheck, Search, MessageSquare } from 'lucide-react';
+import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, ShieldCheck, Search } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { Logo } from './icons/Logo';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,9 +21,14 @@ import { useEffect, useState, useRef } from 'react';
 import { getProducts } from '@/services/productService';
 import type { Product } from '@/lib/types';
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
+import { Logo } from './icons/Logo';
 
-export function Header() {
+interface HeaderProps {
+    siteTitle?: string;
+    logoUrl?: string;
+}
+
+export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   const { cartCount } = useCart();
   const { user, logOut } = useAuth();
   const router = useRouter();
@@ -91,9 +95,13 @@ export function Header() {
       <div className="flex h-14 items-center px-4 md:px-6 lg:px-8">
         <div className="mr-4 flex items-center">
           <Link href="/" className="flex items-center space-x-2">
-            <Logo className="h-6 w-6 text-primary" />
+             {logoUrl ? (
+                <Image src={logoUrl} alt={`${siteTitle} Logo`} width={24} height={24} className="h-6 w-6 text-primary" />
+             ) : (
+                <Logo className="h-6 w-6 text-primary" />
+             )}
             <span className="font-bold sm:inline-block font-headline">
-              TopUp Hub
+              {siteTitle}
             </span>
           </Link>
            <nav className="hidden md:flex items-center gap-4 ml-6">

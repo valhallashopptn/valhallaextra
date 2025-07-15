@@ -1,10 +1,11 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from '@/components/Providers';
 import { Header } from '@/components/Header';
 import { Inter } from 'next/font/google';
-import { getSetting } from '@/services/settingsService';
+import { getSettings } from '@/services/settingsService';
 import { themes } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 
@@ -14,17 +15,24 @@ const inter = Inter({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: 'TopUp Hub',
-  description: 'Top up your favorite games.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const siteTitle = await getSettings(['siteTitle']).then(s => s.siteTitle || 'TopUp Hub');
+  return {
+    title: {
+      default: siteTitle,
+      template: `%s | ${siteTitle}`,
+    },
+    description: 'Top up your favorite games.',
+  };
+}
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const themeName = await getSetting('theme', 'Night Runner');
+  const settings = await getSettings(['theme', 'siteTitle', 'logoUrl']);
+  const themeName = settings.theme || 'Night Runner';
   const activeTheme = themes.find(t => t.name === themeName) || themes[0];
   
   const themeStyle = {
@@ -51,12 +59,11 @@ export default async function RootLayout({
     '--font-headline': 'var(--font-body)',
   } as React.CSSProperties;
 
-
   return (
     <html lang="en" className={cn(inter.variable, 'dark')} style={themeStyle}>
       <body className="font-body antialiased min-h-screen flex flex-col bg-background">
         <Providers>
-          <Header />
+          <Header siteTitle={settings.siteTitle} logoUrl={settings.logoUrl} />
           <main className="flex-grow">
             {children}
           </main>
