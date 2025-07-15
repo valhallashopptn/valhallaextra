@@ -7,74 +7,74 @@ body {
 
 @layer base {
   :root {
-    --background: 222 84% 5%; /* Deep space blue */
-    --foreground: 210 40% 98%;
-    --card: 222 70% 9%; /* Darker card background */
-    --card-foreground: 210 40% 98%;
-    --popover: 222 70% 9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 262 84% 68%; /* Vibrant purple */
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217 33% 18%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 222 70% 12%; /* Muted indigo */
-    --muted-foreground: 215 20% 65%;
-    --accent: 188 95% 53%; /* Glitch cyan */
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 25%;
-    --input: 217 33% 25%;
-    --ring: 262 84% 68%;
-    --chart-1: 262 84% 68%;
-    --chart-2: 188 95% 53%;
+    --background: 48 33% 96%; /* Warm off-white */
+    --foreground: 240 10% 15%; /* Charcoal gray */
+    --card: 0 0% 100%; /* Pure white */
+    --card-foreground: 240 10% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 15%;
+    --primary: 142 60% 30%; /* Deep forest green */
+    --primary-foreground: 142 20% 95%;
+    --secondary: 215 28% 95%;
+    --secondary-foreground: 142 60% 30%;
+    --muted: 215 28% 95%;
+    --muted-foreground: 240 5% 45%;
+    --accent: 18 85% 55%; /* Warm terracotta orange */
+    --accent-foreground: 18 20% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 142 60% 30%;
+    --chart-1: 142 60% 30%;
+    --chart-2: 18 85% 55%;
     --chart-3: 193 84% 58%;
     --chart-4: 49 84% 58%;
     --chart-5: 355 84% 58%;
-    --radius: 0.5rem;
-    --sidebar-background: 222 84% 5%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 262 84% 68%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 222 70% 12%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 222 70% 12%;
-    --sidebar-ring: 262 84% 68%;
+    --radius: 0.3rem;
+    --sidebar-background: 48 33% 96%;
+    --sidebar-foreground: 240 10% 15%;
+    --sidebar-primary: 142 60% 30%;
+    --sidebar-primary-foreground: 142 20% 95%;
+    --sidebar-accent: 0 0% 100%;
+    --sidebar-accent-foreground: 142 60% 30%;
+    --sidebar-border: 240 6% 90%;
+    --sidebar-ring: 142 60% 30%;
   }
 
   .dark {
-    --background: 222 84% 5%;
-    --foreground: 210 40% 98%;
-    --card: 222 70% 9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 70% 9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 262 84% 68%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217 33% 18%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 222 70% 12%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 188 95% 53%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 25%;
-    --input: 217 33% 25%;
-    --ring: 262 84% 68%;
-    --chart-1: 262 84% 68%;
-    --chart-2: 188 95% 53%;
+    --background: 48 33% 96%;
+    --foreground: 240 10% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 15%;
+    --primary: 142 60% 30%;
+    --primary-foreground: 142 20% 95%;
+    --secondary: 215 28% 95%;
+    --secondary-foreground: 142 60% 30%;
+    --muted: 215 28% 95%;
+    --muted-foreground: 240 5% 45%;
+    --accent: 18 85% 55%;
+    --accent-foreground: 18 20% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 142 60% 30%;
+    --chart-1: 142 60% 30%;
+    --chart-2: 18 85% 55%;
     --chart-3: 193 84% 58%;
     --chart-4: 49 84% 58%;
     --chart-5: 355 84% 58%;
-    --sidebar-background: 222 84% 5%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 262 84% 68%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 222 70% 12%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 222 70% 12%;
-    --sidebar-ring: 262 84% 68%;
+    --sidebar-background: 48 33% 96%;
+    --sidebar-foreground: 240 10% 15%;
+    --sidebar-primary: 142 60% 30%;
+    --sidebar-primary-foreground: 142 20% 95%;
+    --sidebar-accent: 0 0% 100%;
+    --sidebar-accent-foreground: 142 60% 30%;
+    --sidebar-border: 240 6% 90%;
+    --sidebar-ring: 142 60% 30%;
   }
 }
 
@@ -86,7 +86,6 @@ body {
     @apply bg-background text-foreground;
   }
   h1, h2, h3, h4, h5, h6 {
-    /* @apply font-headline; This line caused the circular dependency */
   }
 }
 

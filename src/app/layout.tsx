@@ -3,6 +3,20 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from '@/components/Providers';
 import { Header } from '@/components/Header';
+import { Playfair_Display, Montserrat } from 'next/font/google';
+
+const playfairDisplay = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-headline',
+  display: 'swap',
+});
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  variable: '--font-body',
+  display: 'swap',
+});
+
 
 export const metadata: Metadata = {
   title: 'TopUp Hub',
@@ -15,12 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-      </head>
+    <html lang="en" className={`${playfairDisplay.variable} ${montserrat.variable}`}>
       <body className="font-body antialiased min-h-screen flex flex-col bg-background">
         <Providers>
           <Header />
