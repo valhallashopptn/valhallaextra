@@ -221,7 +221,7 @@ export default function Home() {
               </Button>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
                   <Skeleton key={i} className="aspect-[3/4] w-full rounded-xl" />
