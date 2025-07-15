@@ -79,8 +79,8 @@ export default function ReviewsPage() {
 
   return (
     <div className="space-y-12">
-      <div className="bg-muted rounded-xl py-12 text-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <div className="bg-muted text-center -mx-4 md:-mx-6 lg:-mx-8 -mt-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 py-12">
             <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
             Customer Reviews
             </h1>
