@@ -52,6 +52,31 @@ export const themes: Theme[] = [
     radius: '0.5rem',
   },
   {
+    name: 'Violet Fusion',
+    colors: {
+      background: '224 71% 4%',
+      foreground: '210 40% 98%',
+      card: '224 71% 6%',
+      cardForeground: '210 40% 98%',
+      popover: '224 71% 4%',
+      popoverForeground: '210 40% 98%',
+      primary: '262.1 83.3% 57.8%',
+      primaryForeground: '210 40% 98%',
+      secondary: '215 28% 17%',
+      secondaryForeground: '210 40% 98%',
+      muted: '215 28% 17%',
+      mutedForeground: '215 20% 65%',
+      accent: '188 83% 58%',
+      accentForeground: '222 47.4% 11.2%',
+      destructive: '0 62.8% 30.6%',
+      destructiveForeground: '210 40% 98%',
+      border: '215 28% 13%',
+      input: '215 28% 13%',
+      ring: '262.1 83.3% 57.8%',
+    },
+    radius: '0.5rem',
+  },
+  {
     name: 'Glitch-Pop',
     colors: {
       background: '222 84% 5%',
@@ -302,3 +327,5 @@ export const themes: Theme[] = [
     radius: '0.5rem',
   },
 ];
+
+    
