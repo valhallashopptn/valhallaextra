@@ -3,23 +3,16 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from '@/components/Providers';
 import { Header } from '@/components/Header';
-import { Orbitron, Inter } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { getSetting } from '@/services/settingsService';
 import { themes } from '@/lib/themes';
 import { cn } from '@/lib/utils';
-
-const orbitron = Orbitron({
-  subsets: ['latin'],
-  variable: '--font-headline',
-  display: 'swap',
-});
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-body',
   display: 'swap',
 });
-
 
 export const metadata: Metadata = {
   title: 'TopUp Hub',
@@ -55,11 +48,12 @@ export default async function RootLayout({
     '--input': activeTheme.colors.input,
     '--ring': activeTheme.colors.ring,
     '--radius': activeTheme.radius,
+    '--font-headline': 'var(--font-body)',
   } as React.CSSProperties;
 
 
   return (
-    <html lang="en" className={cn(orbitron.variable, inter.variable, 'dark')} style={themeStyle}>
+    <html lang="en" className={cn(inter.variable, 'dark')} style={themeStyle}>
       <body className="font-body antialiased min-h-screen flex flex-col bg-background">
         <Providers>
           <Header />
