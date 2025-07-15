@@ -76,8 +76,8 @@ function FeatureCard({ icon, title, value, animationClass }: { icon: React.React
   return (
     <Card className="bg-background/30 backdrop-blur-sm border-primary/20 transition-all duration-300 hover:-translate-y-2 hover:shadow-lg hover:shadow-primary/20">
       <CardContent className="flex flex-col items-center justify-center p-6 space-y-4 text-center">
-        <div className={cn("p-3 rounded-full bg-primary/10", animationClass)}>
-          <div className="p-2 rounded-full bg-primary/20 text-primary">
+        <div className={cn("text-primary", animationClass)}>
+          <div className="p-2 rounded-full">
             {icon}
           </div>
         </div>
@@ -310,9 +310,9 @@ export default function Home() {
         <section className="bg-card py-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FeatureCard icon={<Package size={24} />} title="Products Live" value="120+" animationClass="animate-spin-and-pulse" />
-                <FeatureCard icon={<ShoppingCart size={24} />} title="Transactions Completed" value="15k+" animationClass="animate-shake" />
-                <FeatureCard icon={<LifeBuoy size={24} />} title="Dedicated Support" value="24/7" animationClass="animate-ring" />
+                <FeatureCard icon={<Package size={32} />} title="Products Live" value="120+" animationClass="animate-tada" />
+                <FeatureCard icon={<ShoppingCart size={32} />} title="Transactions Completed" value="15k+" animationClass="animate-wobble" />
+                <FeatureCard icon={<LifeBuoy size={32} />} title="Dedicated Support" value="24/7" animationClass="animate-bounce" />
             </div>
           </div>
         </section>
