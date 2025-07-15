@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, ShieldCheck, Search } from 'lucide-react';
+import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, ShieldCheck, Search, Menu } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Input } from './ui/input';
 import { useEffect, useState, useRef } from 'react';
@@ -32,6 +33,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   const { cartCount } = useCart();
   const { user, logOut } = useAuth();
   const router = useRouter();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -93,6 +95,45 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/10 bg-slate-900/50 backdrop-blur-sm">
       <div className="flex h-14 items-center px-4 md:px-6 lg:px-8">
+        
+        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="md:hidden mr-2">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Open Menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-3/4">
+             <div className="flex items-center space-x-2 pb-4 border-b">
+                 {logoUrl ? (
+                    <Image src={logoUrl} alt={`${siteTitle} Logo`} width={24} height={24} className="h-6 w-6 text-primary" />
+                 ) : (
+                    <Logo className="h-6 w-6 text-primary" />
+                 )}
+                <span className="font-bold font-headline text-foreground">
+                  {siteTitle}
+                </span>
+            </div>
+            <nav className="flex flex-col gap-4 mt-6">
+                <Link 
+                  href="/products" 
+                  className="text-lg font-medium text-foreground transition-colors hover:text-primary"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                    Products
+                </Link>
+                 <Link 
+                  href="/reviews" 
+                  className="text-lg font-medium text-foreground transition-colors hover:text-primary"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Reviews
+                </Link>
+            </nav>
+          </SheetContent>
+        </Sheet>
+
+
         <div className="mr-4 flex items-center">
           <Link href="/" className="flex items-center space-x-2">
              {logoUrl ? (
