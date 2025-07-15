@@ -160,7 +160,7 @@ export default function Home() {
     fetchInitialData();
   }, []);
 
-  const featuredCategories = useMemo(() => categories.slice(0, 3), [categories]);
+  const featuredCategories = useMemo(() => categories.slice(0, 5), [categories]);
 
   const filteredProducts = useMemo(() => {
     let prods = products;
@@ -207,7 +207,7 @@ export default function Home() {
       </section>
       
       {/* Browse by Category Section */}
-      <section className="py-16">
+      <section className="bg-background py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="relative text-center md:text-left">
             <h2 className="text-3xl font-bold font-headline text-center">Browse by Category</h2>
@@ -219,9 +219,9 @@ export default function Home() {
               </Button>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {loading ? (
-              Array.from({ length: 3 }).map((_, i) => (
+              Array.from({ length: 5 }).map((_, i) => (
                   <Skeleton key={i} className="aspect-[3/4] w-full rounded-xl" />
               ))
               ) : (
@@ -367,3 +367,5 @@ export default function Home() {
     </div>
   );
 }
+
+  
