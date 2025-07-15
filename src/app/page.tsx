@@ -31,12 +31,12 @@ import { Badge } from '@/components/ui/badge';
 function CategoryCard({ category }: { category: Category }) {
   return (
     <Link href={`/products?category=${category.id}`}>
-      <div className="flip-card aspect-[3/2] rounded-lg">
+      <div className="flip-card aspect-[3/4] rounded-lg">
         <div className="flip-card-inner rounded-lg">
           <div className="flip-card-front overflow-hidden rounded-lg">
             <div className="relative h-full w-full">
               <Image
-                src={category.imageUrl || 'https://placehold.co/300x200.png'}
+                src={category.imageUrl || 'https://placehold.co/300x400.png'}
                 alt={category.name}
                 fill
                 className="object-cover"
@@ -51,7 +51,7 @@ function CategoryCard({ category }: { category: Category }) {
           <div className="flip-card-back overflow-hidden rounded-lg">
              <div className="relative h-full w-full">
                 <Image
-                    src={category.backImageUrl || 'https://placehold.co/300x200.png'}
+                    src={category.backImageUrl || 'https://placehold.co/300x400.png'}
                     alt={`${category.name} (back)`}
                     fill
                     className="object-cover"
@@ -223,7 +223,7 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loading ? (
                 Array.from({ length: 3 }).map((_, i) => (
-                    <Skeleton key={i} className="aspect-[3/2] w-full rounded-xl" />
+                    <Skeleton key={i} className="aspect-[3/4] w-full rounded-xl" />
                 ))
                 ) : (
                 featuredCategories.map((category: Category) => (
