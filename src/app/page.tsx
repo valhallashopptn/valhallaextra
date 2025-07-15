@@ -3,12 +3,12 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { getCategories } from '@/services/categoryService';
-import type { Category, Product } from '@/lib/types';
+import type { Category, Product, Review } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Search, Package, ShoppingCart, LifeBuoy } from 'lucide-react';
+import { ArrowRight, Search, Package, ShoppingCart, LifeBuoy, Star } from 'lucide-react';
 import { getProducts } from '@/services/productService';
 import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { getSetting } from '@/services/settingsService';
 import { Separator } from '@/components/ui/separator';
+import { getAllReviews } from '@/services/reviewService';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 function CategoryCard({ category }: { category: Category }) {
   return (
@@ -79,10 +81,54 @@ function FeatureCard({ icon, title, value }: { icon: React.ReactNode, title: str
   );
 }
 
+function StarRating({ rating, size = 'sm' }: { rating: number, size?: 'sm' | 'md' }) {
+  const starClasses = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
+  return (
+    <div className="flex items-center gap-1">
+      {[...Array(5)].map((_, i) => (
+        <Star
+          key={i}
+          className={cn(starClasses, i < Math.round(rating) ? 'text-accent fill-current' : 'text-muted-foreground/30')}
+        />
+      ))}
+    </div>
+  );
+}
+
+
+function ReviewCard({ review }: { review: Review }) {
+    return (
+        <Card className="flex flex-col">
+            <CardContent className="p-6 flex flex-col flex-grow">
+                <div className="flex items-center gap-4">
+                    <Avatar className="h-12 w-12">
+                        <AvatarFallback>{review.userEmail.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                        <p className="font-semibold text-lg">{review.userEmail.split('@')[0]}</p>
+                        <StarRating rating={review.rating} size="sm" />
+                    </div>
+                </div>
+                <blockquote className="mt-4 text-muted-foreground flex-grow">
+                    &quot;{review.comment}&quot;
+                </blockquote>
+                <div className="mt-4 pt-4 border-t border-border">
+                    <Link href={`/product/${review.productId}`} className="flex items-center gap-2 group">
+                        <Image src={review.productImage || 'https://placehold.co/32x32.png'} alt={review.productName || 'Product image'} width={32} height={32} className="rounded-sm object-cover" />
+                        <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
+                            Review for: {review.productName}
+                        </span>
+                    </Link>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
 
 export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [heroImageUrl, setHeroImageUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -91,13 +137,15 @@ export default function Home() {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const [categoriesFromDb, productsFromDb, heroUrl] = await Promise.all([
+        const [categoriesFromDb, productsFromDb, reviewsFromDb, heroUrl] = await Promise.all([
             getCategories(),
             getProducts(),
+            getAllReviews(),
             getSetting('heroImageUrl', 'https://placehold.co/1920x1080.png?text=TopUp+Hub')
         ]);
         setCategories(categoriesFromDb);
         setProducts(productsFromDb);
+        setReviews(reviewsFromDb);
         setHeroImageUrl(heroUrl);
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -110,6 +158,7 @@ export default function Home() {
   }, []);
 
   const featuredCategories = useMemo(() => categories.slice(0, 3), [categories]);
+  const featuredReviews = useMemo(() => reviews.slice(0, 3), [reviews]);
 
   const filteredProducts = useMemo(() => {
     let prods = products;
@@ -256,9 +305,33 @@ export default function Home() {
             <FeatureCard icon={<LifeBuoy size={24} />} title="Dedicated Support" value="24/7" />
         </section>
 
+        <Separator />
+        
+        {/* Reviews Section */}
+        <section className="space-y-8">
+            <div className="relative text-center">
+              <h2 className="text-3xl font-bold font-headline">What Our Customers Say</h2>
+               <div className="absolute top-1/2 right-0 -translate-y-1/2">
+                <Button variant="outline" asChild>
+                    <Link href="/reviews">
+                        Read All Reviews <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {loading ? (
+                Array.from({ length: 3 }).map((_, i) => (
+                    <Skeleton key={i} className="h-64 w-full rounded-xl" />
+                ))
+                ) : (
+                featuredReviews.map((review: Review) => (
+                    <ReviewCard key={review.id} review={review} />
+                ))
+                )}
+            </div>
+        </section>
       </div>
     </div>
   );
 }
-
-    
