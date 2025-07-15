@@ -92,6 +92,46 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
     setIsSearchOpen(false);
   }
 
+  const SearchBar = ({ inMobileMenu = false }: { inMobileMenu?: boolean }) => (
+    <div className={cn("relative", inMobileMenu ? 'w-full' : 'w-full flex-1 md:w-auto md:flex-none')} ref={inMobileMenu ? null : searchRef}>
+      <form>
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search products..."
+            className={cn(
+                "w-full rounded-lg pl-8",
+                inMobileMenu ? 'bg-background/80' : 'bg-background/50 md:w-[200px] lg:w-[320px]'
+            )}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => { if(searchQuery) setIsSearchOpen(true)}}
+          />
+           {isSearchOpen && searchResults.length > 0 && (
+            <div className="absolute top-full mt-2 w-full rounded-md border bg-card text-card-foreground shadow-lg z-50 max-h-96 overflow-y-auto">
+              <ul>
+                {searchResults.map(product => (
+                  <li key={product.id}>
+                    <Link href={`/product/${product.id}`} className="block hover:bg-muted" onClick={handleSearchResultClick}>
+                      <div className="flex items-center gap-4 p-2">
+                         <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="rounded-md object-cover" />
+                         <div>
+                           <p className="text-sm font-medium">{product.name}</p>
+                           <p className="text-xs text-muted-foreground">{product.game}</p>
+                         </div>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </form>
+    </div>
+  );
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/10 bg-slate-900/50 backdrop-blur-sm">
       <div className="container mx-auto px-4 flex h-14 items-center">
@@ -107,46 +147,51 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
             <SheetHeader>
                 <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
             </SheetHeader>
-             <div className="flex items-center space-x-2 pb-4 border-b">
-                 {logoUrl ? (
-                    <Image src={logoUrl} alt={`${siteTitle} Logo`} width={24} height={24} className="h-6 w-6 text-primary" />
-                 ) : (
-                    <Logo className="h-6 w-6 text-primary" />
-                 )}
-                <span className="font-bold font-headline text-foreground">
-                  {siteTitle}
-                </span>
+             <div className="flex flex-col gap-4">
+                <div className="flex items-center space-x-2 pb-4 border-b">
+                    {logoUrl ? (
+                        <Image src={logoUrl} alt={`${siteTitle} Logo`} width={24} height={24} className="h-6 w-6 text-primary" />
+                    ) : (
+                        <Logo className="h-6 w-6 text-primary" />
+                    )}
+                    <span className="font-bold font-headline text-foreground">
+                    {siteTitle}
+                    </span>
+                </div>
+                
+                <SearchBar inMobileMenu />
+
+                <nav className="flex flex-col gap-4 mt-2">
+                    <Link 
+                    href="/products" 
+                    className="text-lg font-medium text-foreground transition-colors hover:text-primary"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                        Products
+                    </Link>
+                    <Link 
+                    href="/reviews" 
+                    className="text-lg font-medium text-foreground transition-colors hover:text-primary"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                        Reviews
+                    </Link>
+                    <Link 
+                    href="/about" 
+                    className="text-lg font-medium text-foreground transition-colors hover:text-primary"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                        About Us
+                    </Link>
+                    <Link 
+                    href="/contact" 
+                    className="text-lg font-medium text-foreground transition-colors hover:text-primary"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                        Contact Us
+                    </Link>
+                </nav>
             </div>
-            <nav className="flex flex-col gap-4 mt-6">
-                <Link 
-                  href="/products" 
-                  className="text-lg font-medium text-foreground transition-colors hover:text-primary"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                    Products
-                </Link>
-                 <Link 
-                  href="/reviews" 
-                  className="text-lg font-medium text-foreground transition-colors hover:text-primary"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Reviews
-                </Link>
-                <Link 
-                  href="/about" 
-                  className="text-lg font-medium text-foreground transition-colors hover:text-primary"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    About Us
-                </Link>
-                 <Link 
-                  href="/contact" 
-                  className="text-lg font-medium text-foreground transition-colors hover:text-primary"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Contact Us
-                </Link>
-            </nav>
           </SheetContent>
         </Sheet>
 
@@ -179,39 +224,8 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
         </div>
         
         <div className="flex flex-1 items-center justify-end space-x-2 md:space-x-4">
-          <div className="w-full flex-1 md:w-auto md:flex-none" ref={searchRef}>
-            <form>
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search products..."
-                  className="w-full rounded-lg bg-background/50 pl-8 md:w-[200px] lg:w-[320px]"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => { if(searchQuery) setIsSearchOpen(true)}}
-                />
-                 {isSearchOpen && searchResults.length > 0 && (
-                  <div className="absolute top-full mt-2 w-full rounded-md border bg-card text-card-foreground shadow-lg z-50 max-h-96 overflow-y-auto">
-                    <ul>
-                      {searchResults.map(product => (
-                        <li key={product.id}>
-                          <Link href={`/product/${product.id}`} className="block hover:bg-muted" onClick={handleSearchResultClick}>
-                            <div className="flex items-center gap-4 p-2">
-                               <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="rounded-md object-cover" />
-                               <div>
-                                 <p className="text-sm font-medium">{product.name}</p>
-                                 <p className="text-xs text-muted-foreground">{product.game}</p>
-                               </div>
-                            </div>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </form>
+          <div className="hidden md:block">
+            <SearchBar />
           </div>
           <Button
             variant="ghost"
