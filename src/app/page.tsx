@@ -177,34 +177,36 @@ export default function Home() {
   return (
     <div className="space-y-16">
       {/* Hero Section */}
-      <section className="relative h-[400px] md:h-[500px] overflow-hidden">
-        {loading ? (
-          <Skeleton className="h-full w-full" />
-        ) : (
-          <>
-            <Image 
-              src={heroImageUrl}
-              alt="Digital Marketplace"
-              fill
-              className="object-cover"
-              data-ai-hint="dark abstract background"
-              priority
-            />
-            <div className="absolute inset-0 bg-black/60"></div>
-            <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-4">
-              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl font-headline">
-                  Your Digital Marketplace
-              </h1>
-              <p className="mt-3 text-lg text-white/80 sm:text-xl max-w-2xl mx-auto">
-                  Instant top-ups for your favorite games and digital products. Quick, secure, and reliable service at your fingertips.
-              </p>
-              <Button asChild size="lg" className="mt-8">
-                  <Link href="/products">Browse Products</Link>
-              </Button>
-            </div>
-          </>
-        )}
-      </section>
+      <div className="-mt-8">
+        <section className="relative h-[400px] md:h-[500px] overflow-hidden">
+          {loading ? (
+            <Skeleton className="h-full w-full" />
+          ) : (
+            <>
+              <Image 
+                src={heroImageUrl}
+                alt="Digital Marketplace"
+                fill
+                className="object-cover"
+                data-ai-hint="dark abstract background"
+                priority
+              />
+              <div className="absolute inset-0 bg-black/60"></div>
+              <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-4">
+                <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl font-headline">
+                    Your Digital Marketplace
+                </h1>
+                <p className="mt-3 text-lg text-white/80 sm:text-xl max-w-2xl mx-auto">
+                    Instant top-ups for your favorite games and digital products. Quick, secure, and reliable service at your fingertips.
+                </p>
+                <Button asChild size="lg" className="mt-8">
+                    <Link href="/products">Browse Products</Link>
+                </Button>
+              </div>
+            </>
+          )}
+        </section>
+      </div>
       
       <Separator />
 
