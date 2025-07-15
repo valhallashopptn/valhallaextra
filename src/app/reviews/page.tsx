@@ -22,7 +22,7 @@ function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md
       {[...Array(5)].map((_, i) => (
         <Star
           key={i}
-          className={cn(starClasses, i < Math.round(rating) ? 'text-primary fill-current' : 'text-muted-foreground/30')}
+          className={cn(starClasses, i < Math.round(rating) ? 'text-accent fill-current' : 'text-muted-foreground/30')}
         />
       ))}
     </div>
@@ -31,13 +31,13 @@ function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md
 
 function AverageRatingDisplay({ rating, count }: { rating: number, count: number }) {
   return (
-    <div className="inline-flex items-center gap-3 rounded-full bg-muted px-4 py-2">
-      <div className="flex items-center gap-1">
+    <div className="inline-flex items-center gap-3 rounded-full bg-background px-4 py-2">
+       <div className="flex items-center gap-1">
         {[...Array(5)].map((_, i) => (
-          <Star key={i} className={cn('h-5 w-5', i < Math.round(rating) ? 'text-primary fill-current' : 'text-muted-foreground/50')} />
+          <Star key={i} className={cn('h-5 w-5', i < Math.round(rating) ? 'text-accent fill-current' : 'text-muted-foreground/50')} />
         ))}
       </div>
-      <span className="text-lg font-bold">{rating.toFixed(1)}</span>
+      <span className="text-lg font-bold text-foreground">{rating.toFixed(1)}</span>
       <span className="text-muted-foreground">from {count} reviews</span>
     </div>
   )
@@ -78,30 +78,33 @@ export default function ReviewsPage() {
     : 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-      <div className="text-center py-12">
-        <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
-          Customer Reviews
-        </h1>
-        <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground">
-          See what our community is saying about their experience.
-        </p>
-        {loading ? (
-             <Skeleton className="h-12 w-80 mx-auto mt-6" />
-        ) : (
-            <div className="mt-6 flex flex-col items-center gap-4">
-                 <AverageRatingDisplay rating={averageRating} count={reviews.length} />
-                <Button asChild>
-                    <Link href="/products">
-                        <MessageSquare className="mr-2 h-4 w-4" />
-                        Leave Your Own Review
-                    </Link>
-                </Button>
-            </div>
-        )}
+    <div className="space-y-12">
+      <div className="bg-muted rounded-xl py-12 text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
+            Customer Reviews
+            </h1>
+            <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground">
+            See what our community is saying about their experience.
+            </p>
+            {loading ? (
+                <Skeleton className="h-12 w-80 mx-auto" />
+            ) : (
+                <div className="flex flex-col items-center gap-4">
+                    <AverageRatingDisplay rating={averageRating} count={reviews.length} />
+                    <Button asChild>
+                        <Link href="/products">
+                            <MessageSquare className="mr-2 h-4 w-4" />
+                            Leave Your Own Review
+                        </Link>
+                    </Button>
+                </div>
+            )}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {loading ? (
             Array.from({ length: 6 }).map((_, i) => (
                 <Card key={i}>
