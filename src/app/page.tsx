@@ -308,7 +308,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="bg-background py-16">
+      <section className="bg-card py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <FeatureCard icon={<Package size={24} />} title="Products Live" value="120+" />
