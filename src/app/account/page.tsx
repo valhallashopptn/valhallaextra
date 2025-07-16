@@ -19,10 +19,11 @@ import { Separator } from '@/components/ui/separator';
 import { PageWrapper } from '@/components/PageWrapper';
 
 function formatPrice(total: number, currency: 'TND' | 'USD') {
+    const safeTotal = typeof total === 'number' ? total : 0;
     if (currency === 'TND') {
-        return `${total.toFixed(2)} TND`;
+        return `${safeTotal.toFixed(2)} TND`;
     }
-    return `$${total.toFixed(2)}`;
+    return `$${safeTotal.toFixed(2)}`;
 }
 
 export default function AccountPage() {
