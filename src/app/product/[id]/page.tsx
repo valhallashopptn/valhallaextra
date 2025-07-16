@@ -260,6 +260,8 @@ export default function ProductDetailPage() {
             </div>
         </div>
 
+        <div className="animated-separator"></div>
+
         {product.tabs && product.tabs.length > 0 && (
              <Tabs defaultValue={defaultTab} className="w-full">
                 <TabsList>
@@ -274,6 +276,8 @@ export default function ProductDetailPage() {
                 ))}
             </Tabs>
         )}
+
+        <div className="animated-separator"></div>
 
         <Card id="reviews">
           <CardHeader>

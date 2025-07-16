@@ -75,6 +75,27 @@ body {
       transform: rotate(360deg);
     }
   }
+
+  .animated-separator {
+    @apply h-px w-full;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--primary)),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: move-gradient 3s linear infinite;
+  }
+
+  @keyframes move-gradient {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
 }
 
 @layer components {
