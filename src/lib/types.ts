@@ -18,6 +18,12 @@ export interface Category {
   customFields?: CustomField[];
 }
 
+export interface ProductTab {
+    id: string;
+    title: string;
+    content: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -25,10 +31,10 @@ export interface Product {
   price: number;
   imageUrl: string;
   stock: number;
-  dataAiHint: string;
   categoryId: string;
   categoryName: string;
   category?: Category;
+  tabs?: ProductTab[];
 }
 
 export interface CartItem extends Product {

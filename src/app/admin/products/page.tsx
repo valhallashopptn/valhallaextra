@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -136,7 +137,7 @@ export default function ProductsPage() {
         </Card>
       </div>
       
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
         </DialogHeader>

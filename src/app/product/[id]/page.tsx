@@ -23,6 +23,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md' }) {
   const starClasses = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
@@ -186,14 +187,16 @@ export default function ProductDetailPage() {
     <PageWrapper>
       <div className="space-y-12">
         <div className="grid md:grid-cols-2 gap-12 items-start">
-            <div className="aspect-video relative rounded-lg overflow-hidden border">
-                <Image
-                src={product.imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover"
-                data-ai-hint={product.dataAiHint}
-                />
+            <div className="sticky top-24">
+                <div className="aspect-video relative rounded-lg overflow-hidden border">
+                    <Image
+                    src={product.imageUrl}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                    data-ai-hint={product.categoryName}
+                    />
+                </div>
             </div>
 
             <div className="space-y-6">
@@ -208,8 +211,6 @@ export default function ProductDetailPage() {
                 </div>
 
                 <p className="text-5xl font-bold text-primary">{formatPrice(product.price)}</p>
-
-                <p className="text-muted-foreground">{product.description || 'No description available.'}</p>
 
                 <div className="rounded-lg border bg-card/50 p-4 grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-3">
@@ -252,6 +253,22 @@ export default function ProductDetailPage() {
                         )}
                     </Button>
                 </div>
+                 <Tabs defaultValue="description" className="w-full">
+                    <TabsList>
+                        <TabsTrigger value="description">Description</TabsTrigger>
+                        {product.tabs?.map(tab => (
+                            <TabsTrigger key={tab.id} value={tab.id}>{tab.title}</TabsTrigger>
+                        ))}
+                    </TabsList>
+                    <TabsContent value="description" className="mt-4 text-muted-foreground prose prose-sm max-w-none prose-p:text-muted-foreground">
+                        <p>{product.description || 'No description available.'}</p>
+                    </TabsContent>
+                    {product.tabs?.map(tab => (
+                        <TabsContent key={tab.id} value={tab.id} className="mt-4 text-muted-foreground prose prose-sm max-w-none prose-p:text-muted-foreground">
+                            <p>{tab.content}</p>
+                        </TabsContent>
+                    ))}
+                </Tabs>
             </div>
         </div>
 

@@ -1,3 +1,4 @@
+
 import { db } from '@/lib/firebase';
 import type { Product } from '@/lib/types';
 import {
@@ -35,7 +36,7 @@ export const getProductById = async (id: string): Promise<Product | null> => {
 }
 
 // Add a new product
-export const addProduct = async (productData: Omit<Product, 'id'>) => {
+export const addProduct = async (productData: Omit<Product, 'id' | 'category'>) => {
   return await addDoc(productsCollectionRef, {
     ...productData,
     createdAt: serverTimestamp(),
@@ -43,7 +44,7 @@ export const addProduct = async (productData: Omit<Product, 'id'>) => {
 };
 
 // Update an existing product
-export const updateProduct = async (id: string, productData: Partial<Omit<Product, 'id'>>) => {
+export const updateProduct = async (id: string, productData: Partial<Omit<Product, 'id' | 'category'>>) => {
   const productDoc = doc(db, 'products', id);
   return await updateDoc(productDoc, {
     ...productData,
