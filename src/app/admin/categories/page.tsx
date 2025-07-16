@@ -2,45 +2,29 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import * as z from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import type { Category } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { getCategories, addCategory } from '@/services/categoryService';
-import type { Category } from '@/lib/types';
+import { getCategories, addCategory, updateCategory } from '@/services/categoryService';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Edit } from 'lucide-react';
 import Image from 'next/image';
-import { Textarea } from '@/components/ui/textarea';
-
-const formSchema = z.object({
-  name: z.string().min(2, { message: 'Category name must be at least 2 characters.' }),
-  description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
-  imageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/300x200.png'),
-  backImageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/300x200.png'),
-});
-
-type CategoryFormData = z.infer<typeof formSchema>;
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { CategoryForm } from './CategoryForm';
 
 export default function CategoriesPage() {
   const { toast } = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const form = useForm<CategoryFormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: { name: '', description: '', imageUrl: 'https://placehold.co/300x200.png', backImageUrl: 'https://placehold.co/300x200.png' },
-  });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
   useEffect(() => {
-    fetchCategories();
+    fetchData();
   }, []);
 
-  const fetchCategories = async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
       const categoriesFromDb = await getCategories();
@@ -53,25 +37,55 @@ export default function CategoriesPage() {
     }
   };
 
-  const handleFormSubmit = async (data: CategoryFormData) => {
+  const handleFormSubmit = async (data: Omit<Category, 'id' | 'createdAt'>) => {
     try {
-      await addCategory({ name: data.name, description: data.description, imageUrl: data.imageUrl, backImageUrl: data.backImageUrl });
-      toast({ title: 'Success', description: 'Category added successfully.' });
-      form.reset();
-      await fetchCategories();
+      if (editingCategory) {
+        await updateCategory(editingCategory.id, data);
+        toast({ title: 'Success', description: 'Category updated successfully.' });
+      } else {
+        await addCategory(data);
+        toast({ title: 'Success', description: 'Category added successfully.' });
+      }
+      await fetchData();
+      setIsDialogOpen(false);
+      setEditingCategory(null);
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to add category.', variant: 'destructive' });
-      console.error("Failed to add category", error);
+       toast({ title: 'Error', description: 'Failed to save category.', variant: 'destructive' });
+       console.error("Failed to save category", error);
     }
+  };
+  
+  const handleEdit = (category: Category) => {
+    setEditingCategory(category);
+    setIsDialogOpen(true);
+  };
+
+  const handleAddNew = () => {
+    setEditingCategory(null);
+    setIsDialogOpen(true);
   };
 
   return (
-    <div className="grid gap-8 md:grid-cols-3">
-      <div className="md:col-span-2">
+    <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
+      setIsDialogOpen(isOpen);
+      if (!isOpen) setEditingCategory(null);
+    }}>
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold font-headline">Category Management</h1>
+          <p className="text-muted-foreground">Manage your product categories.</p>
+        </div>
+
         <Card>
-          <CardHeader className="p-6">
-            <CardTitle>Categories</CardTitle>
-            <CardDescription>A list of all product categories.</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between p-6">
+            <div>
+              <CardTitle>Categories</CardTitle>
+              <CardDescription>A list of all product categories in your store.</CardDescription>
+            </div>
+            <Button onClick={handleAddNew}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Category
+            </Button>
           </CardHeader>
           <CardContent className="p-0">
             <Table>
@@ -80,12 +94,13 @@ export default function CategoriesPage() {
                   <TableHead>Image</TableHead>
                   <TableHead>Category Name</TableHead>
                   <TableHead>Date Added</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center">Loading...</TableCell>
+                    <TableCell colSpan={4} className="text-center">Loading...</TableCell>
                   </TableRow>
                 ) : categories.map(category => (
                   <TableRow key={category.id}>
@@ -94,6 +109,11 @@ export default function CategoriesPage() {
                     </TableCell>
                     <TableCell className="font-medium">{category.name}</TableCell>
                     <TableCell>{new Date(category.createdAt.toDate()).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-right">
+                       <Button variant="ghost" size="icon" onClick={() => handleEdit(category)}>
+                          <Edit className="h-4 w-4" />
+                       </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -101,76 +121,17 @@ export default function CategoriesPage() {
           </CardContent>
         </Card>
       </div>
-      <div>
-        <Card>
-          <CardHeader>
-            <CardTitle>Add New Category</CardTitle>
-            <CardDescription>Create a new category for your products.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., PC Games" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="A short description for the back of the card..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Front Image URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://placehold.co/300x200.png" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="backImageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Back Image URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://placehold.co/300x200.png" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
-                   <PlusCircle className="mr-2 h-4 w-4" />
-                  {form.formState.isSubmitting ? 'Adding...' : 'Add Category'}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+      
+      <DialogContent className="sm:max-w-[480px]">
+        <DialogHeader>
+          <DialogTitle>{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
+        </DialogHeader>
+        <CategoryForm
+          onSubmit={handleFormSubmit}
+          initialData={editingCategory}
+          onCancel={() => setIsDialogOpen(false)}
+        />
+      </DialogContent>
+    </Dialog>
   );
 }

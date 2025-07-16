@@ -4,6 +4,8 @@ import {
   collection,
   getDocs,
   addDoc,
+  updateDoc,
+  doc,
   serverTimestamp,
   query,
   orderBy,
@@ -19,9 +21,18 @@ export const getCategories = async (): Promise<Category[]> => {
 };
 
 // Add a new category
-export const addCategory = async (categoryData: { name: string, description: string, imageUrl: string, backImageUrl: string }) => {
+export const addCategory = async (categoryData: Omit<Category, 'id' | 'createdAt'>) => {
   return await addDoc(categoriesCollectionRef, {
     ...categoryData,
     createdAt: serverTimestamp(),
+  });
+};
+
+// Update an existing category
+export const updateCategory = async (id: string, categoryData: Partial<Omit<Category, 'id' | 'createdAt'>>) => {
+  const categoryDoc = doc(db, 'categories', id);
+  return await updateDoc(categoryDoc, {
+    ...categoryData,
+    updatedAt: serverTimestamp(),
   });
 };
