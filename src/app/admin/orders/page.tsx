@@ -16,6 +16,14 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
+function formatPrice(total: number, currency: 'TND' | 'USD') {
+    if (currency === 'TND') {
+        return `${total.toFixed(2)} TND`;
+    }
+    // Default to USD if currency is not specified or is USD
+    return `$${total.toFixed(2)}`;
+}
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,7 +96,7 @@ export default function OrdersPage() {
                       ))}
                     </div>
                   </TableCell>
-                  <TableCell className="text-right font-bold text-primary">${order.total.toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-bold text-primary">{formatPrice(order.total, order.currency)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

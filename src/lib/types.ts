@@ -42,6 +42,7 @@ export interface Order {
   subtotal: number;
   tax: number;
   total: number;
+  currency: 'TND' | 'USD';
   paymentMethod: {
     name: string;
     instructions: string;

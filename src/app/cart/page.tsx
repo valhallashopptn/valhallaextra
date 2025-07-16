@@ -2,6 +2,7 @@
 'use client';
 
 import { useCart } from '@/context/CartContext';
+import { useCurrency } from '@/context/CurrencyContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -12,6 +13,7 @@ import { PageWrapper } from '@/components/PageWrapper';
 
 export default function CartPage() {
   const { cartItems, removeFromCart, cartTotal } = useCart();
+  const { formatPrice } = useCurrency();
 
   if (cartItems.length === 0) {
     return (
@@ -44,11 +46,11 @@ export default function CartPage() {
                     <div className="flex-grow">
                       <p className="font-semibold">{item.name}</p>
                       <p className="text-sm text-muted-foreground">{item.game}</p>
-                      <p className="text-sm text-primary font-bold">${item.price.toFixed(2)}</p>
+                      <p className="text-sm text-primary font-bold">{formatPrice(item.price)}</p>
                     </div>
                     <div className="text-right">
                       <p>Qty: {item.quantity}</p>
-                      <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-semibold">{formatPrice(item.price * item.quantity)}</p>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
@@ -68,7 +70,7 @@ export default function CartPage() {
             <CardContent className="space-y-4">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${cartTotal.toFixed(2)}</span>
+                <span>{formatPrice(cartTotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Taxes</span>
@@ -77,7 +79,7 @@ export default function CartPage() {
               <Separator />
               <div className="flex justify-between font-bold text-lg">
                 <span>Total</span>
-                <span className='text-primary'>${cartTotal.toFixed(2)}</span>
+                <span className='text-primary'>{formatPrice(cartTotal)}</span>
               </div>
             </CardContent>
             <CardFooter>

@@ -24,7 +24,13 @@ export default function AdminDashboardPage() {
         
         setProductCount(products.length);
         setOrderCount(orders.length);
-        const revenue = orders.reduce((sum, order) => sum + order.total, 0);
+        
+        // Note: This revenue is a simple sum and does not account for different currencies.
+        // For accurate reporting, a conversion step would be needed here.
+        const revenue = orders.reduce((sum, order) => {
+            // Assuming base price is in USD
+            return sum + order.total
+        }, 0);
         setTotalRevenue(revenue);
 
       } catch (error) {
@@ -46,7 +52,7 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Revenue (USD)</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -55,6 +61,7 @@ export default function AdminDashboardPage() {
             ) : (
                 <div className="text-2xl font-bold">${totalRevenue.toFixed(2)}</div>
             )}
+            <p className="text-xs text-muted-foreground">Note: Revenue shown in USD, ignoring currency conversions.</p>
           </CardContent>
         </Card>
         <Card>

@@ -3,6 +3,7 @@
 
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { useCurrency } from '@/context/CurrencyContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -23,6 +24,7 @@ import { Lock, Info } from 'lucide-react';
 export default function CheckoutPage() {
   const { cartItems, cartTotal, clearCart } = useCart();
   const { user, loading: authLoading } = useAuth();
+  const { currency, formatPrice } = useCurrency();
   const router = useRouter();
   const { toast } = useToast();
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
@@ -88,6 +90,7 @@ export default function CheckoutPage() {
         subtotal: cartTotal,
         tax: taxAmount,
         total: finalTotal,
+        currency: currency,
         paymentMethod: {
             name: selectedMethod.name,
             instructions: selectedMethod.instructions
@@ -184,31 +187,31 @@ export default function CheckoutPage() {
                       <p className="font-semibold">{item.name}</p>
                        <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                      </div>
-                     <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                     <p className="font-semibold">{formatPrice(item.price * item.quantity)}</p>
                   </div>
                 ))}
                 <Separator />
                 <div className="space-y-2">
                     <div className="flex justify-between">
                         <span>Subtotal</span>
-                        <span>${cartTotal.toFixed(2)}</span>
+                        <span>{formatPrice(cartTotal)}</span>
                     </div>
                     <div className="flex justify-between">
                         <span>Tax ({selectedMethod?.taxRate ?? 0}%)</span>
-                        <span>${taxAmount.toFixed(2)}</span>
+                        <span>{formatPrice(taxAmount)}</span>
                     </div>
                 </div>
                  <Separator />
                  <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span className="text-primary">${finalTotal.toFixed(2)}</span>
+                    <span className="text-primary">{formatPrice(finalTotal)}</span>
                 </div>
               </div>
             </CardContent>
              <CardFooter>
                  <Button onClick={handleCheckout} className="w-full mt-2" size="lg" disabled={isPlacingOrder || !selectedMethod}>
                      <Lock className="mr-2 h-4 w-4" />
-                    {isPlacingOrder ? 'Processing...' : `Place Order for $${finalTotal.toFixed(2)}`}
+                    {isPlacingOrder ? 'Processing...' : `Place Order for ${formatPrice(finalTotal)}`}
                   </Button>
             </CardFooter>
            </Card>

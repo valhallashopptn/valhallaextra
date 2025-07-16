@@ -21,6 +21,7 @@ export const addOrder = async (orderData: {
   subtotal: number;
   tax: number;
   total: number;
+  currency: 'TND' | 'USD';
   paymentMethod: { name: string; instructions: string };
 }) => {
   return await addDoc(ordersCollectionRef, {

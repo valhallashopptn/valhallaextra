@@ -12,6 +12,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { useCurrency } from '@/context/CurrencyContext';
 import { CheckCircle, ShoppingCart, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -44,6 +45,7 @@ export default function ProductDetailPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+  const { formatPrice } = useCurrency();
   const [isAdded, setIsAdded] = useState(false);
 
   useEffect(() => {
@@ -161,7 +163,7 @@ export default function ProductDetailPage() {
                             <StarRating rating={averageRating} />
                             <span className="text-muted-foreground text-sm">({reviews.length} reviews)</span>
                           </div>
-                        <p className="text-4xl font-bold text-primary mt-6">${product.price.toFixed(2)}</p>
+                        <p className="text-4xl font-bold text-primary mt-6">{formatPrice(product.price)}</p>
                     </div>
                     
                     <div className="mt-8">

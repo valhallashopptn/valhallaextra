@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useTranslation } from '@/context/TranslationContext';
+import { useCurrency } from '@/context/CurrencyContext';
 
 interface ProductCardProps {
   product: Product;
@@ -20,6 +21,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const [isAdded, setIsAdded] = useState(false);
   const { t } = useTranslation();
+  const { formatPrice } = useCurrency();
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // Prevent link navigation when clicking the button
@@ -49,7 +51,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <CardTitle className="text-lg font-semibold mt-1">{product.name}</CardTitle>
         </CardContent>
         <CardFooter className="p-4 flex justify-between items-center">
-          <p className="text-xl font-bold text-primary">${product.price.toFixed(2)}</p>
+          <p className="text-xl font-bold text-primary">{formatPrice(product.price)}</p>
           <Button onClick={handleAddToCart} disabled={isAdded} className={cn("w-36 transition-all", {
             'bg-green-600': isAdded,
           })}>

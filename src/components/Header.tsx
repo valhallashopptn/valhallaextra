@@ -26,6 +26,7 @@ import { Logo } from './icons/Logo';
 import { cn } from '@/lib/utils';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useTranslation } from '@/context/TranslationContext';
+import { CurrencySwitcher } from './CurrencySwitcher';
 
 
 interface HeaderProps {
@@ -273,6 +274,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
               </div>
             </form>
           </div>
+          <CurrencySwitcher />
           <LanguageSwitcher />
           <Button
             variant="ghost"

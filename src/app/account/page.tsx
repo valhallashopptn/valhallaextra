@@ -18,6 +18,13 @@ import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import { PageWrapper } from '@/components/PageWrapper';
 
+function formatPrice(total: number, currency: 'TND' | 'USD') {
+    if (currency === 'TND') {
+        return `${total.toFixed(2)} TND`;
+    }
+    return `$${total.toFixed(2)}`;
+}
+
 export default function AccountPage() {
   const { user, loading, logOut } = useAuth();
   const router = useRouter();
@@ -88,7 +95,7 @@ export default function AccountPage() {
                           <div className="flex justify-between w-full pr-4">
                             <span>Order #{order.id.substring(0, 8)}</span>
                             <span className="text-muted-foreground">{new Date(order.createdAt.toDate()).toLocaleDateString()}</span>
-                            <span className="font-bold text-primary">${order.total.toFixed(2)}</span>
+                            <span className="font-bold text-primary">{formatPrice(order.total, order.currency)}</span>
                           </div>
                         </AccordionTrigger>
                         <AccordionContent>
@@ -100,22 +107,22 @@ export default function AccountPage() {
                                   <p className="font-semibold">{item.name}</p>
                                   <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
                                 </div>
-                                <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                                <p className="font-semibold">{formatPrice(item.price * item.quantity, order.currency)}</p>
                               </div>
                             ))}
                             <Separator />
                             <div className="text-sm text-muted-foreground space-y-2">
                                 <div className="flex justify-between">
                                     <span>Subtotal:</span>
-                                    <span>${order.subtotal.toFixed(2)}</span>
+                                    <span>{formatPrice(order.subtotal, order.currency)}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span>Tax:</span>
-                                    <span>${order.tax.toFixed(2)}</span>
+                                    <span>{formatPrice(order.tax, order.currency)}</span>
                                 </div>
                                 <div className="flex justify-between font-bold text-foreground">
                                     <span>Total:</span>
-                                    <span>${order.total.toFixed(2)}</span>
+                                    <span>{formatPrice(order.total, order.currency)}</span>
                                 </div>
                             </div>
                             <Separator />
