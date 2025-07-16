@@ -3,7 +3,7 @@
 
 import { useTranslation } from '@/context/TranslationContext';
 import { Button } from './ui/button';
-import { Globe } from 'lucide-react';
+import { Languages } from 'lucide-react';
 
 export function LanguageSwitcher() {
   const { locale, setLocale } = useTranslation();
@@ -14,7 +14,7 @@ export function LanguageSwitcher() {
 
   return (
     <Button variant="ghost" size="icon" onClick={toggleLocale} aria-label="Switch language">
-      <Globe className="h-5 w-5" />
+      <Languages className="h-5 w-5" />
     </Button>
   );
 }
