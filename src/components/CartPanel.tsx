@@ -12,7 +12,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetFooter,
   SheetClose,
   SheetDescription,
 } from '@/components/ui/sheet';
@@ -132,23 +131,23 @@ export function CartPanel() {
                 ))}
               </div>
             </ScrollArea>
-            <SheetFooter className="bg-background/50 border-t p-6 space-y-4 mt-auto flex-col items-stretch">
-              <div className="space-y-2">
-                <Separator />
-                <div className="flex justify-between items-center text-lg">
-                  <span className="font-semibold text-muted-foreground">Subtotal</span>
-                  <span className="text-2xl text-primary font-bold">{formatPrice(cartTotal)}</span>
+            <div className="bg-background/50 border-t p-6 mt-auto">
+                <Separator className="mb-4" />
+                <div className="flex justify-between items-center">
+                    <div>
+                        <p className="text-sm text-muted-foreground">Subtotal</p>
+                        <p className="text-2xl font-bold text-primary">{formatPrice(cartTotal)}</p>
+                    </div>
+                    <SheetClose asChild>
+                        <Button asChild size="lg">
+                        <Link href="/checkout">
+                            <CreditCard className="mr-2 h-4 w-4" />
+                            Proceed to Checkout
+                        </Link>
+                        </Button>
+                    </SheetClose>
                 </div>
-              </div>
-              <SheetClose asChild>
-                <Button asChild size="lg" className="w-full">
-                  <Link href="/checkout">
-                    <CreditCard className="mr-2 h-4 w-4" />
-                    Proceed to Checkout
-                  </Link>
-                </Button>
-              </SheetClose>
-            </SheetFooter>
+            </div>
           </>
         )}
       </SheetContent>
