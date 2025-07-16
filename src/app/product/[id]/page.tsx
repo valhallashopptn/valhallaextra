@@ -212,9 +212,9 @@ export default function ProductDetailPage() {
                     <a href="#reviews" className="text-muted-foreground hover:underline">{reviews.length} reviews</a>
                 </div>
 
-                <div className="inline-flex items-center gap-3 bg-accent/10 text-accent-foreground p-3 rounded-lg">
-                    <Tag className="h-6 w-6 text-accent" />
-                    <span className="text-2xl font-bold">{formatPrice(product.price)}</span>
+                <div className="inline-flex items-center gap-3 bg-primary/10 text-primary-foreground p-3 rounded-lg">
+                    <Tag className="h-6 w-6 text-primary" />
+                    <span className="text-2xl font-bold text-primary">{formatPrice(product.price)}</span>
                 </div>
 
                 <p className="text-muted-foreground">{product.description}</p>
