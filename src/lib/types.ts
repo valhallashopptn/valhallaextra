@@ -28,6 +28,7 @@ export interface Product {
   dataAiHint: string;
   categoryId: string;
   categoryName: string;
+  category?: Category;
 }
 
 export interface CartItem extends Product {

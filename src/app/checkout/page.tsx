@@ -16,13 +16,62 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { addOrder } from '@/services/orderService';
 import { getPaymentMethods } from '@/services/paymentMethodService';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { PageWrapper } from '@/components/PageWrapper';
-import type { PaymentMethod } from '@/lib/types';
-import { Lock, Info } from 'lucide-react';
+import type { PaymentMethod, CartItem } from '@/lib/types';
+import { Lock, Info, AlertCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+
+function CustomFieldInput({ item, field, value, onChange }: { item: CartItem; field: any; value: string; onChange: (itemId: string, fieldLabel: string, value: string) => void; }) {
+  const [error, setError] = useState('');
+
+  const validate = (val: string) => {
+    if (!val) {
+        setError('This field is required.');
+        return false;
+    }
+    if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+        setError('Please enter a valid email.');
+        return false;
+    }
+    if (field.type === 'number' && !/^\d+$/.test(val)) {
+        setError('Please enter a valid number.');
+        return false;
+    }
+    setError('');
+    return true;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    validate(newValue);
+    onChange(item.id, field.label, newValue);
+  };
+  
+  // Initial validation
+  useEffect(() => {
+    validate(value);
+  }, []);
+
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={`${item.id}-${field.id}`}>{field.label}</Label>
+      <Input
+        id={`${item.id}-${field.id}`}
+        type={field.type}
+        value={value}
+        onChange={handleChange}
+        placeholder={`Enter ${field.label.toLowerCase()}`}
+        className={error ? 'border-destructive' : ''}
+      />
+      {error && <p className="text-sm text-destructive">{error}</p>}
+    </div>
+  );
+}
+
 
 export default function CheckoutPage() {
-  const { cartItems, cartTotal, clearCart } = useCart();
+  const { cartItems, cartTotal, clearCart, updateCartItemCustomData } = useCart();
   const { user, loading: authLoading } = useAuth();
   const { currency, formatPrice } = useCurrency();
   const router = useRouter();
@@ -71,6 +120,26 @@ export default function CheckoutPage() {
     return cartTotal + taxAmount;
   }, [cartTotal, taxAmount]);
 
+  const itemsWithCustomFields = useMemo(() => {
+    return cartItems.filter(item => item.category?.customFields && item.category.customFields.length > 0);
+  }, [cartItems]);
+
+  const areAllCustomFieldsValid = useMemo(() => {
+    return itemsWithCustomFields.every(item => 
+        item.category?.customFields?.every(field => {
+            const value = item.customFieldData?.[field.label];
+            if (!value) return false;
+             if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return false;
+            if (field.type === 'number' && !/^\d+$/.test(value)) return false;
+            return true;
+        })
+    );
+  }, [itemsWithCustomFields]);
+
+  const handleCustomFieldChange = useCallback((itemId: string, fieldLabel: string, value: string) => {
+    updateCartItemCustomData(itemId, fieldLabel, value);
+  }, [updateCartItemCustomData]);
+
   const handleCheckout = async () => {
     if (!user) {
         router.push('/login?redirect=/checkout');
@@ -78,6 +147,10 @@ export default function CheckoutPage() {
     }
     if (!selectedMethod) {
         toast({ title: 'Payment method required', description: 'Please select a payment method.', variant: 'destructive' });
+        return;
+    }
+    if (!areAllCustomFieldsValid) {
+        toast({ title: 'Information Required', description: 'Please fill out all required fields for your items.', variant: 'destructive' });
         return;
     }
     
@@ -134,10 +207,34 @@ export default function CheckoutPage() {
     <PageWrapper>
       <div className="text-center mb-10">
           <h1 className="text-4xl font-bold font-headline">Checkout</h1>
-          <p className="text-muted-foreground mt-2">Complete your purchase by selecting a payment method.</p>
+          <p className="text-muted-foreground mt-2">Complete your purchase by providing the necessary details.</p>
       </div>
       <div className="grid lg:grid-cols-2 gap-12">
-        <div>
+        <div className="space-y-8">
+            {itemsWithCustomFields.length > 0 && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Required Information</CardTitle>
+                        <CardDescription>Please provide the following details for your items.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {itemsWithCustomFields.map(item => (
+                            <div key={item.id} className="p-4 border rounded-lg space-y-4">
+                                <h3 className="font-semibold">{item.name}</h3>
+                                {item.category?.customFields?.map(field => (
+                                    <CustomFieldInput 
+                                        key={field.id}
+                                        item={item}
+                                        field={field}
+                                        value={item.customFieldData?.[field.label] || ''}
+                                        onChange={handleCustomFieldChange}
+                                    />
+                                ))}
+                            </div>
+                        ))}
+                    </CardContent>
+                </Card>
+            )}
           <Card>
             <CardHeader>
               <CardTitle>Payment Method</CardTitle>
@@ -217,8 +314,17 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </CardContent>
-             <CardFooter>
-                 <Button onClick={handleCheckout} className="w-full mt-2" size="lg" disabled={isPlacingOrder || !selectedMethod}>
+             <CardFooter className='flex-col items-stretch gap-4'>
+                 {itemsWithCustomFields.length > 0 && !areAllCustomFieldsValid && (
+                     <Alert variant="destructive">
+                         <AlertCircle className="h-4 w-4" />
+                         <AlertTitle>Action Required</AlertTitle>
+                         <AlertDescription>
+                             Please fill in all the required information for your items before placing the order.
+                         </AlertDescription>
+                     </Alert>
+                 )}
+                 <Button onClick={handleCheckout} className="w-full mt-2" size="lg" disabled={isPlacingOrder || !selectedMethod || !areAllCustomFieldsValid}>
                      <Lock className="mr-2 h-4 w-4" />
                     {isPlacingOrder ? 'Processing...' : `Place Order for ${formatPrice(finalTotal)}`}
                   </Button>

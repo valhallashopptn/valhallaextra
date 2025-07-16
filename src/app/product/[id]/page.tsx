@@ -18,7 +18,6 @@ import { CheckCircle, ShoppingCart, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { ReviewForm } from './ReviewForm';
-import { CustomFieldsForm } from './CustomFieldsForm';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { PageWrapper } from '@/components/PageWrapper';
@@ -49,8 +48,6 @@ export default function ProductDetailPage() {
   const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
   const [isAdded, setIsAdded] = useState(false);
-  const [customizationData, setCustomizationData] = useState<Record<string, string> | null>(null);
-  const [isCustomizationValid, setIsCustomizationValid] = useState(false);
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -79,14 +76,10 @@ export default function ProductDetailPage() {
     fetchProductData();
   }, [id, toast]);
   
-  const handleCustomizationChange = (data: Record<string, string>, isValid: boolean) => {
-    setCustomizationData(data);
-    setIsCustomizationValid(isValid);
-  }
 
   const handleAddToCart = () => {
     if (!product) return;
-    addToCart(product, customizationData ?? undefined);
+    addToCart({ ...product, category });
     setIsAdded(true);
     setTimeout(() => {
       setIsAdded(false);
@@ -122,16 +115,6 @@ export default function ProductDetailPage() {
     if (reviews.length === 0) return 0;
     return reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
   }, [reviews]);
-
-  const hasCustomFields = useMemo(() => {
-    return category?.customFields && category.customFields.length > 0;
-  }, [category]);
-
-  const canAddToCart = useMemo(() => {
-    if (isAdded) return false;
-    if (hasCustomFields) return isCustomizationValid;
-    return true;
-  }, [isAdded, hasCustomFields, isCustomizationValid]);
 
 
   if (loading) {
@@ -189,23 +172,13 @@ export default function ProductDetailPage() {
                           </div>
                         <p className="text-4xl font-bold text-primary mt-6">{formatPrice(product.price)}</p>
                     </div>
-
-                    {hasCustomFields && category ? (
-                      <div className="mt-6">
-                        <CustomFieldsForm 
-                          fields={category.customFields || []}
-                          onDataChange={handleCustomizationChange}
-                        />
-                      </div>
-                    ) : null}
                     
                     <div className="mt-8 flex flex-col md:flex-row gap-2">
                         <Button
                             onClick={handleAddToCart}
-                            disabled={!canAddToCart}
+                            disabled={isAdded}
                             size="lg"
                             className={cn("w-full md:w-auto transition-all", { 'bg-green-600': isAdded })}
-                            title={!canAddToCart && hasCustomFields ? 'Please fill out all required fields' : ''}
                         >
                             {isAdded ? (
                                 <>

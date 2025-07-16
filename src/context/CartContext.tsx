@@ -1,15 +1,16 @@
 
 'use client';
 
-import { createContext, useContext, useState, type ReactNode, useMemo } from 'react';
+import { createContext, useContext, useState, type ReactNode, useMemo, useCallback } from 'react';
 import type { CartItem, Product } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (product: Product, customFieldData?: Record<string, string>) => void;
+  addToCart: (item: Product) => void;
   removeFromCart: (productId: string) => void;
   clearCart: () => void;
+  updateCartItemCustomData: (itemId: string, fieldLabel: string, value: string) => void;
   cartCount: number;
   cartTotal: number;
 }
@@ -20,18 +21,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const { toast } = useToast();
 
-  const addToCart = (product: Product, customFieldData?: Record<string, string>) => {
+  const addToCart = (product: Product) => {
     setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id && JSON.stringify(item.customFieldData) === JSON.stringify(customFieldData));
+      // For this app, we assume unique custom fields are handled per purchase,
+      // so we don't stack items that would have different custom data.
+      // If an identical product is added, we just increase quantity.
+      const existingItem = prevItems.find(item => item.id === product.id);
       
       if (existingItem) {
         return prevItems.map(item =>
-          item.id === product.id && JSON.stringify(item.customFieldData) === JSON.stringify(customFieldData)
+          item.id === product.id
            ? { ...item, quantity: item.quantity + 1 } 
            : item
         );
       }
-      return [...prevItems, { ...product, quantity: 1, customFieldData }];
+      return [...prevItems, { ...product, quantity: 1, customFieldData: {} }];
     });
     toast({
       title: "Added to cart",
@@ -40,11 +44,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const removeFromCart = (productId: string) => {
-    // Note: This simple implementation removes all items of a certain product ID,
-    // regardless of customFieldData. For this app's logic (quantity is usually 1), this is fine.
-    // A more complex app might need to distinguish between items with different custom data.
     setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
   };
+  
+  const updateCartItemCustomData = useCallback((itemId: string, fieldLabel: string, value: string) => {
+    setCartItems(prevItems => prevItems.map(item => {
+        if (item.id === itemId) {
+            return {
+                ...item,
+                customFieldData: {
+                    ...item.customFieldData,
+                    [fieldLabel]: value
+                }
+            };
+        }
+        return item;
+    }));
+  }, []);
 
   const clearCart = () => {
     setCartItems([]);
@@ -63,6 +79,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     addToCart,
     removeFromCart,
     clearCart,
+    updateCartItemCustomData,
     cartCount,
     cartTotal,
   };
