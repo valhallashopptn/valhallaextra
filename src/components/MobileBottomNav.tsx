@@ -3,15 +3,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, Package, ShoppingCart, Tag, Palette } from 'lucide-react';
+import { LayoutGrid, Package, ShoppingCart, Tag, Palette, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/admin', icon: LayoutGrid, label: 'Dashboard' },
-  { href: '/admin/appearance', icon: Palette, label: 'Appearance' },
-  { href: '/admin/categories', icon: Tag, label: 'Categories' },
+  { href: '/admin/payments', icon: CreditCard, label: 'Payments' },
   { href: '/admin/products', icon: Package, label: 'Products' },
   { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
+  { href: '/admin/appearance', icon: Palette, label: 'Appearance' },
 ];
 
 export function MobileBottomNav() {
@@ -31,7 +31,7 @@ export function MobileBottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                'inline-flex flex-col items-center justify-center px-5 hover:bg-muted group',
+                'inline-flex flex-col items-center justify-center px-1 text-center hover:bg-muted group',
                 isActive ? 'text-primary' : 'text-muted-foreground'
               )}
             >

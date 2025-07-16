@@ -26,12 +26,26 @@ export interface CartItem extends Product {
   quantity: number;
 }
 
+export interface PaymentMethod {
+  id:string;
+  name: string;
+  instructions: string;
+  taxRate: number; // Stored as a percentage, e.g., 5 for 5%
+  createdAt: Timestamp;
+}
+
 export interface Order {
   id: string;
   userId: string;
   userEmail: string;
   items: CartItem[];
+  subtotal: number;
+  tax: number;
   total: number;
+  paymentMethod: {
+    name: string;
+    instructions: string;
+  };
   createdAt: Timestamp;
 }
 

@@ -1,5 +1,6 @@
+
 import { db } from '@/lib/firebase';
-import type { Order, CartItem } from '@/lib/types';
+import type { Order, CartItem, PaymentMethod } from '@/lib/types';
 import {
   collection,
   addDoc,
@@ -17,7 +18,10 @@ export const addOrder = async (orderData: {
   userId: string;
   userEmail: string;
   items: CartItem[];
+  subtotal: number;
+  tax: number;
   total: number;
+  paymentMethod: { name: string; instructions: string };
 }) => {
   return await addDoc(ordersCollectionRef, {
     ...orderData,

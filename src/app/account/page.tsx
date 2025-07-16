@@ -104,8 +104,24 @@ export default function AccountPage() {
                               </div>
                             ))}
                             <Separator />
-                            <div className="flex justify-end font-bold">
-                              <p>Total: ${order.total.toFixed(2)}</p>
+                            <div className="text-sm text-muted-foreground space-y-2">
+                                <div className="flex justify-between">
+                                    <span>Subtotal:</span>
+                                    <span>${order.subtotal.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span>Tax:</span>
+                                    <span>${order.tax.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between font-bold text-foreground">
+                                    <span>Total:</span>
+                                    <span>${order.total.toFixed(2)}</span>
+                                </div>
+                            </div>
+                            <Separator />
+                            <div>
+                                <h4 className="font-semibold">Payment Method: {order.paymentMethod.name}</h4>
+                                <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{order.paymentMethod.instructions}</p>
                             </div>
                           </div>
                         </AccordionContent>

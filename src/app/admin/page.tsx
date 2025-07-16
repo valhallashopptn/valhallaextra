@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -87,10 +88,10 @@ export default function AdminDashboardPage() {
        <Card>
         <CardHeader>
           <CardTitle>Welcome, Admin!</CardTitle>
-          <CardDescription>Use the sidebar to manage your products and view customer orders.</CardDescription>
+          <CardDescription>Use the sidebar to manage your store.</CardDescription>
         </CardHeader>
         <CardContent>
-            <p>This is your central hub for managing the TopUp Hub store. You can add new game credits, update existing ones, and keep an eye on all the orders coming through the platform.</p>
+            <p>This is your central hub for managing the TopUp Hub store. You can add new game credits, manage payment methods, update existing products, and keep an eye on all the orders coming through the platform.</p>
         </CardContent>
        </Card>
     </div>
