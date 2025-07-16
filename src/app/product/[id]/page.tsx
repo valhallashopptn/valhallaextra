@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useCurrency } from '@/context/CurrencyContext';
-import { CheckCircle, ShoppingCart, Star, PackageCheck, Minus, Plus, Truck } from 'lucide-react';
+import { CheckCircle, ShoppingCart, Star, PackageCheck, Minus, Plus, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { ReviewForm } from './ReviewForm';
@@ -212,13 +212,13 @@ export default function ProductDetailPage() {
                     <a href="#reviews" className="text-muted-foreground hover:underline">{reviews.length} reviews</a>
                 </div>
 
-                <p className="text-3xl font-bold text-primary">{formatPrice(product.price)}</p>
+                <p className="text-2xl font-bold text-primary">{formatPrice(product.price)}</p>
 
                 <p className="text-muted-foreground">{product.description}</p>
 
                 <div className="rounded-lg border bg-card/50 p-4 grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-3">
-                        <Truck className="h-6 w-6 text-primary" />
+                        <Zap className="h-6 w-6 text-primary" />
                         <div>
                             <p className="font-semibold">Delivery Method</p>
                             <p className="text-sm text-muted-foreground">Instant Delivery</p>
