@@ -10,6 +10,7 @@ import { getSettings } from '@/services/settingsService';
 import Image from 'next/image';
 import { useTranslation } from '@/context/TranslationContext';
 import { useEffect, useState } from 'react';
+import { useCart } from '@/context/CartContext';
 
 function SocialLink({ icon: Icon, ...props }: { icon: React.ElementType } & ComponentProps<typeof Link>) {
     return (
@@ -24,6 +25,7 @@ function SocialLink({ icon: Icon, ...props }: { icon: React.ElementType } & Comp
 
 export function Footer() {
   const { t } = useTranslation();
+  const { openCart } = useCart();
   const [settings, setSettings] = useState({ siteTitle: 'TopUp Hub', logoUrl: '' });
 
   useEffect(() => {
@@ -69,7 +71,7 @@ export function Footer() {
              <h3 className="text-lg font-semibold mb-4">{t('Footer.accountLinks')}</h3>
              <nav className="flex flex-col space-y-2">
                 <Link href="/account" className="text-muted-foreground hover:text-primary transition-colors">{t('Footer.myAccount')}</Link>
-                <Link href="/cart" className="text-muted-foreground hover:text-primary transition-colors">{t('Footer.cart')}</Link>
+                 <button onClick={openCart} className="text-left text-muted-foreground hover:text-primary transition-colors">{t('Footer.cart')}</button>
              </nav>
           </div>
 

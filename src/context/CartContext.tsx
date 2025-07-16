@@ -3,7 +3,6 @@
 
 import { createContext, useContext, useState, type ReactNode, useMemo, useCallback } from 'react';
 import type { CartItem, Product } from '@/lib/types';
-import { useToast } from '@/hooks/use-toast';
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -13,13 +12,19 @@ interface CartContextType {
   updateCartItemCustomData: (itemId: string, fieldLabel: string, value: string) => void;
   cartCount: number;
   cartTotal: number;
+  isCartOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const { toast } = useToast();
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const openCart = () => setIsCartOpen(true);
+  const closeCart = () => setIsCartOpen(false);
 
   const addToCart = (product: Product, quantity: number = 1) => {
     setCartItems(prevItems => {
@@ -34,10 +39,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prevItems, { ...product, quantity, customFieldData: {} }];
     });
-    toast({
-      title: "Added to cart",
-      description: `${product.name} (x${quantity}) has been added to your cart.`,
-    });
+    openCart();
   };
 
   const removeFromCart = (productId: string) => {
@@ -79,6 +81,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     updateCartItemCustomData,
     cartCount,
     cartTotal,
+    isCartOpen,
+    openCart,
+    closeCart,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

@@ -25,7 +25,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // Prevent link navigation when clicking the button
-    addToCart(product);
+    addToCart(product, 1);
     setIsAdded(true);
     setTimeout(() => {
       setIsAdded(false);
@@ -52,10 +52,10 @@ export function ProductCard({ product }: ProductCardProps) {
         </CardContent>
         <CardFooter className="p-4 flex justify-between items-center">
           <p className="text-xl font-bold text-primary">{formatPrice(product.price)}</p>
-          <Button onClick={handleAddToCart} disabled={isAdded} className={cn("w-36 transition-all", {
+          <Button onClick={handleAddToCart} disabled={isAdded || product.stock === 0} className={cn("w-36 transition-all", {
             'bg-green-600': isAdded,
           })}>
-            {isAdded ? (
+            {product.stock === 0 ? 'Out of Stock' : isAdded ? (
               <>
                 <CheckCircle className="mr-2 h-4 w-4 animate-in fade-in" />
                 {t('ProductCard.added')}

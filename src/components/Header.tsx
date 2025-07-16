@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { useTranslation } from '@/context/TranslationContext';
 import { CurrencySwitcher } from './CurrencySwitcher';
+import { CartPanel } from './CartPanel';
 
 
 interface HeaderProps {
@@ -35,7 +36,7 @@ interface HeaderProps {
 }
 
 export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
-  const { cartCount } = useCart();
+  const { cartCount, openCart } = useCart();
   const { user, logOut } = useAuth();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -280,7 +281,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
             variant="ghost"
             size="icon"
             className="relative"
-            onClick={() => router.push('/cart')}
+            onClick={openCart}
             aria-label={`Shopping cart with ${cartCount} items`}
           >
             <ShoppingCart className="h-5 w-5" />
@@ -290,6 +291,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
               </span>
             )}
           </Button>
+          <CartPanel />
           {user ? (
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
