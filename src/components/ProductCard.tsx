@@ -1,17 +1,18 @@
 
 'use client';
 
-import type { Product } from '@/lib/types';
+import type { Product, Category } from '@/lib/types';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { useCart } from '@/context/CartContext';
 import { ShoppingCart, CheckCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useTranslation } from '@/context/TranslationContext';
 import { useCurrency } from '@/context/CurrencyContext';
+import { getCategoryById } from '@/services/categoryService';
 
 interface ProductCardProps {
   product: Product;
@@ -22,10 +23,18 @@ export function ProductCard({ product }: ProductCardProps) {
   const [isAdded, setIsAdded] = useState(false);
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
+  const [category, setCategory] = useState<Category | null>(null);
+
+  useEffect(() => {
+    if (product.categoryId) {
+      getCategoryById(product.categoryId).then(setCategory);
+    }
+  }, [product.categoryId]);
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // Prevent link navigation when clicking the button
-    addToCart(product, 1);
+    const productWithCategory = { ...product, category: category || undefined };
+    addToCart(productWithCategory, 1);
     setIsAdded(true);
     setTimeout(() => {
       setIsAdded(false);
@@ -52,7 +61,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </CardContent>
         <CardFooter className="p-4 flex justify-between items-center">
           <p className="text-xl font-bold text-primary">{formatPrice(product.price)}</p>
-          <Button onClick={handleAddToCart} disabled={isAdded || product.stock === 0} className={cn("w-36 transition-all", {
+          <Button onClick={handleAddToCart} disabled={isAdded || product.stock === 0 || !category} className={cn("w-36 transition-all", {
             'bg-green-600': isAdded,
           })}>
             {product.stock === 0 ? 'Out of Stock' : isAdded ? (
