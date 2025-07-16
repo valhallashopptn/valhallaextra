@@ -5,11 +5,12 @@ import { PageWrapper } from '@/components/PageWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { Users, Target, Gem, Lightbulb, ShieldCheck, Heart, Zap, Gamepad2, LifeBuoy } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-function ValueCard({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) {
+function ValueCard({ icon, title, children, animateIcon = false }: { icon: React.ReactNode, title: string, children: React.ReactNode, animateIcon?: boolean }) {
     return (
         <div className="text-center p-6 bg-card/50 rounded-lg transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-primary/10">
-            <div className="inline-block p-4 bg-primary/10 text-primary rounded-full mb-4">
+            <div className={cn("inline-block p-4 bg-primary/10 text-primary rounded-full mb-4", animateIcon && "animate-spin-slow")}>
                 {icon}
             </div>
             <h3 className="text-xl font-bold font-headline mb-2">{title}</h3>
@@ -81,13 +82,13 @@ export default function AboutPage() {
                     <p className="mt-2 text-muted-foreground">The principles that guide every decision we make.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <ValueCard icon={<Lightbulb className="h-8 w-8" />} title="Innovation">
+                    <ValueCard icon={<Lightbulb className="h-8 w-8" />} title="Innovation" animateIcon>
                         We constantly seek better ways to serve our customers, embracing new technologies and creative solutions.
                     </ValueCard>
-                    <ValueCard icon={<ShieldCheck className="h-8 w-8" />} title="Integrity">
+                    <ValueCard icon={<ShieldCheck className="h-8 w-8" />} title="Integrity" animateIcon>
                         We operate with transparency and honesty. Your trust is our most valuable asset, and we work hard to protect it.
                     </ValueCard>
-                     <ValueCard icon={<Heart className="h-8 w-8" />} title="Customer-First">
+                     <ValueCard icon={<Heart className="h-8 w-8" />} title="Customer-First" animateIcon>
                         Our customers are at the heart of everything we do. We are committed to providing exceptional service and support.
                     </ValueCard>
                 </div>
@@ -101,16 +102,16 @@ export default function AboutPage() {
                     <p className="mt-2 text-muted-foreground">The advantages of using TopUp Hub for your digital needs.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <ValueCard icon={<Zap className="h-8 w-8" />} title="Instant Delivery">
+                    <ValueCard icon={<Zap className="h-8 w-8" />} title="Instant Delivery" animateIcon>
                         Your codes are delivered to your account immediately after purchase.
                     </ValueCard>
-                    <ValueCard icon={<Gamepad2 className="h-8 w-8" />} title="Wide Selection">
+                    <ValueCard icon={<Gamepad2 className="h-8 w-8" />} title="Wide Selection" animateIcon>
                         A huge catalog of games, gift cards, and digital products.
                     </ValueCard>
-                    <ValueCard icon={<ShieldCheck className="h-8 w-8" />} title="Secure Payments">
+                    <ValueCard icon={<ShieldCheck className="h-8 w-8" />} title="Secure Payments" animateIcon>
                         Shop with confidence using our secure and trusted payment gateways.
                     </ValueCard>
-                    <ValueCard icon={<LifeBuoy className="h-8 w-8" />} title="24/7 Support">
+                    <ValueCard icon={<LifeBuoy className="h-8 w-8" />} title="24/7 Support" animateIcon>
                         Our dedicated support team is here to help you around the clock.
                     </ValueCard>
                 </div>
