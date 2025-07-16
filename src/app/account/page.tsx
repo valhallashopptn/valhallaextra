@@ -128,8 +128,8 @@ export default function AccountPage() {
                             </div>
                             <Separator />
                             <div>
-                                <h4 className="font-semibold">Payment Method: {order.paymentMethod.name}</h4>
-                                <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{order.paymentMethod.instructions}</p>
+                                <h4 className="font-semibold">Payment Method: {order.paymentMethod?.name || 'N/A'}</h4>
+                                <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{order.paymentMethod?.instructions}</p>
                             </div>
                           </div>
                         </AccordionContent>

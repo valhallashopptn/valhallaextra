@@ -17,11 +17,12 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function formatPrice(total: number, currency: 'TND' | 'USD') {
+    const safeTotal = typeof total === 'number' ? total : 0;
     if (currency === 'TND') {
-        return `${total.toFixed(2)} TND`;
+        return `${safeTotal.toFixed(2)} TND`;
     }
     // Default to USD if currency is not specified or is USD
-    return `$${total.toFixed(2)}`;
+    return `$${safeTotal.toFixed(2)}`;
 }
 
 export default function OrdersPage() {
@@ -85,7 +86,7 @@ export default function OrdersPage() {
                   <TableCell>{new Date(order.createdAt.toDate()).toLocaleDateString()}</TableCell>
                   <TableCell>{order.userEmail}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{order.paymentMethod.name}</Badge>
+                    <Badge variant="outline">{order.paymentMethod?.name || 'N/A'}</Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1 max-w-xs">
