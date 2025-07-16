@@ -296,7 +296,7 @@ export default function CheckoutPage() {
                      <p className="font-semibold text-right flex-shrink-0">{formatPrice(item.price * item.quantity)}</p>
                   </div>
                 ))}
-                <Separator />
+                <div className="animated-separator" />
                 <div className="space-y-2">
                     <div className="flex justify-between">
                         <span>Subtotal</span>
@@ -307,7 +307,7 @@ export default function CheckoutPage() {
                         <span>{formatPrice(taxAmount)}</span>
                     </div>
                 </div>
-                 <Separator />
+                 <div className="animated-separator" />
                  <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
                     <span className="text-primary">{formatPrice(finalTotal)}</span>
