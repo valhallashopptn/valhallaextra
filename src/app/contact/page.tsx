@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
-import Image from 'next/image';
 
 function InfoCard({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) {
     return (
@@ -25,23 +24,18 @@ function InfoCard({ icon, title, children }: { icon: React.ReactNode, title: str
 
 export default function ContactPage() {
   return (
-    <div className="space-y-20 pb-12">
-       <div className="relative h-[300px] md:h-[400px] flex items-center justify-center text-center bg-card">
-         <Image 
-            src="https://placehold.co/1920x400.png"
-            alt="Contact us background"
-            fill
-            className="object-cover opacity-20"
-            data-ai-hint="abstract network"
-          />
-        <div className="relative z-10 p-4">
+    <div className="space-y-12 pb-12">
+      <div className="bg-card py-12">
+        <PageWrapper>
+          <div className="space-y-4 text-center">
             <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
               Get In Touch
             </h1>
-            <p className="mt-3 max-w-3xl mx-auto text-lg text-white/80 sm:text-xl">
+            <p className="mt-3 max-w-3xl mx-auto text-lg text-muted-foreground sm:text-xl">
               We'd love to hear from you! Reach out with any questions, feedback, or inquiries.
             </p>
-        </div>
+          </div>
+        </PageWrapper>
       </div>
 
       <PageWrapper>

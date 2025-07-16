@@ -21,23 +21,18 @@ function ValueCard({ icon, title, children, animateIcon = false }: { icon: React
 
 export default function AboutPage() {
   return (
-    <div className="space-y-20 pb-12">
-      <div className="relative h-[300px] md:h-[400px] flex items-center justify-center text-center bg-card">
-         <Image 
-            src="https://placehold.co/1920x400.png"
-            alt="Team working together"
-            fill
-            className="object-cover opacity-20"
-            data-ai-hint="office collaboration"
-          />
-        <div className="relative z-10 p-4">
+    <div className="space-y-12 pb-12">
+      <div className="bg-card py-12">
+        <PageWrapper>
+          <div className="space-y-4 text-center">
             <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
-              About TopUp Hub
+              About ApexTop
             </h1>
-            <p className="mt-3 max-w-3xl mx-auto text-lg text-white/80 sm:text-xl">
+            <p className="mt-3 max-w-3xl mx-auto text-lg text-muted-foreground sm:text-xl">
               We're a passionate team dedicated to making digital content accessible for everyone, instantly and securely.
             </p>
-        </div>
+          </div>
+        </PageWrapper>
       </div>
       
       <PageWrapper>
@@ -47,7 +42,7 @@ export default function AboutPage() {
                 <div className="space-y-4">
                     <h2 className="text-3xl font-bold font-headline">Our Story</h2>
                     <p className="text-muted-foreground">
-                        Founded in 2023 by a group of avid gamers and tech enthusiasts, TopUp Hub was born from a simple observation: getting digital credits should be fast, easy, and completely secure. We were tired of slow delivery times and risky websites. So, we decided to build the platform we always wanted—one that puts the customer first and delivers on its promises every single time.
+                        Founded in 2023 by a group of avid gamers and tech enthusiasts, ApexTop was born from a simple observation: getting digital credits should be fast, easy, and completely secure. We were tired of slow delivery times and risky websites. So, we decided to build the platform we always wanted—one that puts the customer first and delivers on its promises every single time.
                     </p>
                      <p className="text-muted-foreground">
                         Today, we're proud to serve a growing community of users who trust us for their digital top-up needs. Our journey is just beginning, and we're constantly innovating to bring you the best experience possible.
@@ -99,7 +94,7 @@ export default function AboutPage() {
             <section className="space-y-8">
                 <div className="text-center">
                     <h2 className="text-3xl font-bold font-headline">Why Choose Us?</h2>
-                    <p className="mt-2 text-muted-foreground">The advantages of using TopUp Hub for your digital needs.</p>
+                    <p className="mt-2 text-muted-foreground">The advantages of using ApexTop for your digital needs.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     <ValueCard icon={<Zap className="h-8 w-8" />} title="Instant Delivery" animateIcon>
