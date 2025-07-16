@@ -212,7 +212,7 @@ export default function ProductDetailPage() {
                     <a href="#reviews" className="text-muted-foreground hover:underline">{reviews.length} reviews</a>
                 </div>
 
-                <p className="text-5xl font-bold text-primary">{formatPrice(product.price)}</p>
+                <p className="text-3xl font-bold text-primary">{formatPrice(product.price)}</p>
 
                 <p className="text-muted-foreground">{product.description}</p>
 
@@ -260,21 +260,22 @@ export default function ProductDetailPage() {
             </div>
         </div>
 
-        <div className="animated-separator"></div>
-
         {product.tabs && product.tabs.length > 0 && (
-             <Tabs defaultValue={defaultTab} className="w-full">
-                <TabsList>
-                    {product.tabs?.map(tab => (
-                        <TabsTrigger key={tab.id} value={tab.id}>{tab.title}</TabsTrigger>
-                    ))}
-                </TabsList>
+          <>
+            <div className="animated-separator"></div>
+            <Tabs defaultValue={defaultTab} className="w-full">
+              <TabsList>
                 {product.tabs?.map(tab => (
-                    <TabsContent key={tab.id} value={tab.id} className="mt-4 text-muted-foreground prose prose-sm max-w-none prose-p:text-muted-foreground">
-                        <p>{tab.content}</p>
-                    </TabsContent>
+                  <TabsTrigger key={tab.id} value={tab.id}>{tab.title}</TabsTrigger>
                 ))}
+              </TabsList>
+              {product.tabs?.map(tab => (
+                <TabsContent key={tab.id} value={tab.id}>
+                  <p className="text-muted-foreground">{tab.content}</p>
+                </TabsContent>
+              ))}
             </Tabs>
+          </>
         )}
 
         <div className="animated-separator"></div>
