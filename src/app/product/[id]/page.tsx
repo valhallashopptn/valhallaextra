@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useCurrency } from '@/context/CurrencyContext';
-import { CheckCircle, ShoppingCart, Star, Edit } from 'lucide-react';
+import { CheckCircle, ShoppingCart, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { ReviewForm } from './ReviewForm';
@@ -49,6 +49,8 @@ export default function ProductDetailPage() {
   const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
   const [isAdded, setIsAdded] = useState(false);
+  const [customizationData, setCustomizationData] = useState<Record<string, string> | null>(null);
+  const [isCustomized, setIsCustomized] = useState(false);
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -77,9 +79,18 @@ export default function ProductDetailPage() {
     fetchProductData();
   }, [id, toast]);
   
-  const handleAddToCart = (customFieldData?: Record<string, string>) => {
+  const handleSaveCustomization = (data: Record<string, string>) => {
+    setCustomizationData(data);
+    setIsCustomized(true);
+    toast({
+      title: 'Customization Saved',
+      description: 'You can now add the product to your cart.',
+    });
+  };
+
+  const handleAddToCart = () => {
     if (!product) return;
-    addToCart(product, customFieldData);
+    addToCart(product, customizationData ?? undefined);
     setIsAdded(true);
     setTimeout(() => {
       setIsAdded(false);
@@ -177,30 +188,34 @@ export default function ProductDetailPage() {
                         <p className="text-4xl font-bold text-primary mt-6">{formatPrice(product.price)}</p>
                     </div>
                     
-                    <div className="mt-8">
+                    <div className="mt-8 flex flex-col md:flex-row gap-2">
                         {hasCustomFields && category ? (
                            <CustomFieldsFormDialog 
                              fields={category.customFields || []} 
-                             onSubmit={handleAddToCart} 
+                             onSave={handleSaveCustomization} 
                              productName={product.name}
+                             isCustomized={isCustomized}
                            />
-                        ) : (
-                            <Button onClick={() => handleAddToCart()} disabled={isAdded} size="lg" className={cn("w-full md:w-auto transition-all", {
-                                'bg-green-600': isAdded,
-                            })}>
-                                {isAdded ? (
-                                    <>
-                                    <CheckCircle className="mr-2 h-5 w-5 animate-in fade-in" />
-                                    Added to Cart
-                                    </>
-                                ) : (
-                                    <>
-                                    <ShoppingCart className="mr-2 h-5 w-5" />
-                                    Add to Cart
-                                    </>
-                                )}
-                            </Button>
-                        )}
+                        ) : null}
+                        <Button
+                            onClick={handleAddToCart}
+                            disabled={isAdded || (hasCustomFields && !isCustomized)}
+                            size="lg"
+                            className={cn("w-full md:w-auto transition-all", { 'bg-green-600': isAdded })}
+                            title={hasCustomFields && !isCustomized ? 'Please customize the product first' : ''}
+                        >
+                            {isAdded ? (
+                                <>
+                                <CheckCircle className="mr-2 h-5 w-5 animate-in fade-in" />
+                                Added to Cart
+                                </>
+                            ) : (
+                                <>
+                                <ShoppingCart className="mr-2 h-5 w-5" />
+                                Add to Cart
+                                </>
+                            )}
+                        </Button>
                     </div>
                 </div>
             </div>

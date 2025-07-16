@@ -9,16 +9,17 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import type { CustomField } from '@/lib/types';
-import { Edit, ShoppingCart } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import { useState } from 'react';
 
 interface CustomFieldsFormDialogProps {
   fields: CustomField[];
-  onSubmit: (data: Record<string, string>) => void;
+  onSave: (data: Record<string, string>) => void;
   productName: string;
+  isCustomized: boolean;
 }
 
-export function CustomFieldsFormDialog({ fields, onSubmit, productName }: CustomFieldsFormDialogProps) {
+export function CustomFieldsFormDialog({ fields, onSave, productName, isCustomized }: CustomFieldsFormDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const formSchema = z.object(
@@ -50,16 +51,16 @@ export function CustomFieldsFormDialog({ fields, onSubmit, productName }: Custom
   });
 
   const handleFormSubmit = (data: FormData) => {
-    onSubmit(data);
+    onSave(data);
     setIsDialogOpen(false);
   };
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button size="lg" className="w-full md:w-auto">
+        <Button variant="outline" size="lg" className="w-full md:w-auto">
           <Edit className="mr-2 h-5 w-5" />
-          Customize & Add to Cart
+          {isCustomized ? 'Edit Customization' : 'Customize'}
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -94,8 +95,7 @@ export function CustomFieldsFormDialog({ fields, onSubmit, productName }: Custom
             <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
                 <Button type="submit">
-                    <ShoppingCart className="mr-2 h-5 w-5" />
-                    Add to Cart
+                    Save Customization
                 </Button>
             </DialogFooter>
           </form>
