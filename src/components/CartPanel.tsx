@@ -17,6 +17,7 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 import { ScrollArea } from './ui/scroll-area';
+import { Separator } from './ui/separator';
 
 function CartItem({ item }: { item: import('@/lib/types').CartItem }) {
   const { formatPrice } = useCurrency();
@@ -133,7 +134,7 @@ export function CartPanel() {
             </ScrollArea>
             <SheetFooter className="bg-background/50 border-t p-6 space-y-4 mt-auto">
               <div className="space-y-2">
-                <div className="animated-separator -mx-6 mb-4"></div>
+                <Separator />
                 <div className="flex justify-between items-center text-lg">
                   <span className="font-semibold text-muted-foreground">Subtotal</span>
                   <span className="text-2xl text-primary font-bold">{formatPrice(cartTotal)}</span>
