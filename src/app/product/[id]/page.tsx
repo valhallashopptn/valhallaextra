@@ -18,7 +18,7 @@ import { CheckCircle, ShoppingCart, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { ReviewForm } from './ReviewForm';
-import { CustomFieldsFormDialog } from './CustomFieldsForm';
+import { CustomFieldsForm } from './CustomFieldsForm';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { PageWrapper } from '@/components/PageWrapper';
@@ -50,7 +50,7 @@ export default function ProductDetailPage() {
   const { formatPrice } = useCurrency();
   const [isAdded, setIsAdded] = useState(false);
   const [customizationData, setCustomizationData] = useState<Record<string, string> | null>(null);
-  const [isCustomized, setIsCustomized] = useState(false);
+  const [isCustomizationValid, setIsCustomizationValid] = useState(false);
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -79,14 +79,10 @@ export default function ProductDetailPage() {
     fetchProductData();
   }, [id, toast]);
   
-  const handleSaveCustomization = (data: Record<string, string>) => {
+  const handleCustomizationChange = (data: Record<string, string>, isValid: boolean) => {
     setCustomizationData(data);
-    setIsCustomized(true);
-    toast({
-      title: 'Customization Saved',
-      description: 'You can now add the product to your cart.',
-    });
-  };
+    setIsCustomizationValid(isValid);
+  }
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -130,6 +126,12 @@ export default function ProductDetailPage() {
   const hasCustomFields = useMemo(() => {
     return category?.customFields && category.customFields.length > 0;
   }, [category]);
+
+  const canAddToCart = useMemo(() => {
+    if (isAdded) return false;
+    if (hasCustomFields) return isCustomizationValid;
+    return true;
+  }, [isAdded, hasCustomFields, isCustomizationValid]);
 
 
   if (loading) {
@@ -187,22 +189,23 @@ export default function ProductDetailPage() {
                           </div>
                         <p className="text-4xl font-bold text-primary mt-6">{formatPrice(product.price)}</p>
                     </div>
+
+                    {hasCustomFields && category ? (
+                      <div className="mt-6">
+                        <CustomFieldsForm 
+                          fields={category.customFields || []}
+                          onDataChange={handleCustomizationChange}
+                        />
+                      </div>
+                    ) : null}
                     
                     <div className="mt-8 flex flex-col md:flex-row gap-2">
-                        {hasCustomFields && category ? (
-                           <CustomFieldsFormDialog 
-                             fields={category.customFields || []} 
-                             onSave={handleSaveCustomization} 
-                             productName={product.name}
-                             isCustomized={isCustomized}
-                           />
-                        ) : null}
                         <Button
                             onClick={handleAddToCart}
-                            disabled={isAdded || (hasCustomFields && !isCustomized)}
+                            disabled={!canAddToCart}
                             size="lg"
                             className={cn("w-full md:w-auto transition-all", { 'bg-green-600': isAdded })}
-                            title={hasCustomFields && !isCustomized ? 'Please customize the product first' : ''}
+                            title={!canAddToCart && hasCustomFields ? 'Please fill out all required fields' : ''}
                         >
                             {isAdded ? (
                                 <>
