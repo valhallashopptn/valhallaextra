@@ -15,9 +15,11 @@ import type { Category } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { PlusCircle } from 'lucide-react';
 import Image from 'next/image';
+import { Textarea } from '@/components/ui/textarea';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Category name must be at least 2 characters.' }),
+  description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
   imageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/300x200.png'),
   backImageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/300x200.png'),
 });
@@ -31,7 +33,7 @@ export default function CategoriesPage() {
 
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: '', imageUrl: 'https://placehold.co/300x200.png', backImageUrl: 'https://placehold.co/300x200.png' },
+    defaultValues: { name: '', description: '', imageUrl: 'https://placehold.co/300x200.png', backImageUrl: 'https://placehold.co/300x200.png' },
   });
 
   useEffect(() => {
@@ -53,7 +55,7 @@ export default function CategoriesPage() {
 
   const handleFormSubmit = async (data: CategoryFormData) => {
     try {
-      await addCategory({ name: data.name, imageUrl: data.imageUrl, backImageUrl: data.backImageUrl });
+      await addCategory({ name: data.name, description: data.description, imageUrl: data.imageUrl, backImageUrl: data.backImageUrl });
       toast({ title: 'Success', description: 'Category added successfully.' });
       form.reset();
       await fetchCategories();
@@ -116,6 +118,19 @@ export default function CategoriesPage() {
                       <FormLabel>Category Name</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g., PC Games" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="A short description for the back of the card..." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

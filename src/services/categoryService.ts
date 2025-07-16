@@ -19,7 +19,7 @@ export const getCategories = async (): Promise<Category[]> => {
 };
 
 // Add a new category
-export const addCategory = async (categoryData: { name: string, imageUrl: string, backImageUrl: string }) => {
+export const addCategory = async (categoryData: { name: string, description: string, imageUrl: string, backImageUrl: string }) => {
   return await addDoc(categoriesCollectionRef, {
     ...categoryData,
     createdAt: serverTimestamp(),

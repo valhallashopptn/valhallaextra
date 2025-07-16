@@ -5,6 +5,7 @@ import type { Timestamp } from 'firebase/firestore';
 export interface Category {
   id: string;
   name: string;
+  description: string;
   imageUrl: string;
   backImageUrl: string;
   createdAt: Timestamp;
@@ -43,7 +44,7 @@ export interface Order {
   tax: number;
   total: number;
   currency: 'TND' | 'USD';
-  paymentMethod: {
+  paymentMethod?: {
     name: string;
     instructions: string;
   };
