@@ -2,71 +2,29 @@
 'use client';
 
 import { useCart } from '@/context/CartContext';
-import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Trash2, ShoppingBag } from 'lucide-react';
+import { Trash2, ShoppingBag, CreditCard } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useToast } from '@/hooks/use-toast';
-import { addOrder } from '@/services/orderService';
-import { useState } from 'react';
 import { PageWrapper } from '@/components/PageWrapper';
 
 export default function CartPage() {
-  const { cartItems, removeFromCart, cartTotal, clearCart } = useCart();
-  const { user } = useAuth();
-  const router = useRouter();
-  const { toast } = useToast();
-  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
-
-  const handleCheckout = async () => {
-    if (!user) {
-      toast({
-        title: 'Authentication required',
-        description: 'Please log in to place an order.',
-        variant: 'destructive',
-      });
-      router.push('/login?redirect=/cart');
-      return;
-    }
-    
-    setIsPlacingOrder(true);
-    try {
-      await addOrder({
-        userId: user.uid,
-        userEmail: user.email || 'Anonymous',
-        items: cartItems,
-        total: cartTotal,
-      });
-
-      clearCart();
-      router.push('/order-confirmation');
-
-    } catch (error) {
-       toast({
-        title: 'Order Failed',
-        description: 'There was a problem placing your order. Please try again.',
-        variant: 'destructive',
-      });
-      console.error("Failed to place order:", error);
-    } finally {
-        setIsPlacingOrder(false);
-    }
-  };
+  const { cartItems, removeFromCart, cartTotal } = useCart();
 
   if (cartItems.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center py-20">
-        <ShoppingBag className="h-24 w-24 text-muted-foreground" />
-        <h2 className="mt-6 text-2xl font-semibold">Your Cart is Empty</h2>
-        <p className="mt-2 text-muted-foreground">Looks like you haven't added anything to your cart yet.</p>
-        <Button asChild className="mt-6">
-          <Link href="/">Start Shopping</Link>
-        </Button>
-      </div>
+      <PageWrapper>
+        <div className="flex flex-col items-center justify-center h-full text-center py-20">
+          <ShoppingBag className="h-24 w-24 text-muted-foreground" />
+          <h2 className="mt-6 text-2xl font-semibold">Your Cart is Empty</h2>
+          <p className="mt-2 text-muted-foreground">Looks like you haven't added anything to your cart yet.</p>
+          <Button asChild className="mt-6">
+            <Link href="/products">Start Shopping</Link>
+          </Button>
+        </div>
+      </PageWrapper>
     );
   }
 
@@ -123,8 +81,11 @@ export default function CartPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" onClick={handleCheckout} disabled={isPlacingOrder}>
-                {isPlacingOrder ? 'Placing Order...' : 'Place Order'}
+              <Button asChild className="w-full">
+                <Link href="/checkout">
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Proceed to Checkout
+                </Link>
               </Button>
             </CardFooter>
           </Card>
