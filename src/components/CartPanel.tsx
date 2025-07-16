@@ -135,16 +135,10 @@ export function CartPanel() {
               </div>
             </ScrollArea>
             <SheetFooter className="bg-background border-t p-6 space-y-4">
-              <div className="space-y-2 text-lg">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold">Subtotal</span>
-                </div>
-                <Separator />
-                <div className="flex justify-end items-center">
-                  <span className="text-2xl text-primary font-bold">{formatPrice(cartTotal)}</span>
-                </div>
+              <div className="flex justify-between items-center text-lg">
+                <span className="font-semibold text-muted-foreground">Subtotal</span>
+                <span className="text-2xl text-primary font-bold">{formatPrice(cartTotal)}</span>
               </div>
-
               <SheetClose asChild>
                 <Button asChild size="lg" className="w-full">
                   <Link href="/checkout">
