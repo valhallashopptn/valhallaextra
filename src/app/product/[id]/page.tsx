@@ -21,6 +21,7 @@ import { ReviewForm } from './ReviewForm';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { PageWrapper } from '@/components/PageWrapper';
+import { Badge } from '@/components/ui/badge';
 
 function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md' }) {
   const starClasses = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
@@ -78,7 +79,7 @@ export default function ProductDetailPage() {
   
 
   const handleAddToCart = () => {
-    if (!product) return;
+    if (!product || product.stock === 0) return;
     addToCart({ ...product, category });
     setIsAdded(true);
     setTimeout(() => {
@@ -115,6 +116,17 @@ export default function ProductDetailPage() {
     if (reviews.length === 0) return 0;
     return reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
   }, [reviews]);
+  
+  const StockBadge = () => {
+    if (!product) return null;
+    if (product.stock === 0) {
+      return <Badge variant="destructive">Out of Stock</Badge>;
+    }
+    if (product.stock <= 10) {
+      return <Badge variant="secondary" className="bg-yellow-500 text-black">Low Stock</Badge>;
+    }
+    return <Badge className="bg-green-600">In Stock</Badge>;
+  }
 
 
   if (loading) {
@@ -170,17 +182,20 @@ export default function ProductDetailPage() {
                             <StarRating rating={averageRating} />
                             <span className="text-muted-foreground text-sm">({reviews.length} reviews)</span>
                           </div>
-                        <p className="text-4xl font-bold text-primary mt-6">{formatPrice(product.price)}</p>
+                        <div className="mt-6 flex items-baseline gap-4">
+                            <p className="text-4xl font-bold text-primary">{formatPrice(product.price)}</p>
+                            <StockBadge />
+                        </div>
                     </div>
                     
                     <div className="mt-8 flex flex-col md:flex-row gap-2">
                         <Button
                             onClick={handleAddToCart}
-                            disabled={isAdded}
+                            disabled={isAdded || product.stock === 0}
                             size="lg"
                             className={cn("w-full md:w-auto transition-all", { 'bg-green-600': isAdded })}
                         >
-                            {isAdded ? (
+                            {product.stock === 0 ? 'Out of Stock' : isAdded ? (
                                 <>
                                 <CheckCircle className="mr-2 h-5 w-5 animate-in fade-in" />
                                 Added to Cart
