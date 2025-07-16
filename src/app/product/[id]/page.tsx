@@ -32,7 +32,7 @@ function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md
       {[...Array(5)].map((_, i) => (
         <Star
           key={i}
-          className={cn(starClasses, i < Math.round(rating) ? 'text-primary fill-current' : 'text-muted-foreground/50')}
+          className={cn(starClasses, i < Math.round(rating) ? 'text-accent fill-current' : 'text-muted-foreground/50')}
         />
       ))}
     </div>
