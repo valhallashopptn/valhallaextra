@@ -4,7 +4,7 @@
 import { PageWrapper } from '@/components/PageWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
-import { Users, Target, Gem, Lightbulb, ShieldCheck, Heart } from 'lucide-react';
+import { Users, Target, Gem, Lightbulb, ShieldCheck, Heart, Zap, Gamepad2, LifeBuoy } from 'lucide-react';
 
 function ValueCard({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) {
     return (
@@ -95,39 +95,24 @@ export default function AboutPage() {
             
             <div className="animated-separator"></div>
             
-             <section className="space-y-8">
+            <section className="space-y-8">
                 <div className="text-center">
-                    <h2 className="text-3xl font-bold font-headline">Meet the Team</h2>
-                    <p className="mt-2 text-muted-foreground">The passionate individuals powering TopUp Hub.</p>
+                    <h2 className="text-3xl font-bold font-headline">Why Choose Us?</h2>
+                    <p className="mt-2 text-muted-foreground">The advantages of using TopUp Hub for your digital needs.</p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <Card className="text-center overflow-hidden">
-                        <div className="relative h-56 bg-muted">
-                             <Image src="https://placehold.co/400x400.png" alt="Team member" fill className="object-cover" data-ai-hint="professional portrait" />
-                        </div>
-                        <CardContent className="p-6">
-                            <h3 className="text-xl font-semibold">Alex Johnson</h3>
-                            <p className="text-primary mt-1">CEO & Founder</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="text-center overflow-hidden">
-                        <div className="relative h-56 bg-muted">
-                             <Image src="https://placehold.co/400x400.png" alt="Team member" fill className="object-cover" data-ai-hint="professional woman portrait" />
-                        </div>
-                        <CardContent className="p-6">
-                            <h3 className="text-xl font-semibold">Maria Garcia</h3>
-                            <p className="text-primary mt-1">Head of Operations</p>
-                        </CardContent>
-                    </Card>
-                     <Card className="text-center overflow-hidden">
-                        <div className="relative h-56 bg-muted">
-                            <Image src="https://placehold.co/400x400.png" alt="Team member" fill className="object-cover" data-ai-hint="professional man portrait" />
-                        </div>
-                        <CardContent className="p-6">
-                            <h3 className="text-xl font-semibold">David Chen</h3>
-                            <p className="text-primary mt-1">Lead Developer</p>
-                        </CardContent>
-                    </Card>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <ValueCard icon={<Zap className="h-8 w-8" />} title="Instant Delivery">
+                        Your codes are delivered to your account immediately after purchase.
+                    </ValueCard>
+                    <ValueCard icon={<Gamepad2 className="h-8 w-8" />} title="Wide Selection">
+                        A huge catalog of games, gift cards, and digital products.
+                    </ValueCard>
+                    <ValueCard icon={<ShieldCheck className="h-8 w-8" />} title="Secure Payments">
+                        Shop with confidence using our secure and trusted payment gateways.
+                    </ValueCard>
+                    <ValueCard icon={<LifeBuoy className="h-8 w-8" />} title="24/7 Support">
+                        Our dedicated support team is here to help you around the clock.
+                    </ValueCard>
                 </div>
             </section>
         </div>
