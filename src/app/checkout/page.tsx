@@ -315,15 +315,6 @@ export default function CheckoutPage() {
               </div>
             </CardContent>
              <CardFooter className='flex-col items-stretch gap-4'>
-                 {itemsWithCustomFields.length > 0 && !areAllCustomFieldsValid && (
-                     <Alert variant="destructive">
-                         <AlertCircle className="h-4 w-4" />
-                         <AlertTitle>Action Required</AlertTitle>
-                         <AlertDescription>
-                             Please fill in all the required information for your items before placing the order.
-                         </AlertDescription>
-                     </Alert>
-                 )}
                  <Button onClick={handleCheckout} className="w-full mt-2" size="lg" disabled={isPlacingOrder || !selectedMethod || !areAllCustomFieldsValid}>
                      <Lock className="mr-2 h-4 w-4" />
                     {isPlacingOrder ? 'Processing...' : `Place Order for ${formatPrice(finalTotal)}`}
