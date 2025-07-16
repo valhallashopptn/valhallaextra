@@ -167,7 +167,7 @@ export default function Home() {
   const filteredProducts = useMemo(() => {
     let prods = products;
     if (searchQuery) {
-        prods = prods.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.game.toLowerCase().includes(searchQuery.toLowerCase()));
+        prods = prods.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
     }
     if (selectedCategory) {
         prods = prods.filter(p => p.categoryId === selectedCategory);

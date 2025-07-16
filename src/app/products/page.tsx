@@ -51,8 +51,7 @@ export default function ProductsPage() {
     let prods = products;
     if (searchQuery) {
         prods = prods.filter(p => 
-            p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-            p.game.toLowerCase().includes(searchQuery.toLowerCase())
+            p.name.toLowerCase().includes(searchQuery.toLowerCase())
         );
     }
     if (selectedCategory) {
@@ -82,7 +81,7 @@ export default function ProductsPage() {
                 <div className="relative flex-grow">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input 
-                        placeholder="Search products by name or game..."
+                        placeholder="Search products by name..."
                         className="pl-10"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}

@@ -59,8 +59,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   useEffect(() => {
     if (searchQuery.length > 1) {
       const filtered = allProducts.filter(p => 
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.game.toLowerCase().includes(searchQuery.toLowerCase())
+        p.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setResults(filtered);
       setIsSearchOpen(true);
@@ -154,7 +153,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                                       <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="rounded-md object-cover" />
                                       <div>
                                         <p className="text-sm font-medium">{product.name}</p>
-                                        <p className="text-xs text-muted-foreground">{product.game}</p>
+                                        <p className="text-xs text-muted-foreground">{product.categoryName}</p>
                                       </div>
                                     </div>
                                   </Link>
@@ -263,7 +262,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                                <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="rounded-md object-cover" />
                                <div>
                                  <p className="text-sm font-medium">{product.name}</p>
-                                 <p className="text-xs text-muted-foreground">{product.game}</p>
+                                 <p className="text-xs text-muted-foreground">{product.categoryName}</p>
                                </div>
                             </div>
                           </Link>

@@ -15,7 +15,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
-  game: z.string().min(2, { message: 'Game name must be at least 2 characters.' }),
   price: z.coerce.number().min(0.01, { message: 'Price must be a positive number.' }),
   stock: z.coerce.number().int().min(0, { message: 'Stock must be a non-negative integer.' }),
   categoryId: z.string().min(1, { message: 'Please select a category.' }),
@@ -42,7 +41,6 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
     } : {
       name: '',
       description: '',
-      game: '',
       price: 0,
       stock: 100,
       categoryId: '',
@@ -62,7 +60,6 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
         form.reset({
             name: '',
             description: '',
-            game: '',
             price: 0,
             stock: 100,
             categoryId: '',
@@ -105,19 +102,6 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
               <FormLabel>Description</FormLabel>
               <FormControl>
                 <Textarea placeholder="A short description for the product page..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="game"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Game</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., Mobile Legends" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

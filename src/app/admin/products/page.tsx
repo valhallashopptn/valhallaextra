@@ -100,7 +100,6 @@ export default function ProductsPage() {
                   <TableHead>Image</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Category</TableHead>
-                  <TableHead>Game</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Stock</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -110,7 +109,7 @@ export default function ProductsPage() {
                 {loading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                      <TableCell colSpan={7} className="text-center">Loading...</TableCell>
+                      <TableCell colSpan={6} className="text-center">Loading...</TableCell>
                     </TableRow>
                   ))
                 ) : products.map(product => (
@@ -122,7 +121,6 @@ export default function ProductsPage() {
                     <TableCell>
                       <Badge variant="secondary">{product.categoryName}</Badge>
                     </TableCell>
-                    <TableCell>{product.game}</TableCell>
                     <TableCell>${product.price.toFixed(2)}</TableCell>
                     <TableCell>{product.stock}</TableCell>
                     <TableCell className="text-right">
