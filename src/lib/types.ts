@@ -21,6 +21,7 @@ export interface Category {
 export interface Product {
   id: string;
   name: string;
+  description: string;
   game: string;
   price: number;
   imageUrl: string;

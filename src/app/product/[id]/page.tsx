@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useCurrency } from '@/context/CurrencyContext';
-import { CheckCircle, ShoppingCart, Star, PackageCheck } from 'lucide-react';
+import { CheckCircle, ShoppingCart, Star, PackageCheck, Minus, Plus, Truck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { ReviewForm } from './ReviewForm';
@@ -50,6 +50,7 @@ export default function ProductDetailPage() {
   const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
   const [isAdded, setIsAdded] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -81,7 +82,7 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (!product || product.stock === 0) return;
-    addToCart({ ...product, category });
+    addToCart({ ...product, category }, quantity);
     setIsAdded(true);
     setTimeout(() => {
       setIsAdded(false);
@@ -131,8 +132,8 @@ export default function ProductDetailPage() {
     }
 
     return (
-        <div className="flex items-center gap-3 rounded-lg border bg-card/50 p-3">
-            <PackageCheck className={cn("h-8 w-8", iconColor)} />
+        <div className="flex items-center gap-3">
+            <PackageCheck className={cn("h-6 w-6", iconColor)} />
             <div>
                 <p className="font-semibold">{text}</p>
                 <p className="text-sm text-muted-foreground">{stock} available</p>
@@ -146,7 +147,7 @@ export default function ProductDetailPage() {
     return (
       <PageWrapper>
         <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-          <Skeleton className="aspect-video rounded-xl" />
+          <Skeleton className="aspect-square md:aspect-video rounded-xl" />
           <div className="space-y-6">
             <Skeleton className="h-8 w-3/4" />
             <Skeleton className="h-6 w-1/2" />
@@ -171,63 +172,90 @@ export default function ProductDetailPage() {
       </PageWrapper>
     );
   }
+  
+  const handleQuantityChange = (amount: number) => {
+    setQuantity(prev => {
+        const newQuantity = prev + amount;
+        if (newQuantity < 1) return 1;
+        if (newQuantity > product.stock) return product.stock;
+        return newQuantity;
+    })
+  }
 
   return (
     <PageWrapper>
       <div className="space-y-12">
-        <Card className="overflow-hidden">
-            <div className="grid md:grid-cols-2">
-                <div className="aspect-video relative">
-                    <Image
-                    src={product.imageUrl}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    data-ai-hint={product.dataAiHint}
-                    />
+        <div className="grid md:grid-cols-2 gap-12 items-start">
+            <div className="aspect-video relative rounded-lg overflow-hidden border">
+                <Image
+                src={product.imageUrl}
+                alt={product.name}
+                fill
+                className="object-cover"
+                data-ai-hint={product.dataAiHint}
+                />
+            </div>
+
+            <div className="space-y-6">
+                <Badge variant="secondary">{product.game}</Badge>
+                <h1 className="text-4xl font-bold font-headline">{product.name}</h1>
+                
+                <div className="flex items-center gap-2 text-sm">
+                    <StarRating rating={averageRating} />
+                    <span className="text-muted-foreground">({averageRating.toFixed(1)})</span>
+                    <Separator orientation="vertical" className="h-4" />
+                    <a href="#reviews" className="text-muted-foreground hover:underline">{reviews.length} reviews</a>
                 </div>
 
-                <div className="p-8 flex flex-col">
-                    <div className='flex-grow'>
-                        <p className="text-sm font-medium text-muted-foreground">{product.game}</p>
-                        <h1 className="text-4xl font-bold mt-2 font-headline">{product.name}</h1>
-                        <div className="mt-4 flex items-center gap-2">
-                            <StarRating rating={averageRating} />
-                            <span className="text-muted-foreground text-sm">({reviews.length} reviews)</span>
-                          </div>
-                        <div className="mt-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-                            <p className="text-4xl font-bold text-primary">{formatPrice(product.price)}</p>
-                            <StockDisplay stock={product.stock} />
+                <p className="text-5xl font-bold text-primary">{formatPrice(product.price)}</p>
+
+                <p className="text-muted-foreground">{product.description || 'No description available.'}</p>
+
+                <div className="rounded-lg border bg-card/50 p-4 grid grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3">
+                        <Truck className="h-6 w-6 text-primary" />
+                        <div>
+                            <p className="font-semibold">Delivery Method</p>
+                            <p className="text-sm text-muted-foreground">Instant Delivery</p>
                         </div>
                     </div>
-                    
-                    <Separator className="my-8" />
-
-                    <div className="mt-auto flex flex-col md:flex-row gap-2">
-                        <Button
-                            onClick={handleAddToCart}
-                            disabled={isAdded || product.stock === 0}
-                            size="lg"
-                            className={cn("w-full md:w-auto transition-all", { 'bg-green-600': isAdded })}
-                        >
-                            {product.stock === 0 ? 'Out of Stock' : isAdded ? (
-                                <>
-                                <CheckCircle className="mr-2 h-5 w-5 animate-in fade-in" />
-                                Added to Cart
-                                </>
-                            ) : (
-                                <>
-                                <ShoppingCart className="mr-2 h-5 w-5" />
-                                Add to Cart
-                                </>
-                            )}
+                     <StockDisplay stock={product.stock} />
+                </div>
+                
+                <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex items-center border rounded-md">
+                        <Button variant="ghost" size="icon" onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>
+                            <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="w-12 text-center font-bold">{quantity}</span>
+                        <Button variant="ghost" size="icon" onClick={() => handleQuantityChange(1)} disabled={quantity >= product.stock}>
+                            <Plus className="h-4 w-4" />
                         </Button>
                     </div>
+
+                    <Button
+                        onClick={handleAddToCart}
+                        disabled={isAdded || product.stock === 0}
+                        size="lg"
+                        className={cn("w-full flex-grow transition-all", { 'bg-green-600': isAdded })}
+                    >
+                        {product.stock === 0 ? 'Out of Stock' : isAdded ? (
+                            <>
+                            <CheckCircle className="mr-2 h-5 w-5 animate-in fade-in" />
+                            Added to Cart
+                            </>
+                        ) : (
+                            <>
+                            <ShoppingCart className="mr-2 h-5 w-5" />
+                            Add to Cart
+                            </>
+                        )}
+                    </Button>
                 </div>
             </div>
-        </Card>
+        </div>
 
-        <Card>
+        <Card id="reviews">
           <CardHeader>
               <div className="flex justify-between items-start">
                   <div>

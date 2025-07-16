@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (item: Product) => void;
+  addToCart: (item: Product, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
   clearCart: () => void;
   updateCartItemCustomData: (itemId: string, fieldLabel: string, value: string) => void;
@@ -21,25 +21,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const { toast } = useToast();
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: Product, quantity: number = 1) => {
     setCartItems(prevItems => {
-      // For this app, we assume unique custom fields are handled per purchase,
-      // so we don't stack items that would have different custom data.
-      // If an identical product is added, we just increase quantity.
       const existingItem = prevItems.find(item => item.id === product.id);
       
       if (existingItem) {
         return prevItems.map(item =>
           item.id === product.id
-           ? { ...item, quantity: item.quantity + 1 } 
+           ? { ...item, quantity: item.quantity + quantity } 
            : item
         );
       }
-      return [...prevItems, { ...product, quantity: 1, customFieldData: {} }];
+      return [...prevItems, { ...product, quantity, customFieldData: {} }];
     });
     toast({
       title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
+      description: `${product.name} (x${quantity}) has been added to your cart.`,
     });
   };
 
