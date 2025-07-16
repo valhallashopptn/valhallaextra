@@ -11,7 +11,7 @@ import { Mail, Phone, MapPin, Send } from 'lucide-react';
 function InfoCard({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) {
     return (
         <div className="flex items-start gap-4 p-6 bg-card/50 rounded-lg transform transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10">
-            <div className="p-3 rounded-full bg-primary/10 text-primary mt-1">
+            <div className="p-3 rounded-full bg-primary/10 text-primary mt-1 animate-spin-slow">
                 {icon}
             </div>
             <div>
