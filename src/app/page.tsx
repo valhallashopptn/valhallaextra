@@ -209,7 +209,7 @@ export default function Home() {
       </section>
       
       {/* Browse by Category Section */}
-      <section className="bg-background pt-16">
+      <section className="bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="relative text-center md:text-left">
             <h2 className="text-3xl font-bold font-headline text-center">{t('HomePage.browseByCategory')}</h2>
