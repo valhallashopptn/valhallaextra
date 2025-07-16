@@ -100,9 +100,9 @@ export function CartPanel() {
               </div>
             </ScrollArea>
             <SheetFooter className="bg-background border-t p-6 space-y-4">
-              <div className="flex justify-between font-bold text-lg">
-                <span>Total</span>
-                <span className="text-primary">{formatPrice(cartTotal)}</span>
+              <div className="flex justify-between items-baseline font-bold text-lg">
+                <span className="text-muted-foreground">Total</span>
+                <span className="text-primary text-2xl">{formatPrice(cartTotal)}</span>
               </div>
               <SheetClose asChild>
                 <Button asChild className="w-full" size="lg">
