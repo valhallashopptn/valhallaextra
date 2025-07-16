@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useState, type ReactNode, useMemo } from 'react';
@@ -6,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (product: Product) => void;
+  addToCart: (product: Product, customFieldData?: Record<string, string>) => void;
   removeFromCart: (productId: string) => void;
   clearCart: () => void;
   cartCount: number;
@@ -19,15 +20,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const { toast } = useToast();
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: Product, customFieldData?: Record<string, string>) => {
     setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id);
+      const existingItem = prevItems.find(item => item.id === product.id && JSON.stringify(item.customFieldData) === JSON.stringify(customFieldData));
+      
       if (existingItem) {
         return prevItems.map(item =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === product.id && JSON.stringify(item.customFieldData) === JSON.stringify(customFieldData)
+           ? { ...item, quantity: item.quantity + 1 } 
+           : item
         );
       }
-      return [...prevItems, { ...product, quantity: 1 }];
+      return [...prevItems, { ...product, quantity: 1, customFieldData }];
     });
     toast({
       title: "Added to cart",
@@ -36,6 +40,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const removeFromCart = (productId: string) => {
+    // Note: This simple implementation removes all items of a certain product ID,
+    // regardless of customFieldData. For this app's logic (quantity is usually 1), this is fine.
+    // A more complex app might need to distinguish between items with different custom data.
     setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
   };
 

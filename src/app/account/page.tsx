@@ -101,12 +101,21 @@ export default function AccountPage() {
                         </AccordionTrigger>
                         <AccordionContent>
                           <div className="space-y-4 pt-2">
-                            {order.items.map(item => (
-                              <div key={item.id} className="flex items-center space-x-4">
+                            {order.items.map((item, index) => (
+                              <div key={item.id + index} className="flex items-center space-x-4">
                                 <Image src={item.imageUrl} alt={item.name} width={64} height={64} className="rounded-md object-cover" data-ai-hint={item.dataAiHint} />
                                 <div className="flex-grow">
                                   <p className="font-semibold">{item.name}</p>
                                   <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
+                                   {item.customFieldData && (
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                      {Object.entries(item.customFieldData).map(([key, value]) => (
+                                        <div key={key}>
+                                          <span className="font-medium">{key}:</span> {value}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
                                 </div>
                                 <p className="font-semibold">{formatPrice(item.price * item.quantity, order.currency)}</p>
                               </div>

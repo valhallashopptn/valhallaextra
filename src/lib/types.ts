@@ -2,6 +2,12 @@
 import type { User as FirebaseUser } from 'firebase/auth';
 import type { Timestamp } from 'firebase/firestore';
 
+export interface CustomField {
+  id: string;
+  label: string;
+  type: 'text' | 'number' | 'email';
+}
+
 export interface Category {
   id: string;
   name: string;
@@ -9,6 +15,7 @@ export interface Category {
   imageUrl: string;
   backImageUrl: string;
   createdAt: Timestamp;
+  customFields?: CustomField[];
 }
 
 export interface Product {
@@ -25,6 +32,7 @@ export interface Product {
 
 export interface CartItem extends Product {
   quantity: number;
+  customFieldData?: Record<string, string>;
 }
 
 export interface PaymentMethod {

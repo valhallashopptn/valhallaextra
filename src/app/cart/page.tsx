@@ -47,6 +47,15 @@ export default function CartPage() {
                       <p className="font-semibold">{item.name}</p>
                       <p className="text-sm text-muted-foreground">{item.game}</p>
                       <p className="text-sm text-primary font-bold">{formatPrice(item.price)}</p>
+                      {item.customFieldData && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {Object.entries(item.customFieldData).map(([key, value]) => (
+                            <div key={key}>
+                              <span className="font-medium">{key}:</span> {value}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div className="text-right">
                       <p>Qty: {item.quantity}</p>

@@ -4,8 +4,9 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { getProductById } from '@/services/productService';
+import { getCategoryById } from '@/services/categoryService';
 import { getReviewsForProduct, addReview } from '@/services/reviewService';
-import type { Product, Review } from '@/lib/types';
+import type { Product, Review, Category } from '@/lib/types';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -13,13 +14,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useCurrency } from '@/context/CurrencyContext';
-import { CheckCircle, ShoppingCart, Star } from 'lucide-react';
+import { CheckCircle, ShoppingCart, Star, Edit } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { ReviewForm } from './ReviewForm';
+import { CustomFieldsFormDialog } from './CustomFieldsForm';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
 import { PageWrapper } from '@/components/PageWrapper';
 
 function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md' }) {
@@ -42,6 +43,7 @@ export default function ProductDetailPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [product, setProduct] = useState<Product | null>(null);
+  const [category, setCategory] = useState<Category | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
@@ -49,16 +51,21 @@ export default function ProductDetailPage() {
   const [isAdded, setIsAdded] = useState(false);
 
   useEffect(() => {
-    const fetchProductAndReviews = async () => {
+    const fetchProductData = async () => {
       if (typeof id !== 'string') return;
       try {
         setLoading(true);
-        const [productData, reviewsData] = await Promise.all([
-            getProductById(id),
-            getReviewsForProduct(id)
-        ]);
+        const productData = await getProductById(id);
         setProduct(productData);
-        setReviews(reviewsData);
+
+        if (productData) {
+            const [categoryData, reviewsData] = await Promise.all([
+                getCategoryById(productData.categoryId),
+                getReviewsForProduct(id)
+            ]);
+            setCategory(categoryData);
+            setReviews(reviewsData);
+        }
       } catch (error) {
         console.error('Failed to fetch product or reviews:', error);
         toast({ title: 'Error', description: 'Could not load product details.', variant: 'destructive' });
@@ -67,12 +74,12 @@ export default function ProductDetailPage() {
       }
     };
 
-    fetchProductAndReviews();
+    fetchProductData();
   }, [id, toast]);
   
-  const handleAddToCart = () => {
+  const handleAddToCart = (customFieldData?: Record<string, string>) => {
     if (!product) return;
-    addToCart(product);
+    addToCart(product, customFieldData);
     setIsAdded(true);
     setTimeout(() => {
       setIsAdded(false);
@@ -108,6 +115,10 @@ export default function ProductDetailPage() {
     if (reviews.length === 0) return 0;
     return reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
   }, [reviews]);
+
+  const hasCustomFields = useMemo(() => {
+    return category?.customFields && category.customFields.length > 0;
+  }, [category]);
 
 
   if (loading) {
@@ -167,21 +178,29 @@ export default function ProductDetailPage() {
                     </div>
                     
                     <div className="mt-8">
-                        <Button onClick={handleAddToCart} disabled={isAdded} size="lg" className={cn("w-full md:w-auto transition-all", {
-                            'bg-green-600': isAdded,
-                        })}>
-                            {isAdded ? (
-                                <>
-                                <CheckCircle className="mr-2 h-5 w-5 animate-in fade-in" />
-                                Added to Cart
-                                </>
-                            ) : (
-                                <>
-                                <ShoppingCart className="mr-2 h-5 w-5" />
-                                Add to Cart
-                                </>
-                            )}
-                        </Button>
+                        {hasCustomFields && category ? (
+                           <CustomFieldsFormDialog 
+                             fields={category.customFields || []} 
+                             onSubmit={handleAddToCart} 
+                             productName={product.name}
+                           />
+                        ) : (
+                            <Button onClick={() => handleAddToCart()} disabled={isAdded} size="lg" className={cn("w-full md:w-auto transition-all", {
+                                'bg-green-600': isAdded,
+                            })}>
+                                {isAdded ? (
+                                    <>
+                                    <CheckCircle className="mr-2 h-5 w-5 animate-in fade-in" />
+                                    Added to Cart
+                                    </>
+                                ) : (
+                                    <>
+                                    <ShoppingCart className="mr-2 h-5 w-5" />
+                                    Add to Cart
+                                    </>
+                                )}
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
