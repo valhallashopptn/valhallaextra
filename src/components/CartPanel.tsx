@@ -4,7 +4,6 @@
 import { useCart } from '@/context/CartContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Trash2, ShoppingBag, CreditCard, X, Plus, Minus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -33,8 +32,8 @@ function CartItem({ item }: { item: import('@/lib/types').CartItem }) {
   };
   
   return (
-    <div className="flex items-start space-x-4">
-      <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md">
+    <div className="flex items-start space-x-4 py-4">
+      <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border">
         <Image
           src={item.imageUrl}
           alt={item.name}
@@ -52,9 +51,14 @@ function CartItem({ item }: { item: import('@/lib/types').CartItem }) {
               {formatPrice(item.price)}
             </p>
           </div>
-          <p className="font-semibold text-base">
-            {formatPrice(item.price * item.quantity)}
-          </p>
+           <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-destructive flex-shrink-0"
+                onClick={() => removeFromCart(item.id)}
+            >
+                <Trash2 className="h-4 w-4" />
+            </Button>
         </div>
         
         <div className="flex items-center justify-between">
@@ -77,15 +81,9 @@ function CartItem({ item }: { item: import('@/lib/types').CartItem }) {
                 <Plus className="h-4 w-4" />
                 </Button>
             </div>
-
-            <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                onClick={() => removeFromCart(item.id)}
-            >
-                <Trash2 className="h-4 w-4" />
-            </Button>
+             <p className="font-semibold text-base text-right">
+                {formatPrice(item.price * item.quantity)}
+            </p>
         </div>
       </div>
     </div>
@@ -103,14 +101,13 @@ export function CartPanel() {
 
   return (
     <Sheet open={isCartOpen} onOpenChange={(isOpen) => !isOpen && closeCart()}>
-      <SheetContent className="flex w-full flex-col p-0 sm:max-w-lg">
-        <SheetHeader className="p-6 pb-4">
+      <SheetContent className="flex w-full flex-col p-0 sm:max-w-lg bg-card">
+        <SheetHeader className="p-6 pb-4 border-b">
           <SheetTitle className="text-2xl font-bold">Your Order</SheetTitle>
           <SheetDescription>
             Review your items and proceed to payment.
           </SheetDescription>
         </SheetHeader>
-        <Separator />
 
         {cartItems.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center space-y-4 text-center px-6">
@@ -128,16 +125,19 @@ export function CartPanel() {
         ) : (
           <>
             <ScrollArea className="flex-1">
-              <div className="flex flex-col gap-6 p-6">
+              <div className="divide-y divide-border px-6">
                 {cartItems.map((item) => (
                   <CartItem key={item.id} item={item} />
                 ))}
               </div>
             </ScrollArea>
-            <SheetFooter className="bg-background border-t p-6 space-y-4">
-              <div className="flex justify-between items-center text-lg">
-                <span className="font-semibold text-muted-foreground">Subtotal</span>
-                <span className="text-2xl text-primary font-bold">{formatPrice(cartTotal)}</span>
+            <SheetFooter className="bg-background/50 border-t p-6 space-y-4 mt-auto">
+              <div className="space-y-2">
+                <div className="animated-separator -mx-6 mb-4"></div>
+                <div className="flex justify-between items-center text-lg">
+                  <span className="font-semibold text-muted-foreground">Subtotal</span>
+                  <span className="text-2xl text-primary font-bold">{formatPrice(cartTotal)}</span>
+                </div>
               </div>
               <SheetClose asChild>
                 <Button asChild size="lg" className="w-full">
