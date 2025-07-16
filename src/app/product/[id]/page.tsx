@@ -213,10 +213,12 @@ export default function ProductDetailPage() {
                 </div>
 
                 <div>
-                    <Badge variant="secondary" className="text-2xl font-bold py-2 px-4 rounded-full">
-                        <Tag className="h-6 w-6 mr-2" />
+                    <span
+                        className="text-3xl font-bold text-primary"
+                        style={{ textShadow: '0 0 15px hsl(var(--primary) / 0.5)' }}
+                    >
                         {formatPrice(product.price)}
-                    </Badge>
+                    </span>
                 </div>
 
                 <p className="text-muted-foreground">{product.description}</p>
