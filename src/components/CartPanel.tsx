@@ -134,19 +134,24 @@ export function CartPanel() {
                 ))}
               </div>
             </ScrollArea>
-            <SheetFooter className="bg-background border-t p-6 space-y-4">
-              <div className="flex justify-between items-center font-bold text-lg">
-                <span>Subtotal</span>
-                <span className="text-primary">{formatPrice(cartTotal)}</span>
+            <SheetFooter className="bg-background border-t p-6">
+              <div className="flex justify-between items-center w-full">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-semibold">Subtotal</span>
+                  <div className="text-primary font-bold text-right">
+                    <p className="text-lg leading-tight">{formatPrice(cartTotal).split(' ')[0]}</p>
+                    <p className="text-xs leading-tight">{formatPrice(cartTotal).split(' ')[1]}</p>
+                  </div>
+                </div>
+                <SheetClose asChild>
+                  <Button asChild size="lg">
+                    <Link href="/checkout">
+                      <CreditCard className="mr-2 h-4 w-4" />
+                      Proceed to Checkout
+                    </Link>
+                  </Button>
+                </SheetClose>
               </div>
-              <SheetClose asChild>
-                <Button asChild className="w-full" size="lg">
-                  <Link href="/checkout">
-                    <CreditCard className="mr-2 h-4 w-4" />
-                    Proceed to Checkout
-                  </Link>
-                </Button>
-              </SheetClose>
             </SheetFooter>
           </>
         )}
