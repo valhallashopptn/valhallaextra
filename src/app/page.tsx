@@ -60,11 +60,10 @@ function CategoryCard({ category }: { category: Category }) {
                     className="object-cover"
                     data-ai-hint="game category alternative"
                 />
-                <div className="absolute inset-0 bg-black/60"></div>
+                <div className="absolute inset-0 bg-black/80"></div>
                  <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center text-white">
                     <h3 className="text-xl font-bold">{category.name}</h3>
-                    <p className="text-sm mt-2 flex-grow">{category.description}</p>
-                    <p className="text-xs font-semibold mt-auto self-end">View Products &rarr;</p>
+                    <p className="text-sm mt-2">{category.description}</p>
                 </div>
             </div>
           </div>
