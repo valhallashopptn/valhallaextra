@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useCurrency } from '@/context/CurrencyContext';
-import { CheckCircle, ShoppingCart, Star } from 'lucide-react';
+import { CheckCircle, ShoppingCart, Star, PackageCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { ReviewForm } from './ReviewForm';
@@ -22,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md' }) {
   const starClasses = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
@@ -117,15 +118,27 @@ export default function ProductDetailPage() {
     return reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
   }, [reviews]);
   
-  const StockBadge = () => {
-    if (!product) return null;
-    if (product.stock === 0) {
-      return <Badge variant="destructive">Out of Stock</Badge>;
+  const StockDisplay = ({ stock }: { stock: number }) => {
+    let text = "In Stock";
+    let iconColor = "text-primary";
+
+    if (stock === 0) {
+        text = "Out of Stock";
+        iconColor = "text-destructive";
+    } else if (stock < 10) {
+        text = "Low Stock";
+        iconColor = "text-yellow-500";
     }
-    if (product.stock <= 10) {
-      return <Badge variant="secondary" className="bg-yellow-500 text-black">Low Stock</Badge>;
-    }
-    return <Badge className="bg-green-600">In Stock</Badge>;
+
+    return (
+        <div className="flex items-center gap-3 rounded-lg border bg-card/50 p-3">
+            <PackageCheck className={cn("h-8 w-8", iconColor)} />
+            <div>
+                <p className="font-semibold">{text}</p>
+                <p className="text-sm text-muted-foreground">{stock} available</p>
+            </div>
+        </div>
+    );
   }
 
 
@@ -182,13 +195,15 @@ export default function ProductDetailPage() {
                             <StarRating rating={averageRating} />
                             <span className="text-muted-foreground text-sm">({reviews.length} reviews)</span>
                           </div>
-                        <div className="mt-6 flex items-baseline gap-4">
+                        <div className="mt-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
                             <p className="text-4xl font-bold text-primary">{formatPrice(product.price)}</p>
-                            <StockBadge />
+                            <StockDisplay stock={product.stock} />
                         </div>
                     </div>
                     
-                    <div className="mt-8 flex flex-col md:flex-row gap-2">
+                    <Separator className="my-8" />
+
+                    <div className="mt-auto flex flex-col md:flex-row gap-2">
                         <Button
                             onClick={handleAddToCart}
                             disabled={isAdded || product.stock === 0}
