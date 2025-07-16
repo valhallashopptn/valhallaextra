@@ -314,7 +314,11 @@ export default function Home() {
 
         {/* Features Section */}
         <section className="bg-card py-16">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold font-headline">{t('HomePage.whyChooseUsTitle')}</h2>
+              <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">{t('HomePage.whyChooseUsSubtitle')}</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <FeatureCard icon={<Package size={32} />} title={t('HomePage.productsLive')} value="120+" animationClass="animate-spin-slow" />
                 <FeatureCard icon={<ShoppingCart size={32} />} title={t('HomePage.transactionsCompleted')} value="15k+" animationClass="animate-spin-slow" />
