@@ -16,7 +16,7 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 import { ScrollArea } from './ui/scroll-area';
-import { Separator } from './ui/separator';
+import { Fragment } from 'react';
 
 function CartItem({ item }: { item: import('@/lib/types').CartItem }) {
   const { formatPrice } = useCurrency();
@@ -102,12 +102,15 @@ export function CartPanel() {
   return (
     <Sheet open={isCartOpen} onOpenChange={(isOpen) => !isOpen && closeCart()}>
       <SheetContent className="flex w-full flex-col p-0 sm:max-w-lg bg-card">
-        <SheetHeader className="p-6 pb-4 border-b">
-          <SheetTitle className="text-2xl font-bold">Your Order</SheetTitle>
-          <SheetDescription>
-            Review your items and proceed to payment.
-          </SheetDescription>
-        </SheetHeader>
+        <div className="p-6 pb-4">
+            <SheetHeader>
+                <SheetTitle className="text-2xl font-bold">Your Order</SheetTitle>
+                <SheetDescription>
+                    Review your items and proceed to payment.
+                </SheetDescription>
+            </SheetHeader>
+        </div>
+        <div className="animated-separator"></div>
 
         {cartItems.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center space-y-4 text-center px-6">
@@ -125,14 +128,17 @@ export function CartPanel() {
         ) : (
           <>
             <ScrollArea className="flex-1">
-              <div className="divide-y divide-border px-6">
-                {cartItems.map((item) => (
-                  <CartItem key={item.id} item={item} />
+              <div className="px-6">
+                {cartItems.map((item, index) => (
+                  <Fragment key={item.id}>
+                    <CartItem item={item} />
+                    {index < cartItems.length - 1 && <div className="animated-separator"></div>}
+                  </Fragment>
                 ))}
               </div>
             </ScrollArea>
-            <div className="bg-background/50 border-t p-6 mt-auto space-y-4">
-              <div className="animated-separator -mx-6 mb-4"></div>
+             <div className="animated-separator"></div>
+            <div className="bg-background/50 p-6 mt-auto space-y-4">
               <div className="flex justify-between items-center">
                 <p className="text-muted-foreground">Subtotal</p>
                 <p className="text-2xl font-bold text-primary">{formatPrice(cartTotal)}</p>
