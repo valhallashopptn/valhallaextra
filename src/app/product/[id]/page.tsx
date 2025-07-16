@@ -189,7 +189,7 @@ export default function ProductDetailPage() {
     <PageWrapper>
       <div className="space-y-12">
         <div className="grid md:grid-cols-2 gap-12 items-start">
-            <div className="sticky top-24">
+            <div>
                 <div className="aspect-video relative rounded-lg overflow-hidden border">
                     <Image
                     src={product.imageUrl}
