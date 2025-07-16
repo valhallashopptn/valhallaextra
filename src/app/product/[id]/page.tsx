@@ -212,9 +212,11 @@ export default function ProductDetailPage() {
                     <a href="#reviews" className="text-muted-foreground hover:underline">{reviews.length} reviews</a>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <Tag className="h-5 w-5 text-primary" />
-                    <span className="text-3xl font-bold text-primary">{formatPrice(product.price)}</span>
+                <div>
+                    <Badge variant="secondary" className="text-2xl font-bold py-2 px-4 rounded-full">
+                        <Tag className="h-6 w-6 mr-2" />
+                        {formatPrice(product.price)}
+                    </Badge>
                 </div>
 
                 <p className="text-muted-foreground">{product.description}</p>
