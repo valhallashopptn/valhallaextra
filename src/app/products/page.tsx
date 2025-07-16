@@ -6,6 +6,7 @@ import { getProducts } from '@/services/productService';
 import { getCategories } from '@/services/categoryService';
 import type { Product, Category } from '@/lib/types';
 import { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -20,8 +21,14 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const searchParams = useSearchParams();
 
   useEffect(() => {
+    const categoryIdFromUrl = searchParams.get('category');
+    if (categoryIdFromUrl) {
+      setSelectedCategory(categoryIdFromUrl);
+    }
+
     const fetchInitialData = async () => {
       try {
         const [productsFromDb, categoriesFromDb] = await Promise.all([
@@ -38,7 +45,7 @@ export default function ProductsPage() {
     };
 
     fetchInitialData();
-  }, []);
+  }, [searchParams]);
   
   const filteredProducts = useMemo(() => {
     let prods = products;
