@@ -125,7 +125,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                     ) : (
                         <Logo className="h-6 w-6 text-primary" />
                     )}
-                    <span className="font-bold font-headline text-foreground">
+                    <span className="font-bold font-headline text-foreground whitespace-nowrap">
                     {siteTitle}
                     </span>
                 </div>
@@ -216,7 +216,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
              ) : (
                 <Logo className="h-6 w-6 text-primary" />
              )}
-            <span className="font-bold sm:inline-block font-headline text-foreground">
+            <span className="font-bold sm:inline-block font-headline text-foreground whitespace-nowrap">
               {siteTitle}
             </span>
           </Link>
