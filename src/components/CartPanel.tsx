@@ -132,7 +132,7 @@ export function CartPanel() {
                 ))}
               </div>
             </ScrollArea>
-            <SheetFooter className="bg-background/50 border-t p-6 space-y-4 mt-auto">
+            <SheetFooter className="bg-background/50 border-t p-6 space-y-4 mt-auto flex-col items-stretch">
               <div className="space-y-2">
                 <Separator />
                 <div className="flex justify-between items-center text-lg">
