@@ -43,9 +43,11 @@ function CategoryCard({ category }: { category: Category }) {
                 className="object-cover"
                 data-ai-hint="game category"
               />
-              <div className="absolute inset-0 bg-black/60"></div>
-              <div className="absolute inset-0 flex items-end p-4">
-                <h3 className="text-xl font-bold text-white">{category.name}</h3>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+              <div className="absolute inset-x-0 bottom-0 p-4">
+                  <div className="bg-black/50 backdrop-blur-sm p-2 rounded-md">
+                      <h3 className="text-xl font-bold text-white text-center">{category.name}</h3>
+                  </div>
               </div>
             </div>
           </div>
