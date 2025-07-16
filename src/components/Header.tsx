@@ -204,6 +204,15 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                         {t('Header.contact')}
                     </Link>
                 </nav>
+                
+                {!user && (
+                    <div className="mt-auto pt-4 border-t">
+                        <Button className="w-full" onClick={() => { router.push('/login'); setIsMobileMenuOpen(false); }}>
+                            <UserIcon className="mr-2 h-4 w-4" />
+                            {t('Header.login')}
+                        </Button>
+                    </div>
+                )}
             </div>
           </SheetContent>
         </Sheet>
@@ -329,7 +338,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button onClick={() => router.push('/login')}>
+            <Button onClick={() => router.push('/login')} className="hidden md:inline-flex">
               <UserIcon className="mr-2 h-4 w-4" />
               {t('Header.login')}
             </Button>
