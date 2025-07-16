@@ -1,0 +1,47 @@
+
+{
+  "Header": {
+    "home": "Home",
+    "products": "Products",
+    "reviews": "Reviews",
+    "about": "About Us",
+    "contact": "Contact Us",
+    "search": "Search products...",
+    "login": "Login",
+    "account": "Account",
+    "admin": "Admin",
+    "logout": "Log out"
+  },
+  "Footer": {
+    "description": "Your one-stop shop for instant game top-ups and digital vouchers. Quick, secure, and always on.",
+    "quickLinks": "Quick Links",
+    "accountLinks": "Account",
+    "products": "Products",
+    "reviews": "Reviews",
+    "about": "About Us",
+    "contact": "Contact Us",
+    "myAccount": "My Account",
+    "cart": "Cart",
+    "copyright": "All Rights Reserved."
+  },
+  "HomePage": {
+    "title": "Your Digital Marketplace",
+    "subtitle": "Instant top-ups for your favorite games and digital products. Quick, secure, and reliable service at your fingertips.",
+    "browseProducts": "Browse Products",
+    "browseByCategory": "Browse by Category",
+    "viewAllCategories": "View All Categories",
+    "ourProducts": "Our Products",
+    "all": "All",
+    "viewAllProducts": "View All Products",
+    "productsLive": "Products Live",
+    "transactionsCompleted": "Transactions Completed",
+    "dedicatedSupport": "Dedicated Support",
+    "customerReviewsTitle": "What Our Customers Say",
+    "customerReviewsSubtitle": "Real reviews from our awesome community of gamers and digital enthusiasts.",
+    "leaveReview": "Leave a Review"
+  },
+  "ProductCard": {
+    "addToCart": "Add to Cart",
+    "added": "Added"
+  }
+}

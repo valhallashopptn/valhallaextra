@@ -24,6 +24,9 @@ import type { Product } from '@/lib/types';
 import Image from 'next/image';
 import { Logo } from './icons/Logo';
 import { cn } from '@/lib/utils';
+import { LanguageSwitcher } from './LanguageSwitcher';
+import { useTranslation } from '@/context/TranslationContext';
+
 
 interface HeaderProps {
     siteTitle?: string;
@@ -35,6 +38,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   const { user, logOut } = useAuth();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -131,7 +135,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
                         type="search"
-                        placeholder="Search products..."
+                        placeholder={t('Header.search')}
                         className="w-full rounded-lg bg-background/80 pl-8"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -168,35 +172,35 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                     className="text-lg font-medium text-foreground transition-colors hover:text-primary"
                     onClick={() => setIsMobileMenuOpen(false)}
                     >
-                        Home
+                        {t('Header.home')}
                     </Link>
                     <Link 
                     href="/products" 
                     className="text-lg font-medium text-foreground transition-colors hover:text-primary"
                     onClick={() => setIsMobileMenuOpen(false)}
                     >
-                        Products
+                        {t('Header.products')}
                     </Link>
                     <Link 
                     href="/reviews" 
                     className="text-lg font-medium text-foreground transition-colors hover:text-primary"
                     onClick={() => setIsMobileMenuOpen(false)}
                     >
-                        Reviews
+                        {t('Header.reviews')}
                     </Link>
                     <Link 
                     href="/about" 
                     className="text-lg font-medium text-foreground transition-colors hover:text-primary"
                     onClick={() => setIsMobileMenuOpen(false)}
                     >
-                        About Us
+                        {t('Header.about')}
                     </Link>
                     <Link 
                     href="/contact" 
                     className="text-lg font-medium text-foreground transition-colors hover:text-primary"
                     onClick={() => setIsMobileMenuOpen(false)}
                     >
-                        Contact Us
+                        {t('Header.contact')}
                     </Link>
                 </nav>
             </div>
@@ -217,19 +221,19 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
           </Link>
            <nav className="hidden md:flex items-center gap-4 ml-6">
             <Link href="/" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-                Home
+                {t('Header.home')}
             </Link>
             <Link href="/products" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-                Products
+                {t('Header.products')}
             </Link>
              <Link href="/reviews" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-                Reviews
+                {t('Header.reviews')}
             </Link>
              <Link href="/about" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-                About Us
+                {t('Header.about')}
             </Link>
              <Link href="/contact" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-                Contact Us
+                {t('Header.contact')}
             </Link>
             </nav>
         </div>
@@ -241,7 +245,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Search products..."
+                  placeholder={t('Header.search')}
                   className="w-full rounded-lg bg-background/50 pl-8 md:w-[200px] lg:w-[320px]"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -269,6 +273,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
               </div>
             </form>
           </div>
+          <LanguageSwitcher />
           <Button
             variant="ghost"
             size="icon"
@@ -296,7 +301,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">My Account</p>
+                    <p className="text-sm font-medium leading-none">{t('Header.account')}</p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {user.email}
                     </p>
@@ -305,25 +310,25 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                 <DropdownMenuSeparator />
                   <DropdownMenuItem onSelect={() => router.push('/account')}>
                     <LayoutDashboard className="mr-2 h-4 w-4 text-primary" />
-                    <span>Account</span>
+                    <span>{t('Header.account')}</span>
                   </DropdownMenuItem>
                    {isAdmin && (
                     <DropdownMenuItem onSelect={() => router.push('/admin')}>
                       <ShieldCheck className="mr-2 h-4 w-4 text-green-500" />
-                      <span>Admin</span>
+                      <span>{t('Header.admin')}</span>
                     </DropdownMenuItem>
                   )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4 text-red-500" />
-                  <span>Log out</span>
+                  <span>{t('Header.logout')}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <Button onClick={() => router.push('/login')}>
               <UserIcon className="mr-2 h-4 w-4" />
-              Login
+              {t('Header.login')}
             </Button>
           )}
         </div>

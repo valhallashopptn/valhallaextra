@@ -1,0 +1,47 @@
+
+{
+  "Header": {
+    "home": "الرئيسية",
+    "products": "المنتجات",
+    "reviews": "التقييمات",
+    "about": "من نحن",
+    "contact": "اتصل بنا",
+    "search": "ابحث عن منتجات...",
+    "login": "تسجيل الدخول",
+    "account": "الحساب",
+    "admin": "الإدارة",
+    "logout": "تسجيل الخروج"
+  },
+  "Footer": {
+    "description": "متجرك الشامل لعمليات شحن الألعاب الفورية والقسائم الرقمية. خدمة سريعة وآمنة وموثوقة دائمًا.",
+    "quickLinks": "روابط سريعة",
+    "accountLinks": "الحساب",
+    "products": "المنتجات",
+    "reviews": "التقييمات",
+    "about": "من نحن",
+    "contact": "اتصل بنا",
+    "myAccount": "حسابي",
+    "cart": "السلة",
+    "copyright": "جميع الحقوق محفوظة."
+  },
+  "HomePage": {
+    "title": "سوقك الرقمي",
+    "subtitle": "شحن فوري لألعابك ومنتجاتك الرقمية المفضلة. خدمة سريعة وآمنة وموثوقة في متناول يدك.",
+    "browseProducts": "تصفح المنتجات",
+    "browseByCategory": "تصفح حسب الفئة",
+    "viewAllCategories": "عرض كل الفئات",
+    "ourProducts": "منتجاتنا",
+    "all": "الكل",
+    "viewAllProducts": "عرض كل المنتجات",
+    "productsLive": "منتج متوفر",
+    "transactionsCompleted": "عملية مكتملة",
+    "dedicatedSupport": "دعم فني",
+    "customerReviewsTitle": "ماذا يقول عملاؤنا",
+    "customerReviewsSubtitle": "تقييمات حقيقية من مجتمعنا الرائع من اللاعبين والمتحمسين الرقميين.",
+    "leaveReview": "اترك تقييمًا"
+  },
+  "ProductCard": {
+    "addToCart": "أضف للسلة",
+    "added": "تمت الإضافة"
+  }
+}

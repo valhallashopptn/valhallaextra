@@ -10,6 +10,7 @@ import { ShoppingCart, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useTranslation } from '@/context/TranslationContext';
 
 interface ProductCardProps {
   product: Product;
@@ -18,6 +19,7 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
   const [isAdded, setIsAdded] = useState(false);
+  const { t } = useTranslation();
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // Prevent link navigation when clicking the button
@@ -54,12 +56,12 @@ export function ProductCard({ product }: ProductCardProps) {
             {isAdded ? (
               <>
                 <CheckCircle className="mr-2 h-4 w-4 animate-in fade-in" />
-                Added
+                {t('ProductCard.added')}
               </>
             ) : (
               <>
                 <ShoppingCart className="mr-2 h-4 w-4" />
-                Add to Cart
+                {t('ProductCard.addToCart')}
               </>
             )}
           </Button>
