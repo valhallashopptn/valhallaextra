@@ -19,13 +19,12 @@ const formSchema = z.object({
   stock: z.coerce.number().int().min(0, { message: 'Stock must be a non-negative integer.' }),
   categoryId: z.string().min(1, { message: 'Please select a category.' }),
   imageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/600x400.png'),
-  dataAiHint: z.string().min(2, { message: 'AI hint must be at least 2 characters.' }),
 });
 
 type ProductFormData = z.infer<typeof formSchema>;
 
 interface ProductFormProps {
-  onSubmit: (data: ProductFormData & { categoryName: string }) => void;
+  onSubmit: (data: ProductFormData & { categoryName: string, dataAiHint: string }) => void;
   initialData?: Product | null;
   onCancel: () => void;
   categories: Category[];
@@ -45,7 +44,6 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
       stock: 100,
       categoryId: '',
       imageUrl: 'https://placehold.co/600x400.png',
-      dataAiHint: '',
     },
   });
 
@@ -64,7 +62,6 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
             stock: 100,
             categoryId: '',
             imageUrl: 'https://placehold.co/600x400.png',
-            dataAiHint: '',
         });
     }
   }, [initialData, form]);
@@ -74,7 +71,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
   const handleFormSubmit = (data: ProductFormData) => {
     const selectedCategory = categories.find(c => c.id === data.categoryId);
     if (selectedCategory) {
-      onSubmit({ ...data, categoryName: selectedCategory.name });
+      onSubmit({ ...data, categoryName: selectedCategory.name, dataAiHint: selectedCategory.name });
     }
   };
 
@@ -170,20 +167,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="dataAiHint"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>AI Hint</FormLabel>
-              <FormControl>
-                <Textarea placeholder="e.g., fantasy battle" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+        
         <div className="flex justify-end gap-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
