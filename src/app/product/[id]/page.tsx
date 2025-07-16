@@ -183,6 +183,8 @@ export default function ProductDetailPage() {
     })
   }
 
+  const defaultTab = product.tabs && product.tabs.length > 0 ? product.tabs[0].id : "description";
+
   return (
     <PageWrapper>
       <div className="space-y-12">
@@ -211,6 +213,8 @@ export default function ProductDetailPage() {
                 </div>
 
                 <p className="text-5xl font-bold text-primary">{formatPrice(product.price)}</p>
+
+                <p className="text-muted-foreground">{product.description}</p>
 
                 <div className="rounded-lg border bg-card/50 p-4 grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-3">
@@ -253,24 +257,23 @@ export default function ProductDetailPage() {
                         )}
                     </Button>
                 </div>
-                 <Tabs defaultValue="description" className="w-full">
-                    <TabsList>
-                        <TabsTrigger value="description">Description</TabsTrigger>
-                        {product.tabs?.map(tab => (
-                            <TabsTrigger key={tab.id} value={tab.id}>{tab.title}</TabsTrigger>
-                        ))}
-                    </TabsList>
-                    <TabsContent value="description" className="mt-4 text-muted-foreground prose prose-sm max-w-none prose-p:text-muted-foreground">
-                        <p>{product.description || 'No description available.'}</p>
-                    </TabsContent>
-                    {product.tabs?.map(tab => (
-                        <TabsContent key={tab.id} value={tab.id} className="mt-4 text-muted-foreground prose prose-sm max-w-none prose-p:text-muted-foreground">
-                            <p>{tab.content}</p>
-                        </TabsContent>
-                    ))}
-                </Tabs>
             </div>
         </div>
+
+        {product.tabs && product.tabs.length > 0 && (
+             <Tabs defaultValue={defaultTab} className="w-full">
+                <TabsList>
+                    {product.tabs?.map(tab => (
+                        <TabsTrigger key={tab.id} value={tab.id}>{tab.title}</TabsTrigger>
+                    ))}
+                </TabsList>
+                {product.tabs?.map(tab => (
+                    <TabsContent key={tab.id} value={tab.id} className="mt-4 text-muted-foreground prose prose-sm max-w-none prose-p:text-muted-foreground">
+                        <p>{tab.content}</p>
+                    </TabsContent>
+                ))}
+            </Tabs>
+        )}
 
         <Card id="reviews">
           <CardHeader>
@@ -312,7 +315,6 @@ export default function ProductDetailPage() {
               )}
           </CardContent>
         </Card>
-
       </div>
     </PageWrapper>
   );
