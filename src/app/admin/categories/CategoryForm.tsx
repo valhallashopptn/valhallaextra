@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const customFieldSchema = z.object({
   id: z.string().default(() => `field_${crypto.randomUUID()}`),
@@ -76,121 +77,124 @@ export function CategoryForm({ onSubmit, initialData, onCancel }: CategoryFormPr
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category Name</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., PC Games" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea placeholder="A short description for the back of the card..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="imageUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Front Image URL</FormLabel>
-              <FormControl>
-                <Input placeholder="https://placehold.co/300x200.png" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="backImageUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Back Image URL</FormLabel>
-              <FormControl>
-                <Input placeholder="https://placehold.co/300x200.png" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <Separator />
-        
-        <div>
-            <h3 className="text-lg font-medium mb-2">Custom Fields</h3>
-            <div className="space-y-4">
-                {fields.map((field, index) => (
-                    <div key={field.id} className="flex items-end gap-2 p-3 border rounded-md">
-                        <FormField
-                            control={form.control}
-                            name={`customFields.${index}.label`}
-                            render={({ field }) => (
-                                <FormItem className="flex-grow">
-                                    <FormLabel>Field Label</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="e.g., Player ID" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name={`customFields.${index}.type`}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Field Type</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
+        <ScrollArea className="pr-6 -mr-6 flex-grow">
+          <div className="space-y-4 pr-6">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., PC Games" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="A short description for the back of the card..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Front Image URL</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://placehold.co/300x200.png" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="backImageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Back Image URL</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://placehold.co/300x200.png" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <Separator />
+            
+            <div>
+                <h3 className="text-lg font-medium mb-2">Custom Fields</h3>
+                <div className="space-y-4">
+                    {fields.map((field, index) => (
+                        <div key={field.id} className="flex items-end gap-2 p-3 border rounded-md">
+                            <FormField
+                                control={form.control}
+                                name={`customFields.${index}.label`}
+                                render={({ field }) => (
+                                    <FormItem className="flex-grow">
+                                        <FormLabel>Field Label</FormLabel>
                                         <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select type" />
-                                        </SelectTrigger>
+                                            <Input placeholder="e.g., Player ID" {...field} />
                                         </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="text">Text</SelectItem>
-                                            <SelectItem value="number">Number</SelectItem>
-                                            <SelectItem value="email">Email</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                     <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
-                    </div>
-                ))}
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name={`customFields.${index}.type`}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Field Type</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select type" />
+                                            </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="text">Text</SelectItem>
+                                                <SelectItem value="number">Number</SelectItem>
+                                                <SelectItem value="email">Email</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    ))}
+                </div>
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={() => append({ id: `field_${crypto.randomUUID()}`, label: '', type: 'text' })}
+                    >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add Field
+                </Button>
             </div>
-             <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="mt-4"
-                onClick={() => append({ id: `field_${crypto.randomUUID()}`, label: '', type: 'text' })}
-                >
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Field
-            </Button>
-        </div>
-
-        <div className="flex justify-end gap-2 pt-4">
+          </div>
+        </ScrollArea>
+        <div className="flex justify-end gap-2 pt-6">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>

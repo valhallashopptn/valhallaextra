@@ -137,16 +137,18 @@ export default function ProductsPage() {
         </Card>
       </div>
       
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-xl h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
         </DialogHeader>
-        <ProductForm
-          onSubmit={handleFormSubmit}
-          initialData={editingProduct}
-          onCancel={() => setIsDialogOpen(false)}
-          categories={categories}
-        />
+        <div className="flex-grow overflow-hidden">
+          <ProductForm
+            onSubmit={handleFormSubmit}
+            initialData={editingProduct}
+            onCancel={() => setIsDialogOpen(false)}
+            categories={categories}
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );

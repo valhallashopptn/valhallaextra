@@ -122,15 +122,17 @@ export default function CategoriesPage() {
         </Card>
       </div>
       
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-xl h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
         </DialogHeader>
-        <CategoryForm
-          onSubmit={handleFormSubmit}
-          initialData={editingCategory}
-          onCancel={() => setIsDialogOpen(false)}
-        />
+        <div className="flex-grow overflow-hidden">
+          <CategoryForm
+            onSubmit={handleFormSubmit}
+            initialData={editingCategory}
+            onCancel={() => setIsDialogOpen(false)}
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );
