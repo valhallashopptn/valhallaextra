@@ -19,6 +19,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
+type OrderStatus = 'pending' | 'completed' | 'canceled';
+
 function formatPrice(total: number, currency: 'TND' | 'USD') {
     const safeTotal = typeof total === 'number' ? total : 0;
     if (currency === 'TND') {
@@ -50,7 +52,7 @@ export default function OrdersPage() {
     fetchOrders();
   }, [fetchOrders]);
 
-  const handleStatusChange = async (orderId: string, status: 'pending' | 'completed') => {
+  const handleStatusChange = async (orderId: string, status: OrderStatus) => {
     try {
       await updateOrderStatus(orderId, status);
       toast({ title: 'Success', description: 'Order status updated successfully.' });
@@ -64,6 +66,19 @@ export default function OrdersPage() {
       toast({ title: 'Error', description: 'Failed to update order status.', variant: 'destructive' });
     }
   };
+  
+  const getStatusBadgeClass = (status: OrderStatus) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-600';
+      case 'pending':
+        return 'bg-yellow-500';
+      case 'canceled':
+        return 'bg-red-600';
+      default:
+        return 'bg-gray-500';
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -109,7 +124,7 @@ export default function OrdersPage() {
                   <TableCell>{new Date(order.createdAt.toDate()).toLocaleDateString()}</TableCell>
                   <TableCell>{order.userEmail}</TableCell>
                   <TableCell>
-                    <Badge variant={order.status === 'completed' ? 'default' : 'secondary'} className={cn(order.status === 'completed' ? 'bg-green-600' : 'bg-yellow-500')}>
+                    <Badge variant={'default'} className={cn('capitalize', getStatusBadgeClass(order.status))}>
                       {order.status}
                     </Badge>
                   </TableCell>
@@ -124,13 +139,14 @@ export default function OrdersPage() {
                   </TableCell>
                   <TableCell className="text-right font-bold text-primary">{formatPrice(order.total, order.currency)}</TableCell>
                   <TableCell className="text-right">
-                    <Select value={order.status} onValueChange={(value: 'pending' | 'completed') => handleStatusChange(order.id, value)}>
+                    <Select value={order.status} onValueChange={(value: OrderStatus) => handleStatusChange(order.id, value)}>
                         <SelectTrigger className="w-[120px]">
                             <SelectValue placeholder="Change status" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="pending">Pending</SelectItem>
                             <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="canceled">Canceled</SelectItem>
                         </SelectContent>
                     </Select>
                   </TableCell>

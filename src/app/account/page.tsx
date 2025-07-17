@@ -20,6 +20,8 @@ import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
+type OrderStatus = 'pending' | 'completed' | 'canceled';
+
 function formatPrice(total: number, currency: 'TND' | 'USD') {
     const safeTotal = typeof total === 'number' ? total : 0;
     if (currency === 'TND') {
@@ -54,6 +56,19 @@ export default function AccountPage() {
 
   if (loading || !user) {
     return <div className="text-center container mx-auto px-4 py-8">Loading account details...</div>;
+  }
+
+  const getStatusBadgeClass = (status: OrderStatus) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-600';
+      case 'pending':
+        return 'bg-yellow-500';
+      case 'canceled':
+        return 'bg-red-600';
+      default:
+        return 'bg-gray-500';
+    }
   }
 
   return (
@@ -98,7 +113,7 @@ export default function AccountPage() {
                           <div className="flex justify-between items-center w-full pr-4">
                             <span>Order #{order.id.substring(0, 8)}</span>
                             <span className="text-muted-foreground">{new Date(order.createdAt.toDate()).toLocaleDateString()}</span>
-                            <Badge variant={order.status === 'completed' ? 'default' : 'secondary'} className={cn(order.status === 'completed' ? 'bg-green-600' : 'bg-yellow-500', 'capitalize')}>
+                            <Badge variant={'default'} className={cn('capitalize', getStatusBadgeClass(order.status))}>
                                 {order.status}
                             </Badge>
                             <span className="font-bold text-primary">{formatPrice(order.total, order.currency)}</span>

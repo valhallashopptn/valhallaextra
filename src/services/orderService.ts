@@ -52,7 +52,7 @@ export const getAllOrders = async (): Promise<Order[]> => {
 };
 
 // Update an order's status
-export const updateOrderStatus = async (orderId: string, status: 'pending' | 'completed') => {
+export const updateOrderStatus = async (orderId: string, status: 'pending' | 'completed' | 'canceled') => {
   const orderDoc = doc(db, 'orders', orderId);
   return await updateDoc(orderDoc, { status });
 };
