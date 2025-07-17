@@ -234,7 +234,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                             <Wallet className="h-6 w-6 text-primary" />
                             <div>
                                 <p className="font-semibold">Wallet Balance</p>
-                                <p className="text-sm text-muted-foreground">{formatPrice(walletBalance, 'USD')}</p>
+                                <p className="text-sm text-muted-foreground">{formatPrice(walletBalance)}</p>
                             </div>
                           </div>
                       </div>
@@ -325,7 +325,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
             {user && walletBalance !== null && (
               <Link href="/account" className="hidden md:flex items-center gap-2 border border-border rounded-md px-3 h-10 hover:bg-muted transition-colors">
                   <Wallet className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-semibold">{formatPrice(walletBalance, 'USD')}</span>
+                  <span className="text-sm font-semibold">{formatPrice(walletBalance)}</span>
               </Link>
             )}
 
@@ -367,7 +367,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                       {walletBalance !== null && (
                          <p className="text-xs leading-none text-muted-foreground pt-2 flex items-center">
                             <Wallet className="mr-2 h-4 w-4 text-primary" />
-                            <span className='font-semibold'>{formatPrice(walletBalance, 'USD')}</span>
+                            <span className='font-semibold'>{formatPrice(walletBalance)}</span>
                          </p>
                      )}
                     </div>
