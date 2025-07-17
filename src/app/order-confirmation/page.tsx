@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { PageWrapper } from '@/components/PageWrapper';
 
@@ -15,11 +15,17 @@ export default function OrderConfirmationPage() {
           Thank You For Your Order!
         </h1>
         <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground">
-          Your top-up is being processed and will be credited to your account shortly.
+          Your purchase is complete. If you have any questions, please check your order history or contact support.
         </p>
-        <div className="mt-8 flex gap-4">
+        <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Button asChild>
             <Link href="/account">View Order History</Link>
+          </Button>
+          <Button asChild variant="secondary">
+            <Link href="/reviews">
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Leave a Review
+            </Link>
           </Button>
           <Button asChild variant="outline">
             <Link href="/">Continue Shopping</Link>
