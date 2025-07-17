@@ -43,7 +43,12 @@ export function ProductCard({ product }: ProductCardProps) {
     e.preventDefault(); // Prevent link navigation when clicking the button
     
     // If there are variants, add the cheapest one by default
-    let itemToAdd = { ...product, category: category || undefined, dataAiHint: product.dataAiHint || product.categoryName };
+    let itemToAdd: Product & { category?: Category } = { 
+        ...product, 
+        category: category || undefined, 
+        dataAiHint: product.dataAiHint || product.categoryName 
+    };
+
     if (product.variants && product.variants.length > 0) {
         const cheapestVariant = [...product.variants].sort((a,b) => a.price - b.price)[0];
         itemToAdd = {
@@ -111,7 +116,7 @@ export function ProductCard({ product }: ProductCardProps) {
               disabled={isAdded || product.stock === 0 || isLoadingCategory} 
               className={cn("w-36 transition-all", { 'bg-green-600': isAdded })}
             >
-              {product.stock === 0 ? 'Out of Stock' : isAdded ? (
+              {product.stock === 0 ? 'Out of Stock' : isLoadingCategory ? 'Loading...' : isAdded ? (
                 <>
                   <CheckCircle className="mr-2 h-4 w-4 animate-in fade-in" />
                   {t('ProductCard.added')}

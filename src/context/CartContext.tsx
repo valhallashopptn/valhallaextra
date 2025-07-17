@@ -2,11 +2,11 @@
 'use client';
 
 import { createContext, useContext, useState, type ReactNode, useMemo, useCallback, useEffect } from 'react';
-import type { CartItem, Product } from '@/lib/types';
+import type { CartItem, Product, Category } from '@/lib/types';
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (item: Product, quantity?: number) => void;
+  addToCart: (item: Product & { category?: Category }, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -20,6 +20,29 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+// Helper function to serialize cart items, including converting Timestamps
+const serializeCartItems = (items: CartItem[]) => {
+    return JSON.stringify(items, (key, value) => {
+        if (key === 'createdAt' && value && typeof value === 'object' && 'seconds' in value) {
+            // It's a Firestore Timestamp, convert to ISO string
+            return { __timestamp__: new Date(value.seconds * 1000).toISOString() };
+        }
+        return value;
+    });
+};
+
+// Helper function to deserialize cart items, converting ISO strings back to Timestamps
+const deserializeCartItems = (jsonString: string): CartItem[] => {
+    return JSON.parse(jsonString, (key, value) => {
+        if (typeof value === 'object' && value !== null && '__timestamp__' in value) {
+            // It's our serialized timestamp, convert back to a Date object
+            // The cart context doesn't need a full Firestore Timestamp object, a Date is fine.
+            return new Date(value.__timestamp__);
+        }
+        return value;
+    });
+};
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -29,7 +52,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       const storedCart = localStorage.getItem('cartItems');
       if (storedCart) {
-        setCartItems(JSON.parse(storedCart));
+        setCartItems(deserializeCartItems(storedCart));
       }
     } catch (error) {
       console.error("Failed to parse cart from localStorage", error);
@@ -39,7 +62,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   
   useEffect(() => {
     if(isInitialized) {
-      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+      localStorage.setItem('cartItems', serializeCartItems(cartItems));
     }
   }, [cartItems, isInitialized]);
 
@@ -47,7 +70,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
 
-  const addToCart = (product: Product, quantity: number = 1) => {
+  const addToCart = (product: Product & { category?: Category }, quantity: number = 1) => {
     setCartItems(prevItems => {
       // Create a unique ID for the cart item, including variant info if it exists
       const cartItemId = (product.variants && product.variants.length > 0 && product.name.includes('-')) 
@@ -69,7 +92,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         ...product, 
         id: cartItemId, 
         quantity, 
-        customFieldData: {} 
+        customFieldData: {},
+        category: product.category, // Make sure category object is passed
       };
 
       return [...prevItems, productToAdd];
