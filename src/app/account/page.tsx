@@ -17,6 +17,8 @@ import {
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import { PageWrapper } from '@/components/PageWrapper';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 function formatPrice(total: number, currency: 'TND' | 'USD') {
     const safeTotal = typeof total === 'number' ? total : 0;
@@ -93,9 +95,12 @@ export default function AccountPage() {
                     {orders.map(order => (
                       <AccordionItem value={order.id} key={order.id}>
                         <AccordionTrigger>
-                          <div className="flex justify-between w-full pr-4">
+                          <div className="flex justify-between items-center w-full pr-4">
                             <span>Order #{order.id.substring(0, 8)}</span>
                             <span className="text-muted-foreground">{new Date(order.createdAt.toDate()).toLocaleDateString()}</span>
+                            <Badge variant={order.status === 'completed' ? 'default' : 'secondary'} className={cn(order.status === 'completed' ? 'bg-green-600' : 'bg-yellow-500', 'capitalize')}>
+                                {order.status}
+                            </Badge>
                             <span className="font-bold text-primary">{formatPrice(order.total, order.currency)}</span>
                           </div>
                         </AccordionTrigger>

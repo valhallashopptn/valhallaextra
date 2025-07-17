@@ -9,6 +9,8 @@ import {
   query,
   where,
   orderBy,
+  doc,
+  updateDoc,
 } from 'firebase/firestore';
 
 const ordersCollectionRef = collection(db, 'orders');
@@ -26,6 +28,7 @@ export const addOrder = async (orderData: {
 }) => {
   return await addDoc(ordersCollectionRef, {
     ...orderData,
+    status: 'pending', // Default status
     createdAt: serverTimestamp(),
   });
 };
@@ -46,4 +49,10 @@ export const getAllOrders = async (): Promise<Order[]> => {
   const q = query(ordersCollectionRef, orderBy('createdAt', 'desc'));
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Order[];
+};
+
+// Update an order's status
+export const updateOrderStatus = async (orderId: string, status: 'pending' | 'completed') => {
+  const orderDoc = doc(db, 'orders', orderId);
+  return await updateDoc(orderDoc, { status });
 };

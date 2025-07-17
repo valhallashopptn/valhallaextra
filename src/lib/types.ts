@@ -67,6 +67,7 @@ export interface Order {
   tax: number;
   total: number;
   currency: 'TND' | 'USD';
+  status: 'pending' | 'completed';
   paymentMethod?: {
     name: string;
     instructions: string;

@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getAllOrders } from '@/services/orderService';
+import { getAllOrders, updateOrderStatus } from '@/services/orderService';
 import type { Order } from '@/lib/types';
 import {
   Table,
@@ -15,6 +15,9 @@ import {
 } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 function formatPrice(total: number, currency: 'TND' | 'USD') {
     const safeTotal = typeof total === 'number' ? total : 0;
@@ -28,21 +31,39 @@ function formatPrice(total: number, currency: 'TND' | 'USD') {
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  const fetchOrders = useCallback(async () => {
+    try {
+      setLoading(true);
+      const allOrders = await getAllOrders();
+      setOrders(allOrders);
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+      toast({ title: 'Error', description: 'Could not load orders.', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
-        const allOrders = await getAllOrders();
-        setOrders(allOrders);
-      } catch (error) {
-        console.error("Failed to fetch orders:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
+
+  const handleStatusChange = async (orderId: string, status: 'pending' | 'completed') => {
+    try {
+      await updateOrderStatus(orderId, status);
+      toast({ title: 'Success', description: 'Order status updated successfully.' });
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId ? { ...order, status } : order
+        )
+      );
+    } catch (error) {
+      console.error("Failed to update order status:", error);
+      toast({ title: 'Error', description: 'Failed to update order status.', variant: 'destructive' });
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -63,9 +84,10 @@ export default function OrdersPage() {
                 <TableHead>Order ID</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Customer</TableHead>
-                <TableHead>Payment</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Items</TableHead>
                 <TableHead className="text-right">Total</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -75,9 +97,10 @@ export default function OrdersPage() {
                       <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                       <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                       <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                      <TableCell><Skeleton className="h-6 w-24" /></TableCell>
                       <TableCell><Skeleton className="h-4 w-48" /></TableCell>
                       <TableCell className="text-right"><Skeleton className="h-4 w-16" /></TableCell>
+                      <TableCell className="text-right"><Skeleton className="h-8 w-28" /></TableCell>
                     </TableRow>
                 ))
               ) : orders.map(order => (
@@ -86,7 +109,9 @@ export default function OrdersPage() {
                   <TableCell>{new Date(order.createdAt.toDate()).toLocaleDateString()}</TableCell>
                   <TableCell>{order.userEmail}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{order.paymentMethod?.name || 'N/A'}</Badge>
+                    <Badge variant={order.status === 'completed' ? 'default' : 'secondary'} className={cn(order.status === 'completed' ? 'bg-green-600' : 'bg-yellow-500')}>
+                      {order.status}
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1 max-w-xs">
@@ -98,6 +123,17 @@ export default function OrdersPage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-right font-bold text-primary">{formatPrice(order.total, order.currency)}</TableCell>
+                  <TableCell className="text-right">
+                    <Select value={order.status} onValueChange={(value: 'pending' | 'completed') => handleStatusChange(order.id, value)}>
+                        <SelectTrigger className="w-[120px]">
+                            <SelectValue placeholder="Change status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                        </SelectContent>
+                    </Select>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
