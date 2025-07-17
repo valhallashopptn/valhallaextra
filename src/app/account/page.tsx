@@ -21,6 +21,7 @@ import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Wallet } from 'lucide-react';
+import { useCurrency } from '@/context/CurrencyContext';
 
 type OrderStatus = 'pending' | 'completed' | 'canceled' | 'refunded';
 
@@ -34,6 +35,7 @@ function formatPrice(total: number, currency: 'TND' | 'USD') {
 
 export default function AccountPage() {
   const { user, loading, logOut } = useAuth();
+  const { formatPrice: formatCurrency } = useCurrency();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
@@ -111,7 +113,7 @@ export default function AccountPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-primary">
-                    {walletBalance !== null ? formatPrice(walletBalance, 'USD') : 'Loading...'}
+                    {walletBalance !== null ? formatCurrency(walletBalance) : 'Loading...'}
                 </div>
                 <p className="text-xs text-muted-foreground">
                     Your available credit for purchases.
@@ -201,3 +203,5 @@ export default function AccountPage() {
     </PageWrapper>
   );
 }
+
+    
