@@ -226,18 +226,20 @@ export default function CheckoutPage() {
     return <PageWrapper><div className="text-center">Loading...</div></PageWrapper>;
   }
 
-  if (cartItems.length === 0 && !isPlacingOrder) {
-     return (
-        <PageWrapper>
-            <div className="text-center">
-                <h2 className="text-2xl font-semibold">Your cart is empty.</h2>
-                <p className="mt-2 text-muted-foreground">Add some products before you can checkout.</p>
-                <Button asChild className="mt-6">
-                    <Link href="/products">Browse Products</Link>
-                </Button>
-            </div>
-        </PageWrapper>
-     )
+  if (cartItems.length === 0) {
+    // This state is only shown if the user navigates here with an empty cart,
+    // not during the checkout process itself.
+    return (
+      <PageWrapper>
+        <div className="flex h-[60vh] flex-col items-center justify-center text-center">
+            <h2 className="text-2xl font-semibold">Your cart is empty.</h2>
+            <p className="mt-2 text-muted-foreground">Add some products before you can checkout.</p>
+            <Button asChild className="mt-6">
+                <Link href="/products">Browse Products</Link>
+            </Button>
+        </div>
+      </PageWrapper>
+    );
   }
 
   return (
