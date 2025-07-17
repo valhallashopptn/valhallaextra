@@ -9,6 +9,7 @@ interface CurrencyContextType {
   currency: Currency;
   setCurrency: (currency: Currency) => void;
   formatPrice: (price: number) => string;
+  convertPrice: (price: number) => number;
 }
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
@@ -18,6 +19,13 @@ const CONVERSION_RATE_USD_TO_TND = 3.1;
 export function CurrencyProvider({ children }: { children: ReactNode }) {
   const [currency, setCurrency] = useState<Currency>('TND');
 
+  const convertPrice = useCallback((price: number) => {
+      if (currency === 'TND') {
+          return price * CONVERSION_RATE_USD_TO_TND;
+      }
+      return price; // Price is already in USD
+  }, [currency]);
+  
   const formatPrice = useCallback((price: number) => {
     if (currency === 'TND') {
       return `${(price * CONVERSION_RATE_USD_TO_TND).toFixed(2)} TND`;
@@ -29,6 +37,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     currency,
     setCurrency,
     formatPrice,
+    convertPrice,
   };
 
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;

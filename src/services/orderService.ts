@@ -25,7 +25,7 @@ export const addOrder = async (orderData: {
   items: CartItem[];
   subtotal: number;
   tax: number;
-  walletDeduction: number;
+  walletDeduction: number; // This should be in USD for consistent wallet logic
   total: number;
   currency: 'TND' | 'USD';
   paymentMethod: { name: string; instructions: string };
@@ -34,7 +34,7 @@ export const addOrder = async (orderData: {
   if (orderData.walletDeduction > 0) {
     // This is a transaction involving the wallet
     return runTransaction(db, async (transaction) => {
-      // 1. Debit from wallet
+      // 1. Debit from wallet (wallet is always in USD)
       await debitFromWallet(transaction, orderData.userId, orderData.walletDeduction);
       
       // 2. Create the order document

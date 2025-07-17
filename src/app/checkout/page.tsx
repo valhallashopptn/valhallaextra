@@ -76,7 +76,7 @@ function CustomFieldInput({ item, field, value, onChange }: { item: CartItem; fi
 export default function CheckoutPage() {
   const { cartItems, cartTotal, clearCart, updateCartItemCustomData } = useCart();
   const { user, loading: authLoading } = useAuth();
-  const { currency, formatPrice } = useCurrency();
+  const { currency, formatPrice, convertPrice } = useCurrency();
   const router = useRouter();
   const { toast } = useToast();
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
@@ -105,10 +105,6 @@ export default function CheckoutPage() {
             getUserWalletBalance(user.uid)
           ]);
           setPaymentMethods(methods);
-          if (methods.length > 0) {
-            // Do not set a default payment method
-            // setSelectedMethodId(methods[0].id);
-          }
           setWalletBalance(balance);
         } catch (error) {
           console.error("Failed to fetch checkout data:", error);
@@ -118,20 +114,29 @@ export default function CheckoutPage() {
     };
     fetchCheckoutData();
   }, [user, toast]);
+  
+  const convertedCartTotal = useMemo(() => {
+    return cartItems.reduce((total, item) => total + convertPrice(item.price) * item.quantity, 0);
+  }, [cartItems, convertPrice]);
+  
+  const convertedWalletBalance = useMemo(() => {
+    if (walletBalance === null) return null;
+    return convertPrice(walletBalance);
+  }, [walletBalance, convertPrice]);
+
 
   const selectedMethod = useMemo(() => {
     return paymentMethods.find(method => method.id === selectedMethodId);
   }, [paymentMethods, selectedMethodId]);
   
-  const subtotalAfterWallet = useMemo(() => {
-    if (!useWallet || !walletBalance) return cartTotal;
-    return cartTotal - Math.min(walletBalance, cartTotal);
-  }, [cartTotal, useWallet, walletBalance]);
-
   const walletCredit = useMemo(() => {
-    if (!useWallet || !walletBalance) return 0;
-    return Math.min(walletBalance, cartTotal);
-  }, [useWallet, walletBalance, cartTotal]);
+    if (!useWallet || convertedWalletBalance === null) return 0;
+    return Math.min(convertedWalletBalance, convertedCartTotal);
+  }, [useWallet, convertedWalletBalance, convertedCartTotal]);
+
+  const subtotalAfterWallet = useMemo(() => {
+    return convertedCartTotal - walletCredit;
+  }, [convertedCartTotal, walletCredit]);
 
   const taxAmount = useMemo(() => {
     if (!selectedMethod) return 0;
@@ -142,8 +147,14 @@ export default function CheckoutPage() {
     return subtotalAfterWallet + taxAmount;
   }, [subtotalAfterWallet, taxAmount]);
 
+  const walletDeductionInUSD = useMemo(() => {
+    if (!useWallet || walletBalance === null) return 0;
+    return Math.min(walletBalance, cartTotal);
+  }, [useWallet, walletBalance, cartTotal]);
+
+
   const isFullPaymentByWallet = useMemo(() => {
-      return walletCredit > 0 && finalTotal <= 0;
+      return walletCredit > 0 && finalTotal <= 0.001; // Use a small epsilon for floating point comparison
   }, [walletCredit, finalTotal]);
 
   useEffect(() => {
@@ -196,15 +207,15 @@ export default function CheckoutPage() {
         userId: user.uid,
         userEmail: user.email || 'Anonymous',
         items: cartItems,
-        subtotal: cartTotal,
+        subtotal: convertedCartTotal,
         tax: taxAmount,
-        walletDeduction: walletCredit,
+        walletDeduction: walletDeductionInUSD,
         total: finalTotal,
         currency: currency,
         paymentMethod: paymentMethodDetails,
         status: isFullPaymentByWallet ? 'paid' : 'pending'
       });
-
+      
       router.push('/order-confirmation');
       clearCart();
 
@@ -384,27 +395,27 @@ export default function CheckoutPage() {
                      {walletCredit > 0 && (
                        <div className="flex justify-between text-primary">
                             <span>Wallet Credit</span>
-                            <span>-{formatPrice(walletCredit)}</span>
+                            <span>-{formatPrice(walletDeductionInUSD)}</span>
                         </div>
                     )}
                     {selectedMethod && !isFullPaymentByWallet && (
                         <div className="flex justify-between">
                             <span>Tax ({selectedMethod.taxRate}%)</span>
-                            <span>{formatPrice(taxAmount)}</span>
+                            <span>{formatPrice(taxAmount / (currency === 'TND' ? 3.1 : 1))}</span>
                         </div>
                     )}
                 </div>
                  <div className="animated-separator" />
                  <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span className="text-primary">{formatPrice(finalTotal)}</span>
+                    <span className="text-primary">{formatPrice(finalTotal / (currency === 'TND' ? 3.1 : 1))}</span>
                 </div>
               </div>
             </CardContent>
              <CardFooter className='flex-col items-stretch gap-4'>
                  <Button onClick={handleCheckout} className="w-full mt-2" size="lg" disabled={isPlacingOrder || (!selectedMethodId && !isFullPaymentByWallet) || !areAllCustomFieldsValid}>
                      <Lock className="mr-2 h-4 w-4" />
-                    {isPlacingOrder ? 'Processing...' : `Place Order for ${formatPrice(finalTotal)}`}
+                    {isPlacingOrder ? 'Processing...' : `Place Order for ${formatPrice(finalTotal / (currency === 'TND' ? 3.1 : 1))}`}
                   </Button>
             </CardFooter>
            </Card>
