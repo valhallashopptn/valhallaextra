@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, ShieldCheck, Search, Menu } from 'lucide-react';
+import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, ShieldCheck, Search, Menu, Wallet } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -28,6 +28,8 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { useTranslation } from '@/context/TranslationContext';
 import { CurrencySwitcher } from './CurrencySwitcher';
 import { CartPanel } from './CartPanel';
+import { getUserWalletBalance } from '@/services/walletService';
+import { useCurrency } from '@/context/CurrencyContext';
 
 
 interface HeaderProps {
@@ -38,15 +40,34 @@ interface HeaderProps {
 export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   const { cartCount, openCart } = useCart();
   const { user, logOut } = useAuth();
+  const { formatPrice } = useCurrency();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t } = useTranslation();
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setResults] = useState<Product[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (user) {
+        const unsubscribe = () => {
+            getUserWalletBalance(user.uid).then(setWalletBalance);
+        };
+        // Initial fetch
+        unsubscribe();
+        
+        // This is a simple way to periodically refresh, or you can set up a listener
+        const interval = setInterval(unsubscribe, 30000); // Refresh every 30 seconds
+
+        return () => clearInterval(interval);
+    } else {
+        setWalletBalance(null);
+    }
+}, [user]);
 
   useEffect(() => {
     const fetchAllProducts = async () => {
@@ -285,6 +306,16 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
           </div>
           <CurrencySwitcher />
           <LanguageSwitcher />
+
+          {user && walletBalance !== null && (
+            <Link href="/account">
+                <Button variant="outline" className="hidden md:flex items-center gap-2">
+                    <Wallet className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-semibold">{formatPrice(walletBalance)}</span>
+                </Button>
+            </Link>
+          )}
+
           <Button
             variant="ghost"
             size="icon"
@@ -324,6 +355,14 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                     <LayoutDashboard className="mr-2 h-4 w-4 text-primary" />
                     <span>{t('Header.account')}</span>
                   </DropdownMenuItem>
+                   {walletBalance !== null && (
+                       <DropdownMenuItem disabled>
+                        <div className="flex items-center">
+                            <Wallet className="mr-2 h-4 w-4 text-primary" />
+                            <span>{formatPrice(walletBalance)}</span>
+                        </div>
+                       </DropdownMenuItem>
+                   )}
                    {isAdmin && (
                     <DropdownMenuItem onSelect={() => router.push('/admin')}>
                       <ShieldCheck className="mr-2 h-4 w-4 text-green-500" />
