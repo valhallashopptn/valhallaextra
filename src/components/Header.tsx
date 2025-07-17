@@ -139,7 +139,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
             <SheetHeader>
                 <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
             </SheetHeader>
-             <div className="flex flex-col gap-4">
+             <div className="flex flex-col gap-4 h-full">
                 <div className="flex items-center space-x-2 pb-4 border-b">
                     {logoUrl ? (
                         <Image src={logoUrl} alt={`${siteTitle} Logo`} width={24} height={24} className="h-6 w-6 text-primary" />
@@ -225,6 +225,22 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                         {t('Header.contact')}
                     </Link>
                 </nav>
+
+                {user && walletBalance !== null && (
+                  <div className="mt-4 pt-4 border-t">
+                    <Link href="/account" onClick={() => setIsMobileMenuOpen(false)}>
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-card hover:bg-muted">
+                          <div className="flex items-center gap-3">
+                            <Wallet className="h-6 w-6 text-primary" />
+                            <div>
+                                <p className="font-semibold">Wallet Balance</p>
+                                <p className="text-sm text-muted-foreground">{formatPrice(walletBalance)}</p>
+                            </div>
+                          </div>
+                      </div>
+                    </Link>
+                  </div>
+                )}
                 
                 {!user && (
                     <div className="mt-auto pt-4 border-t">
