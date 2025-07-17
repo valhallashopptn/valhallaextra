@@ -105,6 +105,10 @@ export default function CheckoutPage() {
             getUserWalletBalance(user.uid)
           ]);
           setPaymentMethods(methods);
+          if (methods.length > 0) {
+            // Do not set a default payment method
+            // setSelectedMethodId(methods[0].id);
+          }
           setWalletBalance(balance);
         } catch (error) {
           console.error("Failed to fetch checkout data:", error);
@@ -201,8 +205,8 @@ export default function CheckoutPage() {
         status: isFullPaymentByWallet ? 'paid' : 'pending'
       });
 
-      clearCart();
       router.push('/order-confirmation');
+      clearCart();
 
     } catch (error: any) {
        toast({
@@ -222,7 +226,7 @@ export default function CheckoutPage() {
     return <PageWrapper><div className="text-center">Loading...</div></PageWrapper>;
   }
 
-  if (cartItems.length === 0) {
+  if (cartItems.length === 0 && !isPlacingOrder) {
      return (
         <PageWrapper>
             <div className="text-center">
