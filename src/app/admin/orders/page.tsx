@@ -4,6 +4,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getAllOrders, updateOrderStatus } from '@/services/orderService';
+import { refundToWallet } from '@/services/walletService';
 import type { Order } from '@/lib/types';
 import {
   Table,
@@ -18,8 +19,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 
-type OrderStatus = 'pending' | 'completed' | 'canceled';
+type OrderStatus = 'pending' | 'completed' | 'canceled' | 'refunded';
 
 function formatPrice(total: number, currency: 'TND' | 'USD') {
     const safeTotal = typeof total === 'number' ? total : 0;
@@ -52,15 +55,18 @@ export default function OrdersPage() {
     fetchOrders();
   }, [fetchOrders]);
 
-  const handleStatusChange = async (orderId: string, status: OrderStatus) => {
+  const handleStatusChange = async (orderId: string, status: OrderStatus, userId: string, total: number) => {
     try {
-      await updateOrderStatus(orderId, status);
-      toast({ title: 'Success', description: 'Order status updated successfully.' });
-      setOrders(prevOrders => 
-        prevOrders.map(order => 
-          order.id === orderId ? { ...order, status } : order
-        )
-      );
+      if (status === 'refunded') {
+        // This handles both refunding to wallet and updating order status
+        await refundToWallet(userId, total, orderId);
+        toast({ title: 'Success', description: 'Order refunded to user wallet successfully.' });
+      } else {
+        await updateOrderStatus(orderId, status);
+        toast({ title: 'Success', description: 'Order status updated successfully.' });
+      }
+      // Re-fetch orders to show the latest status
+      fetchOrders();
     } catch (error) {
       console.error("Failed to update order status:", error);
       toast({ title: 'Error', description: 'Failed to update order status.', variant: 'destructive' });
@@ -75,6 +81,8 @@ export default function OrdersPage() {
         return 'bg-yellow-500';
       case 'canceled':
         return 'bg-red-600';
+      case 'refunded':
+        return 'bg-blue-600';
       default:
         return 'bg-gray-500';
     }
@@ -139,15 +147,45 @@ export default function OrdersPage() {
                   </TableCell>
                   <TableCell className="text-right font-bold text-primary">{formatPrice(order.total, order.currency)}</TableCell>
                   <TableCell className="text-right">
-                    <Select value={order.status} onValueChange={(value: OrderStatus) => handleStatusChange(order.id, value)}>
-                        <SelectTrigger className="w-[120px]">
-                            <SelectValue placeholder="Change status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                            <SelectItem value="canceled">Canceled</SelectItem>
-                        </SelectContent>
+                    <Select 
+                      value={order.status}
+                      onValueChange={(value: OrderStatus) => {
+                          if (value === 'refunded') {
+                              // Let the alert dialog handle the action
+                              return;
+                          }
+                          handleStatusChange(order.id, value, order.userId, order.total)
+                      }}
+                    >
+                      <SelectTrigger className="w-[120px]">
+                          <SelectValue placeholder="Change status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="canceled">Canceled</SelectItem>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <div className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                                    Refund
+                                </div>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This will mark the order as refunded and credit {formatPrice(order.total, order.currency)} to the customer's wallet. This action cannot be undone.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleStatusChange(order.id, 'refunded', order.userId, order.total)}>
+                                    Confirm Refund
+                                </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                      </SelectContent>
                     </Select>
                   </TableCell>
                 </TableRow>

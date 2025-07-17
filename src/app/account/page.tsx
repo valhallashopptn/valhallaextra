@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getOrdersForUser } from '@/services/orderService';
+import { getUserWalletBalance } from '@/services/walletService';
 import type { Order } from '@/lib/types';
 import {
   Accordion,
@@ -19,8 +20,9 @@ import { Separator } from '@/components/ui/separator';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { Wallet } from 'lucide-react';
 
-type OrderStatus = 'pending' | 'completed' | 'canceled';
+type OrderStatus = 'pending' | 'completed' | 'canceled' | 'refunded';
 
 function formatPrice(total: number, currency: 'TND' | 'USD') {
     const safeTotal = typeof total === 'number' ? total : 0;
@@ -35,6 +37,7 @@ export default function AccountPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -43,15 +46,19 @@ export default function AccountPage() {
   }, [user, loading, router]);
   
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchAccountData = async () => {
       if (user) {
         setOrdersLoading(true);
-        const userOrders = await getOrdersForUser(user.uid);
+        const [userOrders, balance] = await Promise.all([
+            getOrdersForUser(user.uid),
+            getUserWalletBalance(user.uid)
+        ]);
         setOrders(userOrders);
+        setWalletBalance(balance);
         setOrdersLoading(false);
       }
     };
-    fetchOrders();
+    fetchAccountData();
   }, [user]);
 
   if (loading || !user) {
@@ -66,6 +73,8 @@ export default function AccountPage() {
         return 'bg-yellow-500';
       case 'canceled':
         return 'bg-red-600';
+      case 'refunded':
+        return 'bg-blue-600';
       default:
         return 'bg-gray-500';
     }
@@ -80,7 +89,7 @@ export default function AccountPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-1">
+          <div className="md:col-span-1 space-y-8">
             <Card>
               <CardHeader>
                 <CardTitle>Profile</CardTitle>
@@ -94,6 +103,22 @@ export default function AccountPage() {
                 <Button variant="destructive" className='w-full' onClick={logOut}>Log Out</Button>
               </CardContent>
             </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Wallet</CardTitle>
+                <Wallet className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-primary">
+                    {walletBalance !== null ? formatPrice(walletBalance, 'USD') : 'Loading...'}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                    Your available credit for purchases.
+                </p>
+              </CardContent>
+            </Card>
+
           </div>
 
           <div className="md:col-span-2">

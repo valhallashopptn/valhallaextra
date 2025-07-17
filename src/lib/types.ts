@@ -67,7 +67,7 @@ export interface Order {
   tax: number;
   total: number;
   currency: 'TND' | 'USD';
-  status: 'pending' | 'completed' | 'canceled';
+  status: 'pending' | 'completed' | 'canceled' | 'refunded';
   paymentMethod?: {
     name: string;
     instructions: string;
@@ -76,6 +76,13 @@ export interface Order {
 }
 
 export type User = FirebaseUser;
+
+export interface UserProfile {
+    id: string;
+    email: string;
+    walletBalance: number;
+    createdAt: Timestamp;
+}
 
 export interface Review {
     id: string;
