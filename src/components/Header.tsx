@@ -269,8 +269,8 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
             </nav>
         </div>
         
-        <div className="flex flex-1 items-center justify-end space-x-2 md:space-x-4">
-          <div className="relative hidden md:block w-full flex-1 md:w-auto md:flex-none" ref={searchRef}>
+        <div className="flex flex-1 items-center justify-end">
+          <div className="relative hidden md:block w-full max-w-sm" ref={searchRef}>
             <form onSubmit={(e) => { e.preventDefault(); router.push(`/products?q=${searchQuery}`); handleSearchResultClick(); }}>
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -304,82 +304,85 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
               </div>
             </form>
           </div>
-          <CurrencySwitcher />
-          <LanguageSwitcher />
+          
+          <div className="flex items-center space-x-1 ml-2">
+            <CurrencySwitcher />
+            <LanguageSwitcher />
 
-          {user && walletBalance !== null && (
-            <Link href="/account">
-                <Button variant="outline" className="hidden md:flex items-center gap-2">
-                    <Wallet className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-semibold">{formatPrice(walletBalance)}</span>
-                </Button>
-            </Link>
-          )}
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative"
-            onClick={openCart}
-            aria-label={`Shopping cart with ${cartCount} items`}
-          >
-            <ShoppingCart className="h-5 w-5" />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                {cartCount}
-              </span>
+            {user && walletBalance !== null && (
+              <Link href="/account">
+                  <Button variant="outline" className="hidden md:flex items-center gap-2">
+                      <Wallet className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-semibold">{formatPrice(walletBalance)}</span>
+                  </Button>
+              </Link>
             )}
-          </Button>
-          <CartPanel />
-          {user ? (
-             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.photoURL || undefined} alt="User avatar" />
-                    <AvatarFallback>{user.email?.[0].toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{t('Header.account')}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user.email}
-                    </p>
-                    {walletBalance !== null && (
-                       <p className="text-xs leading-none text-muted-foreground pt-2 flex items-center">
-                          <Wallet className="mr-2 h-4 w-4 text-primary" />
-                          <span className='font-semibold'>{formatPrice(walletBalance)}</span>
-                       </p>
-                   )}
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={() => router.push('/account')}>
-                    <LayoutDashboard className="mr-2 h-4 w-4 text-primary" />
-                    <span>{t('Header.account')}</span>
-                  </DropdownMenuItem>
-                   {isAdmin && (
-                    <DropdownMenuItem onSelect={() => router.push('/admin')}>
-                      <ShieldCheck className="mr-2 h-4 w-4 text-green-500" />
-                      <span>{t('Header.admin')}</span>
-                    </DropdownMenuItem>
-                  )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4 text-red-500" />
-                  <span>{t('Header.logout')}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button onClick={() => router.push('/login')} className="hidden md:inline-flex">
-              <UserIcon className="mr-2 h-4 w-4" />
-              {t('Header.login')}
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative"
+              onClick={openCart}
+              aria-label={`Shopping cart with ${cartCount} items`}
+            >
+              <ShoppingCart className="h-5 w-5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                  {cartCount}
+                </span>
+              )}
             </Button>
-          )}
+            <CartPanel />
+            {user ? (
+               <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.photoURL || undefined} alt="User avatar" />
+                      <AvatarFallback>{user.email?.[0].toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{t('Header.account')}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                      {walletBalance !== null && (
+                         <p className="text-xs leading-none text-muted-foreground pt-2 flex items-center">
+                            <Wallet className="mr-2 h-4 w-4 text-primary" />
+                            <span className='font-semibold'>{formatPrice(walletBalance)}</span>
+                         </p>
+                     )}
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => router.push('/account')}>
+                      <LayoutDashboard className="mr-2 h-4 w-4 text-primary" />
+                      <span>{t('Header.account')}</span>
+                    </DropdownMenuItem>
+                     {isAdmin && (
+                      <DropdownMenuItem onSelect={() => router.push('/admin')}>
+                        <ShieldCheck className="mr-2 h-4 w-4 text-green-500" />
+                        <span>{t('Header.admin')}</span>
+                      </DropdownMenuItem>
+                    )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4 text-red-500" />
+                    <span>{t('Header.logout')}</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button onClick={() => router.push('/login')} className="hidden md:inline-flex">
+                <UserIcon className="mr-2 h-4 w-4" />
+                {t('Header.login')}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </header>
