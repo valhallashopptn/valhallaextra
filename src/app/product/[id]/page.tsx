@@ -56,6 +56,11 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
 
+  const sortedVariants = useMemo(() => {
+    if (!product || !product.variants) return [];
+    return [...product.variants].sort((a, b) => a.price - b.price);
+  }, [product]);
+
   useEffect(() => {
     const fetchProductData = async () => {
       if (typeof id !== 'string') return;
@@ -65,8 +70,9 @@ export default function ProductDetailPage() {
         setProduct(productData);
 
         if (productData) {
-            if (productData.variants && productData.variants.length > 0) {
-              setSelectedVariantId(productData.variants[0].id);
+            const variants = productData.variants ? [...productData.variants].sort((a, b) => a.price - b.price) : [];
+            if (variants.length > 0) {
+              setSelectedVariantId(variants[0].id);
             }
             const [categoryData, reviewsData] = await Promise.all([
                 getCategoryById(productData.categoryId),
@@ -244,11 +250,11 @@ export default function ProductDetailPage() {
 
                 <p className="text-muted-foreground">{product.description}</p>
                 
-                {product.variants && product.variants.length > 0 && (
+                {sortedVariants && sortedVariants.length > 0 && (
                   <div className="space-y-2">
                       <Label>Select Version</Label>
                       <div className="grid grid-cols-2 gap-4">
-                          {product.variants.map((variant) => (
+                          {sortedVariants.map((variant) => (
                               <button
                                   key={variant.id}
                                   onClick={() => setSelectedVariantId(variant.id)}

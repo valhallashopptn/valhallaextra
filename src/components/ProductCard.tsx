@@ -7,7 +7,7 @@ import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { useCart } from '@/context/CartContext';
 import { ShoppingCart, CheckCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useTranslation } from '@/context/TranslationContext';
@@ -34,8 +34,19 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // Prevent link navigation when clicking the button
-    const productWithCategory = { ...product, category: category || undefined };
-    addToCart(productWithCategory, 1);
+    
+    // If there are variants, add the cheapest one by default
+    let itemToAdd = { ...product, category: category || undefined };
+    if (product.variants && product.variants.length > 0) {
+        const cheapestVariant = [...product.variants].sort((a,b) => a.price - b.price)[0];
+        itemToAdd = {
+            ...itemToAdd,
+            name: `${product.name} - ${cheapestVariant.name}`,
+            price: cheapestVariant.price,
+        }
+    }
+    
+    addToCart(itemToAdd, 1);
     setIsAdded(true);
     setTimeout(() => {
       setIsAdded(false);
@@ -45,6 +56,21 @@ export function ProductCard({ product }: ProductCardProps) {
   const shortDescription = product.description.length > 80 
     ? product.description.substring(0, 80) + '...'
     : product.description;
+
+  const displayPrice = useMemo(() => {
+    if (product.variants && product.variants.length > 0) {
+        const lowestPrice = Math.min(...product.variants.map(v => v.price));
+        return lowestPrice;
+    }
+    return product.price;
+  }, [product]);
+  
+  const priceLabel = useMemo(() => {
+    if (product.variants && product.variants.length > 0) {
+        return "From";
+    }
+    return "Price";
+  }, [product]);
 
   return (
     <Link href={`/product/${product.id}`} className="flex h-full">
@@ -70,8 +96,8 @@ export function ProductCard({ product }: ProductCardProps) {
 
           <div className="mt-auto flex justify-between items-center pt-4">
             <div>
-              <p className="text-sm text-muted-foreground">From</p>
-              <p className="text-xl font-bold text-primary">{formatPrice(product.price)}</p>
+              <p className="text-sm text-muted-foreground">{priceLabel}</p>
+              <p className="text-xl font-bold text-primary">{formatPrice(displayPrice)}</p>
             </div>
             <Button onClick={handleAddToCart} disabled={isAdded || product.stock === 0 || !category} className={cn("w-36 transition-all", {
               'bg-green-600': isAdded,
