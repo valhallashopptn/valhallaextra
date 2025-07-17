@@ -28,7 +28,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 function CustomFieldInput({ item, field, value, onChange }: { item: CartItem; field: any; value: string; onChange: (itemId: string, fieldLabel: string, value: string) => void; }) {
   const [error, setError] = useState('');
 
-  const validate = (val: string) => {
+  const validate = useCallback((val: string) => {
     if (!val) {
         setError('This field is required.');
         return false;
@@ -43,7 +43,7 @@ function CustomFieldInput({ item, field, value, onChange }: { item: CartItem; fi
     }
     setError('');
     return true;
-  };
+  }, [field.type]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
