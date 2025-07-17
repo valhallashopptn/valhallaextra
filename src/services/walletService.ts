@@ -1,6 +1,6 @@
 
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, updateDoc, increment, runTransaction, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, increment, runTransaction, serverTimestamp, type Transaction } from 'firebase/firestore';
 import { updateOrderStatus } from './orderService';
 
 // This collection will store user profiles, including their wallet balance.
@@ -60,6 +60,33 @@ export const addToWallet = async (userId: string, amount: number) => {
     walletBalance: increment(amount)
   });
 };
+
+/**
+ * Debits an amount from a user's wallet.
+ * This function is designed to be used within a Firestore transaction.
+ */
+export const debitFromWallet = async (transaction: Transaction, userId: string, amount: number) => {
+  if (amount <= 0) {
+    throw new Error("Debit amount must be positive.");
+  }
+
+  const userDocRef = doc(db, usersCollectionRef, userId);
+  const userDoc = await transaction.get(userDocRef);
+
+  if (!userDoc.exists()) {
+    throw new Error("User profile not found.");
+  }
+  
+  const currentBalance = userDoc.data().walletBalance || 0;
+  if (currentBalance < amount) {
+    throw new Error("Insufficient wallet balance.");
+  }
+
+  transaction.update(userDocRef, {
+    walletBalance: increment(-amount)
+  });
+}
+
 
 /**
  * Processes a refund by adding the order total to the user's wallet

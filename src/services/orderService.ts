@@ -11,7 +11,10 @@ import {
   orderBy,
   doc,
   updateDoc,
+  runTransaction,
+  increment
 } from 'firebase/firestore';
+import { debitFromWallet } from './walletService';
 
 const ordersCollectionRef = collection(db, 'orders');
 
@@ -25,12 +28,31 @@ export const addOrder = async (orderData: {
   total: number;
   currency: 'TND' | 'USD';
   paymentMethod: { name: string; instructions: string };
+  status?: 'pending' | 'completed';
 }) => {
-  return await addDoc(ordersCollectionRef, {
-    ...orderData,
-    status: 'pending', // Default status
-    createdAt: serverTimestamp(),
-  });
+  if (orderData.paymentMethod.name === 'Wallet Balance') {
+    // This is a wallet transaction
+    return runTransaction(db, async (transaction) => {
+      // 1. Debit from wallet
+      await debitFromWallet(transaction, orderData.userId, orderData.total);
+      
+      // 2. Create the order document
+      const orderRef = doc(collection(db, 'orders'));
+      transaction.set(orderRef, {
+        ...orderData,
+        status: orderData.status ?? 'completed', // Wallet orders are completed instantly
+        createdAt: serverTimestamp(),
+      });
+      return orderRef;
+    });
+  } else {
+    // This is a manual payment method
+    return await addDoc(ordersCollectionRef, {
+      ...orderData,
+      status: orderData.status ?? 'pending', // Default status for manual payments
+      createdAt: serverTimestamp(),
+    });
+  }
 };
 
 // Get all orders for a specific user

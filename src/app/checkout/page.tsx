@@ -16,11 +16,13 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { addOrder } from '@/services/orderService';
 import { getPaymentMethods } from '@/services/paymentMethodService';
+import { getUserWalletBalance } from '@/services/walletService';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { PageWrapper } from '@/components/PageWrapper';
 import type { PaymentMethod, CartItem } from '@/lib/types';
-import { Lock, Info, AlertCircle } from 'lucide-react';
+import { Lock, Info, AlertCircle, Wallet } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 function CustomFieldInput({ item, field, value, onChange }: { item: CartItem; field: any; value: string; onChange: (itemId: string, fieldLabel: string, value: string) => void; }) {
   const [error, setError] = useState('');
@@ -79,6 +81,7 @@ export default function CheckoutPage() {
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -92,29 +95,39 @@ export default function CheckoutPage() {
   }, [user, authLoading, router, toast]);
 
   useEffect(() => {
-    const fetchPaymentMethods = async () => {
-      try {
-        const methods = await getPaymentMethods();
-        setPaymentMethods(methods);
-        if (methods.length > 0) {
-          setSelectedMethodId(methods[0].id);
+    const fetchCheckoutData = async () => {
+      if (user) {
+        try {
+          const [methods, balance] = await Promise.all([
+            getPaymentMethods(),
+            getUserWalletBalance(user.uid)
+          ]);
+          setPaymentMethods(methods);
+          setWalletBalance(balance);
+          
+          if (methods.length > 0) {
+            setSelectedMethodId(methods[0].id);
+          }
+        } catch (error) {
+          console.error("Failed to fetch checkout data:", error);
+          toast({ title: 'Error', description: 'Could not load payment options.', variant: 'destructive' });
         }
-      } catch (error) {
-        console.error("Failed to fetch payment methods:", error);
-        toast({ title: 'Error', description: 'Could not load payment options.', variant: 'destructive' });
       }
     };
-    fetchPaymentMethods();
-  }, [toast]);
+    fetchCheckoutData();
+  }, [user, toast]);
 
   const selectedMethod = useMemo(() => {
+    if (selectedMethodId === 'wallet') {
+      return { id: 'wallet', name: 'Wallet Balance', instructions: 'Payment will be deducted from your wallet.', taxRate: 0, iconUrl: '' };
+    }
     return paymentMethods.find(method => method.id === selectedMethodId);
   }, [paymentMethods, selectedMethodId]);
 
   const taxAmount = useMemo(() => {
-    if (!selectedMethod) return 0;
+    if (!selectedMethod || selectedMethodId === 'wallet') return 0;
     return cartTotal * (selectedMethod.taxRate / 100);
-  }, [cartTotal, selectedMethod]);
+  }, [cartTotal, selectedMethod, selectedMethodId]);
 
   const finalTotal = useMemo(() => {
     return cartTotal + taxAmount;
@@ -166,17 +179,18 @@ export default function CheckoutPage() {
         currency: currency,
         paymentMethod: {
             name: selectedMethod.name,
-            instructions: selectedMethod.instructions
-        }
+            instructions: selectedMethod.instructions ?? ''
+        },
+        status: selectedMethodId === 'wallet' ? 'completed' : 'pending'
       });
 
       clearCart();
       router.push('/order-confirmation');
 
-    } catch (error) {
+    } catch (error: any) {
        toast({
         title: 'Order Failed',
-        description: 'There was a problem placing your order. Please try again.',
+        description: error.message || 'There was a problem placing your order. Please try again.',
         variant: 'destructive',
       });
        console.error("Failed to place order:", error);
@@ -184,6 +198,8 @@ export default function CheckoutPage() {
         setIsPlacingOrder(false);
     }
   };
+  
+  const isWalletPaymentDisabled = walletBalance === null || walletBalance < finalTotal;
 
   if (authLoading || !user) {
     return <PageWrapper><div className="text-center">Loading...</div></PageWrapper>;
@@ -246,6 +262,31 @@ export default function CheckoutPage() {
                 onValueChange={setSelectedMethodId}
                 className="space-y-4"
               >
+                <Label 
+                    htmlFor="wallet" 
+                    className={cn(
+                        "flex items-center p-4 border rounded-md has-[input:checked]:bg-primary/10 has-[input:checked]:border-primary",
+                        isWalletPaymentDisabled ? "cursor-not-allowed bg-muted/50 text-muted-foreground" : "cursor-pointer hover:bg-muted/50"
+                    )}
+                >
+                    <RadioGroupItem value="wallet" id="wallet" disabled={isWalletPaymentDisabled} />
+                    <Wallet className="ml-4 mr-2 h-5 w-5" />
+                    <div className="ml-4 flex-grow">
+                        <p className="font-semibold">Pay with Wallet</p>
+                        <p className="text-sm">
+                            Balance: {walletBalance !== null ? formatPrice(walletBalance) : 'Loading...'}
+                        </p>
+                    </div>
+                </Label>
+                {isWalletPaymentDisabled && selectedMethodId === 'wallet' && (
+                    <Alert variant="destructive" className="-mt-2">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Insufficient Balance</AlertTitle>
+                        <AlertDescription>
+                            Your wallet balance is not enough to cover this purchase.
+                        </AlertDescription>
+                    </Alert>
+                )}
                 {paymentMethods.map(method => (
                   <Label key={method.id} htmlFor={method.id} className="flex items-center p-4 border rounded-md cursor-pointer hover:bg-muted/50 has-[input:checked]:bg-primary/10 has-[input:checked]:border-primary">
                     <RadioGroupItem value={method.id} id={method.id} />
@@ -258,10 +299,10 @@ export default function CheckoutPage() {
               </RadioGroup>
               
               {paymentMethods.length === 0 && (
-                <p className="text-muted-foreground text-center py-4">No payment methods available. Please contact support.</p>
+                <p className="text-muted-foreground text-center py-4">No other payment methods available. Please contact support.</p>
               )}
 
-              {selectedMethod && (
+              {selectedMethod && selectedMethodId !== 'wallet' && (
                 <Alert className="mt-6">
                   <Info className="h-4 w-4" />
                   <AlertTitle>{selectedMethod.name} Instructions</AlertTitle>
@@ -318,7 +359,7 @@ export default function CheckoutPage() {
               </div>
             </CardContent>
              <CardFooter className='flex-col items-stretch gap-4'>
-                 <Button onClick={handleCheckout} className="w-full mt-2" size="lg" disabled={isPlacingOrder || !selectedMethod || !areAllCustomFieldsValid}>
+                 <Button onClick={handleCheckout} className="w-full mt-2" size="lg" disabled={isPlacingOrder || !selectedMethod || !areAllCustomFieldsValid || (selectedMethodId === 'wallet' && isWalletPaymentDisabled)}>
                      <Lock className="mr-2 h-4 w-4" />
                     {isPlacingOrder ? 'Processing...' : `Place Order for ${formatPrice(finalTotal)}`}
                   </Button>
