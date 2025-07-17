@@ -1,7 +1,7 @@
 
 'use client';
 
-import { createContext, useContext, useState, type ReactNode, useMemo, useCallback } from 'react';
+import { createContext, useContext, useState, type ReactNode, useMemo, useCallback, useEffect } from 'react';
 import type { CartItem, Product } from '@/lib/types';
 
 interface CartContextType {
@@ -23,23 +23,46 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    try {
+      const storedCart = localStorage.getItem('cartItems');
+      if (storedCart) {
+        setCartItems(JSON.parse(storedCart));
+      }
+    } catch (error) {
+      console.error("Failed to parse cart from localStorage", error);
+    }
+    setIsInitialized(true);
+  }, []);
+  
+  useEffect(() => {
+    if(isInitialized) {
+      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    }
+  }, [cartItems, isInitialized]);
+
 
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
 
   const addToCart = (product: Product, quantity: number = 1) => {
     setCartItems(prevItems => {
-      // Use product.id to check for existence, but item.name might include variant
-      const existingItem = prevItems.find(item => item.id === product.id && item.name === product.name);
+      // Create a unique ID for the cart item, including variant info if it exists
+      const cartItemId = (product.variants && product.variants.length > 0 && product.name.includes('-')) 
+        ? `${product.id}-${product.name.split('-')[1].trim()}` 
+        : product.id;
+
+      const existingItem = prevItems.find(item => item.id === cartItemId);
       
       if (existingItem) {
         return prevItems.map(item =>
-          (item.id === product.id && item.name === product.name)
+          item.id === cartItemId
            ? { ...item, quantity: item.quantity + quantity } 
            : item
         );
       }
-      const cartItemId = product.variants && product.variants.length > 0 ? `${product.id}-${product.name}` : product.id;
       
       return [...prevItems, { ...product, id: cartItemId, quantity, customFieldData: {} }];
     });
