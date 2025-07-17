@@ -48,11 +48,11 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link href={`/product/${product.id}`} className="flex h-full">
-      <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-primary/20 hover:shadow-lg hover:-translate-y-1 w-full">
+      <Card className="group flex flex-col overflow-hidden transition-all duration-300 hover:shadow-primary/20 hover:shadow-lg hover:-translate-y-1 w-full">
         <CardContent className="p-4 flex flex-col flex-grow">
           
           <div className="flex justify-between items-center mb-2">
-            <h3 className="text-lg font-bold text-primary truncate">{product.name}</h3>
+            <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors truncate">{product.name}</h3>
             <Badge variant="outline">Digital</Badge>
           </div>
           
