@@ -287,7 +287,7 @@ export default function ProductDetailPage() {
                      <StockDisplay stock={product.stock} />
                 </div>
                 
-                <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex gap-4">
                     <div className="flex items-center border rounded-md">
                         <Button variant="ghost" size="icon" onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>
                             <Minus className="h-4 w-4" />
@@ -302,7 +302,7 @@ export default function ProductDetailPage() {
                         onClick={handleAddToCart}
                         disabled={isAdded || product.stock === 0}
                         size="lg"
-                        className={cn("w-full flex-grow transition-all", { 'bg-green-600': isAdded })}
+                        className={cn("flex-grow transition-all", { 'bg-green-600': isAdded })}
                     >
                         {product.stock === 0 ? 'Out of Stock' : isAdded ? (
                             <>
