@@ -106,10 +106,6 @@ export default function CheckoutPage() {
           ]);
           setPaymentMethods(methods);
           setWalletBalance(balance);
-          
-          if (methods.length > 0) {
-            setSelectedMethodId(methods[0].id);
-          }
         } catch (error) {
           console.error("Failed to fetch checkout data:", error);
           toast({ title: 'Error', description: 'Could not load payment options.', variant: 'destructive' });
@@ -122,25 +118,25 @@ export default function CheckoutPage() {
   const selectedMethod = useMemo(() => {
     return paymentMethods.find(method => method.id === selectedMethodId);
   }, [paymentMethods, selectedMethodId]);
-
-  const taxAmount = useMemo(() => {
-    if (!selectedMethod) return 0;
-    return cartTotal * (selectedMethod.taxRate / 100);
-  }, [cartTotal, selectedMethod]);
-
-  const totalBeforeWallet = useMemo(() => {
-    return cartTotal + taxAmount;
-  }, [cartTotal, taxAmount]);
+  
+  const subtotalAfterWallet = useMemo(() => {
+    if (!useWallet || !walletBalance) return cartTotal;
+    return cartTotal - Math.min(walletBalance, cartTotal);
+  }, [cartTotal, useWallet, walletBalance]);
 
   const walletCredit = useMemo(() => {
     if (!useWallet || !walletBalance) return 0;
-    return Math.min(walletBalance, totalBeforeWallet);
-  }, [useWallet, walletBalance, totalBeforeWallet]);
-  
-  const finalTotal = useMemo(() => {
-    return totalBeforeWallet - walletCredit;
-  }, [totalBeforeWallet, walletCredit]);
+    return Math.min(walletBalance, cartTotal);
+  }, [useWallet, walletBalance, cartTotal]);
 
+  const taxAmount = useMemo(() => {
+    if (!selectedMethod) return 0;
+    return subtotalAfterWallet * (selectedMethod.taxRate / 100);
+  }, [subtotalAfterWallet, selectedMethod]);
+
+  const finalTotal = useMemo(() => {
+    return subtotalAfterWallet + taxAmount;
+  }, [subtotalAfterWallet, taxAmount]);
 
   const isFullPaymentByWallet = useMemo(() => {
       return walletCredit > 0 && finalTotal <= 0;
@@ -149,10 +145,8 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (isFullPaymentByWallet) {
         setSelectedMethodId(null);
-    } else if (!selectedMethodId && paymentMethods.length > 0) {
-        setSelectedMethodId(paymentMethods[0].id);
     }
-  }, [isFullPaymentByWallet, paymentMethods, selectedMethodId]);
+  }, [isFullPaymentByWallet]);
 
   const itemsWithCustomFields = useMemo(() => {
     return cartItems.filter(item => item.category?.customFields && item.category.customFields.length > 0);
@@ -381,16 +375,16 @@ export default function CheckoutPage() {
                         <span>Subtotal</span>
                         <span>{formatPrice(cartTotal)}</span>
                     </div>
+                     {walletCredit > 0 && (
+                       <div className="flex justify-between text-primary">
+                            <span>Wallet Credit</span>
+                            <span>-{formatPrice(walletCredit)}</span>
+                        </div>
+                    )}
                     {selectedMethod && !isFullPaymentByWallet && (
                         <div className="flex justify-between">
                             <span>Tax ({selectedMethod.taxRate}%)</span>
                             <span>{formatPrice(taxAmount)}</span>
-                        </div>
-                    )}
-                    {walletCredit > 0 && (
-                       <div className="flex justify-between text-primary">
-                            <span>Wallet Credit</span>
-                            <span>-{formatPrice(walletCredit)}</span>
                         </div>
                     )}
                 </div>
