@@ -348,6 +348,12 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                     <p className="text-xs leading-none text-muted-foreground">
                       {user.email}
                     </p>
+                    {walletBalance !== null && (
+                       <p className="text-xs leading-none text-muted-foreground pt-2 flex items-center">
+                          <Wallet className="mr-2 h-4 w-4 text-primary" />
+                          <span className='font-semibold'>{formatPrice(walletBalance)}</span>
+                       </p>
+                   )}
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -355,14 +361,6 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                     <LayoutDashboard className="mr-2 h-4 w-4 text-primary" />
                     <span>{t('Header.account')}</span>
                   </DropdownMenuItem>
-                   {walletBalance !== null && (
-                       <DropdownMenuItem disabled>
-                        <div className="flex items-center">
-                            <Wallet className="mr-2 h-4 w-4 text-primary" />
-                            <span>{formatPrice(walletBalance)}</span>
-                        </div>
-                       </DropdownMenuItem>
-                   )}
                    {isAdmin && (
                     <DropdownMenuItem onSelect={() => router.push('/admin')}>
                       <ShieldCheck className="mr-2 h-4 w-4 text-green-500" />
