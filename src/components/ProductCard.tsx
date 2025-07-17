@@ -4,7 +4,7 @@
 import type { Product, Category } from '@/lib/types';
 import Image from 'next/image';
 import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent } from './ui/card';
 import { useCart } from '@/context/CartContext';
 import { ShoppingCart, CheckCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { useTranslation } from '@/context/TranslationContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import { getCategoryById } from '@/services/categoryService';
+import { Badge } from './ui/badge';
 
 interface ProductCardProps {
   product: Product;
@@ -41,11 +42,23 @@ export function ProductCard({ product }: ProductCardProps) {
     }, 2000);
   };
 
+  const shortDescription = product.description.length > 80 
+    ? product.description.substring(0, 80) + '...'
+    : product.description;
+
   return (
-    <Link href={`/product/${product.id}`} className="flex">
+    <Link href={`/product/${product.id}`} className="flex h-full">
       <Card className="flex flex-col overflow-hidden transition-all duration-300 hover:shadow-primary/20 hover:shadow-lg hover:-translate-y-1 w-full">
-        <CardHeader className="p-0">
-          <div className="aspect-video relative">
+        <CardContent className="p-4 flex flex-col flex-grow">
+          
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-lg font-bold text-primary truncate">{product.name}</h3>
+            <Badge variant="outline">Digital</Badge>
+          </div>
+          
+          <p className="text-sm text-muted-foreground mb-4 min-h-[40px]">{shortDescription}</p>
+
+          <div className="aspect-video relative rounded-md overflow-hidden my-4">
             <Image
               src={product.imageUrl}
               alt={product.name}
@@ -54,29 +67,29 @@ export function ProductCard({ product }: ProductCardProps) {
               data-ai-hint={product.dataAiHint}
             />
           </div>
-        </CardHeader>
-        <CardContent className="p-4 flex-grow">
-          <p className="text-sm text-muted-foreground">{product.categoryName}</p>
-          <CardTitle className="text-lg font-semibold mt-1">{product.name}</CardTitle>
+
+          <div className="mt-auto flex justify-between items-center">
+            <div>
+              <p className="text-sm text-muted-foreground">From</p>
+              <p className="text-xl font-bold text-primary">{formatPrice(product.price)}</p>
+            </div>
+            <Button onClick={handleAddToCart} disabled={isAdded || product.stock === 0 || !category} className={cn("w-36 transition-all", {
+              'bg-green-600': isAdded,
+            })}>
+              {product.stock === 0 ? 'Out of Stock' : isAdded ? (
+                <>
+                  <CheckCircle className="mr-2 h-4 w-4 animate-in fade-in" />
+                  {t('ProductCard.added')}
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  {t('ProductCard.addToCart')}
+                </>
+              )}
+            </Button>
+          </div>
         </CardContent>
-        <CardFooter className="p-4 flex justify-between items-center">
-          <p className="text-xl font-bold text-primary">{formatPrice(product.price)}</p>
-          <Button onClick={handleAddToCart} disabled={isAdded || product.stock === 0 || !category} className={cn("w-36 transition-all", {
-            'bg-green-600': isAdded,
-          })}>
-            {product.stock === 0 ? 'Out of Stock' : isAdded ? (
-              <>
-                <CheckCircle className="mr-2 h-4 w-4 animate-in fade-in" />
-                {t('ProductCard.added')}
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="mr-2 h-4 w-4" />
-                {t('ProductCard.addToCart')}
-              </>
-            )}
-          </Button>
-        </CardFooter>
       </Card>
     </Link>
   );
