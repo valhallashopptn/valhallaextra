@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -252,7 +253,7 @@ export default function ProductDetailPage() {
                                   key={variant.id}
                                   onClick={() => setSelectedVariantId(variant.id)}
                                   className={cn(
-                                      "relative flex flex-col items-center justify-center rounded-lg border p-4 text-center transition-all duration-200 hover:border-primary",
+                                      "relative flex flex-col items-center justify-center rounded-lg border p-2 text-center transition-all duration-200 hover:border-primary",
                                       selectedVariantId === variant.id ? "border-primary ring-2 ring-primary" : "border-border"
                                   )}
                               >
