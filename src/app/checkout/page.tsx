@@ -77,7 +77,7 @@ function CustomFieldInput({ item, field, value, onChange }: { item: CartItem; fi
 export default function CheckoutPage() {
   const { cartItems, cartTotal, clearCart, updateCartItemCustomData } = useCart();
   const { user, loading: authLoading } = useAuth();
-  const { currency, formatPrice, convertPrice } = useCurrency();
+  const { currency, formatPrice, convertPrice, CONVERSION_RATE_USD_TO_TND } = useCurrency();
   const router = useRouter();
   const { toast } = useToast();
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
@@ -118,12 +118,11 @@ export default function CheckoutPage() {
   }, [user, toast]);
   
   const convertedCartTotal = useMemo(() => {
-    return cartItems.reduce((total, item) => total + convertPrice(item.price) * item.quantity, 0);
-  }, [cartItems, convertPrice]);
+    return convertPrice(cartTotal);
+  }, [cartTotal, convertPrice]);
   
   const convertedWalletBalance = useMemo(() => {
     if (walletBalance === null) return null;
-    // Wallet balance is always in USD, so we convert it to the selected currency for comparison
     return convertPrice(walletBalance);
   }, [walletBalance, convertPrice]);
 
@@ -152,7 +151,6 @@ export default function CheckoutPage() {
 
   const walletDeductionInUSD = useMemo(() => {
     if (!useWallet || walletBalance === null) return 0;
-    // This calculates the portion of the cart total (which is in USD) that the wallet covers
     return Math.min(walletBalance, cartTotal);
   }, [useWallet, walletBalance, cartTotal]);
 
@@ -207,21 +205,26 @@ export default function CheckoutPage() {
         ? { name: 'Wallet Balance', instructions: 'Paid in full with wallet balance.' }
         : { name: selectedMethod!.name, instructions: selectedMethod!.instructions ?? '' }
 
+      // Convert displayed amounts back to USD for storage
+      const conversionRate = currency === 'TND' ? CONVERSION_RATE_USD_TO_TND : 1;
+      const finalTotalInUSD = finalTotal / conversionRate;
+      const taxInUSD = taxAmount / conversionRate;
+
       await addOrder({
         userId: user.uid,
         userEmail: user.email || 'Anonymous',
         items: cartItems,
-        subtotal: cartTotal, // Store original subtotal in USD
-        tax: taxAmount / (currency === 'TND' ? 3.1 : 1), // Store tax in USD
+        subtotal: cartTotal, // cartTotal is always in USD
+        tax: taxInUSD,
         walletDeduction: walletDeductionInUSD,
-        total: finalTotal / (currency === 'TND' ? 3.1 : 1), // Store final total in USD
+        total: finalTotalInUSD,
         currency: currency,
         paymentMethod: paymentMethodDetails,
         status: isFullPaymentByWallet ? 'paid' : 'pending'
       });
       
-      clearCart();
       setIsConfirmationOpen(true);
+      clearCart();
 
     } catch (error: any) {
        toast({
@@ -241,7 +244,7 @@ export default function CheckoutPage() {
     return <PageWrapper><div className="text-center">Loading...</div></PageWrapper>;
   }
 
-  if (cartItems.length === 0 && !isPlacingOrder) {
+  if (cartItems.length === 0 && !isConfirmationOpen) {
     return (
       <PageWrapper>
         <div className="flex h-[60vh] flex-col items-center justify-center text-center">
@@ -312,7 +315,7 @@ export default function CheckoutPage() {
                             <div className="flex-grow">
                                 <p className="font-semibold">Use Wallet Credit</p>
                                 <p className="text-sm">
-                                    Balance: {walletBalance !== null ? formatPrice(walletBalance, 'USD') : 'Loading...'}
+                                    Balance: {walletBalance !== null ? formatPrice(walletBalance, undefined, false) : 'Loading...'}
                                 </p>
                             </div>
                         </div>
@@ -386,39 +389,39 @@ export default function CheckoutPage() {
                             </div>
                         )}
                      </div>
-                     <p className="font-semibold text-right flex-shrink-0">{formatPrice(convertPrice(item.price) * item.quantity, currency, true)}</p>
+                     <p className="font-semibold text-right flex-shrink-0">{formatPrice(item.price * item.quantity, undefined, false)}</p>
                   </div>
                 ))}
                 <div className="animated-separator" />
                 <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                         <span>Subtotal</span>
-                        <span>{formatPrice(convertedCartTotal, currency, true)}</span>
+                        <span>{formatPrice(cartTotal, undefined, false)}</span>
                     </div>
                      {walletCredit > 0 && (
                        <div className="flex justify-between text-primary">
                             <span>Wallet Credit</span>
-                            <span>-{formatPrice(walletCredit, currency, true)}</span>
+                            <span>-{formatPrice(walletCredit, undefined, true)}</span>
                         </div>
                     )}
                     {selectedMethod && !isFullPaymentByWallet && (
                         <div className="flex justify-between">
                             <span>Tax ({selectedMethod.taxRate}%)</span>
-                            <span>{formatPrice(taxAmount, currency, true)}</span>
+                            <span>{formatPrice(taxAmount, undefined, true)}</span>
                         </div>
                     )}
                 </div>
                  <div className="animated-separator" />
                  <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span className="text-primary">{formatPrice(finalTotal, currency, true)}</span>
+                    <span className="text-primary">{formatPrice(finalTotal, undefined, true)}</span>
                 </div>
               </div>
             </CardContent>
              <CardFooter className='flex-col items-stretch gap-4'>
                  <Button onClick={handleCheckout} className="w-full mt-2" size="lg" disabled={isPlacingOrder || (!selectedMethodId && !isFullPaymentByWallet) || !areAllCustomFieldsValid}>
                      <Lock className="mr-2 h-4 w-4" />
-                    {isPlacingOrder ? 'Processing...' : `Place Order for ${formatPrice(finalTotal, currency, true)}`}
+                    {isPlacingOrder ? 'Processing...' : `Place Order for ${formatPrice(finalTotal, undefined, true)}`}
                   </Button>
             </CardFooter>
            </Card>
@@ -427,3 +430,5 @@ export default function CheckoutPage() {
     </PageWrapper>
   );
 }
+
+    

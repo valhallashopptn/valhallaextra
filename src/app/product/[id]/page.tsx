@@ -384,3 +384,5 @@ export default function ProductDetailPage() {
     </PageWrapper>
   );
 }
+
+    
