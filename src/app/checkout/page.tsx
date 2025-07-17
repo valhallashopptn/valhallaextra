@@ -20,7 +20,7 @@ import { getUserWalletBalance } from '@/services/walletService';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { PageWrapper } from '@/components/PageWrapper';
 import type { PaymentMethod, CartItem } from '@/lib/types';
-import { Lock, Info, AlertCircle, Wallet } from 'lucide-react';
+import { Lock, Info, Wallet } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -54,7 +54,7 @@ function CustomFieldInput({ item, field, value, onChange }: { item: CartItem; fi
   // Initial validation
   useEffect(() => {
     validate(value);
-  }, []);
+  }, [value, validate]);
 
   return (
     <div className="space-y-2">
@@ -322,7 +322,7 @@ export default function CheckoutPage() {
                     ))}
                 </RadioGroup>
               
-              {paymentMethods.length === 0 && (
+              {paymentMethods.length === 0 && !isFullPaymentByWallet && (
                 <p className="text-muted-foreground text-center py-4">No other payment methods available. Please contact support.</p>
               )}
 
@@ -381,7 +381,7 @@ export default function CheckoutPage() {
                         <span>Subtotal</span>
                         <span>{formatPrice(cartTotal)}</span>
                     </div>
-                    {selectedMethod && (
+                    {selectedMethod && !isFullPaymentByWallet && (
                         <div className="flex justify-between">
                             <span>Tax ({selectedMethod.taxRate}%)</span>
                             <span>{formatPrice(taxAmount)}</span>
@@ -413,3 +413,5 @@ export default function CheckoutPage() {
     </PageWrapper>
   );
 }
+
+    

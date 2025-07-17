@@ -47,9 +47,18 @@ function CartItem({ item }: { item: import('@/lib/types').CartItem }) {
         <div className="flex justify-between">
           <div>
             <p className="font-semibold text-base">{item.name}</p>
-            <p className="text-sm text-muted-foreground">
+             <p className="text-sm text-muted-foreground">
               {formatPrice(item.price)}
             </p>
+             {item.customFieldData && Object.keys(item.customFieldData).length > 0 && (
+              <div className="text-xs text-muted-foreground mt-1">
+                {Object.entries(item.customFieldData).map(([key, value]) => (
+                  <div key={key} className="truncate">
+                    <span className="font-medium">{key}:</span> {value}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
            <Button
                 variant="ghost"
@@ -158,3 +167,5 @@ export function CartPanel() {
     </Sheet>
   );
 }
+
+    
