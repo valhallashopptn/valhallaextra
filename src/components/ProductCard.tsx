@@ -25,10 +25,17 @@ export function ProductCard({ product }: ProductCardProps) {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
   const [category, setCategory] = useState<Category | null>(null);
+  const [isLoadingCategory, setIsLoadingCategory] = useState(true);
 
   useEffect(() => {
     if (product.categoryId) {
-      getCategoryById(product.categoryId).then(setCategory);
+      setIsLoadingCategory(true);
+      getCategoryById(product.categoryId).then(cat => {
+        setCategory(cat);
+        setIsLoadingCategory(false);
+      });
+    } else {
+        setIsLoadingCategory(false);
     }
   }, [product.categoryId]);
 
@@ -99,9 +106,11 @@ export function ProductCard({ product }: ProductCardProps) {
               <p className="text-sm text-muted-foreground">{priceLabel}</p>
               <p className="text-xl font-bold text-primary">{formatPrice(displayPrice)}</p>
             </div>
-            <Button onClick={handleAddToCart} disabled={isAdded || product.stock === 0 || !category} className={cn("w-36 transition-all", {
-              'bg-green-600': isAdded,
-            })}>
+            <Button 
+              onClick={handleAddToCart} 
+              disabled={isAdded || product.stock === 0 || isLoadingCategory} 
+              className={cn("w-36 transition-all", { 'bg-green-600': isAdded })}
+            >
               {product.stock === 0 ? 'Out of Stock' : isAdded ? (
                 <>
                   <CheckCircle className="mr-2 h-4 w-4 animate-in fade-in" />

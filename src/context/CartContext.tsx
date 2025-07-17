@@ -64,7 +64,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
         );
       }
       
-      return [...prevItems, { ...product, id: cartItemId, quantity, customFieldData: {} }];
+      // Ensure customFieldData is initialized as an empty object for new items.
+      const productToAdd = { 
+        ...product, 
+        id: cartItemId, 
+        quantity, 
+        customFieldData: {} 
+      };
+
+      return [...prevItems, productToAdd];
     });
     openCart();
   };
