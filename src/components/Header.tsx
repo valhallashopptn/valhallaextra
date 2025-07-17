@@ -323,11 +323,9 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
           
           <div className="flex items-center space-x-1 ml-2">
             {user && walletBalance !== null && (
-              <Link href="/account">
-                  <Button variant="outline" className="hidden md:flex items-center gap-2">
-                      <Wallet className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-semibold">{formatPrice(walletBalance)}</span>
-                  </Button>
+              <Link href="/account" className="hidden md:flex items-center gap-2 border border-border rounded-md px-3 h-10 hover:bg-muted transition-colors">
+                  <Wallet className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-semibold">{formatPrice(walletBalance)}</span>
               </Link>
             )}
 
