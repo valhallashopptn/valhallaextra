@@ -21,6 +21,12 @@ const productTabSchema = z.object({
   content: z.string().min(10, { message: 'Content must be at least 10 characters.' }),
 });
 
+const productVariantSchema = z.object({
+  id: z.string().default(() => `variant_${crypto.randomUUID()}`),
+  name: z.string().min(1, { message: 'Variant name is required.' }),
+  price: z.coerce.number().min(0.01, { message: 'Price must be a positive number.' }),
+});
+
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
@@ -29,6 +35,7 @@ const formSchema = z.object({
   categoryId: z.string().min(1, { message: 'Please select a category.' }),
   imageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/600x400.png'),
   tabs: z.array(productTabSchema).optional(),
+  variants: z.array(productVariantSchema).optional(),
 });
 
 type ProductFormData = z.infer<typeof formSchema>;
@@ -51,12 +58,18 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
       categoryId: '',
       imageUrl: 'https://placehold.co/600x400.png',
       tabs: [],
+      variants: [],
     },
   });
   
-  const { fields, append, remove } = useFieldArray({
+  const { fields: tabFields, append: appendTab, remove: removeTab } = useFieldArray({
     control: form.control,
     name: "tabs",
+  });
+  
+  const { fields: variantFields, append: appendVariant, remove: removeVariant } = useFieldArray({
+    control: form.control,
+    name: "variants",
   });
 
   useEffect(() => {
@@ -66,6 +79,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
         price: Number(initialData.price),
         stock: Number(initialData.stock),
         tabs: initialData.tabs || [],
+        variants: initialData.variants || [],
       });
     } else {
         form.reset({
@@ -76,6 +90,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
             categoryId: '',
             imageUrl: 'https://placehold.co/600x400.png',
             tabs: [],
+            variants: [],
         });
     }
   }, [initialData, form]);
@@ -148,7 +163,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                 name="price"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Price</FormLabel>
+                    <FormLabel>Default Price</FormLabel>
                     <FormControl>
                         <Input type="number" step="0.01" placeholder="9.99" {...field} />
                     </FormControl>
@@ -183,13 +198,70 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                 </FormItem>
               )}
             />
+
+            <Separator />
+            
+            <div>
+              <h3 className="text-lg font-medium mb-2">Product Variants</h3>
+              <p className="text-sm text-muted-foreground mb-2">Add variants if this product comes in different options (e.g., sizes, amounts). Variants will override the default price.</p>
+              <div className="space-y-4">
+                {variantFields.map((field, index) => (
+                  <div key={field.id} className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] items-end gap-2 p-3 border rounded-md relative">
+                    <FormField
+                      control={form.control}
+                      name={`variants.${index}.name`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Variant Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g., 500 Diamonds" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`variants.${index}.price`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Price</FormLabel>
+                          <FormControl>
+                            <Input type="number" step="0.01" placeholder="4.99" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => removeVariant(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-4"
+                onClick={() => appendVariant({ id: `variant_${crypto.randomUUID()}`, name: '', price: 0 })}
+              >
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Variant
+              </Button>
+            </div>
             
             <Separator />
             
             <div>
                 <h3 className="text-lg font-medium mb-2">Product Page Tabs</h3>
                 <div className="space-y-4">
-                    {fields.map((field, index) => (
+                    {tabFields.map((field, index) => (
                         <div key={field.id} className="flex flex-col gap-2 p-3 border rounded-md relative">
                             <FormField
                                 control={form.control}
@@ -221,7 +293,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                                 type="button"
                                 variant="destructive"
                                 size="icon"
-                                onClick={() => remove(index)}
+                                onClick={() => removeTab(index)}
                                 className="absolute top-2 right-2"
                             >
                                 <Trash2 className="h-4 w-4" />
@@ -234,7 +306,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                     variant="outline"
                     size="sm"
                     className="mt-4"
-                    onClick={() => append({ id: `tab_${crypto.randomUUID()}`, title: '', content: '' })}
+                    onClick={() => appendTab({ id: `tab_${crypto.randomUUID()}`, title: '', content: '' })}
                     >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Add Tab

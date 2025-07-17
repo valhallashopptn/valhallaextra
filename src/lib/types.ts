@@ -24,6 +24,12 @@ export interface ProductTab {
     content: string;
 }
 
+export interface ProductVariant {
+  id: string;
+  name: string;
+  price: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -35,6 +41,7 @@ export interface Product {
   categoryName: string;
   category?: Category;
   tabs?: ProductTab[];
+  variants?: ProductVariant[];
 }
 
 export interface CartItem extends Product {

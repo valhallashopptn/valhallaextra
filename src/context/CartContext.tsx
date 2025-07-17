@@ -29,34 +29,37 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addToCart = (product: Product, quantity: number = 1) => {
     setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id);
+      // Use product.id to check for existence, but item.name might include variant
+      const existingItem = prevItems.find(item => item.id === product.id && item.name === product.name);
       
       if (existingItem) {
         return prevItems.map(item =>
-          item.id === product.id
+          (item.id === product.id && item.name === product.name)
            ? { ...item, quantity: item.quantity + quantity } 
            : item
         );
       }
-      return [...prevItems, { ...product, quantity, customFieldData: {} }];
+      const cartItemId = product.variants && product.variants.length > 0 ? `${product.id}-${product.name}` : product.id;
+      
+      return [...prevItems, { ...product, id: cartItemId, quantity, customFieldData: {} }];
     });
     openCart();
   };
   
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (cartItemId: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(cartItemId);
       return;
     }
     setCartItems(prevItems =>
       prevItems.map(item =>
-        item.id === productId ? { ...item, quantity } : item
+        item.id === cartItemId ? { ...item, quantity } : item
       )
     );
   };
 
-  const removeFromCart = (productId: string) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
+  const removeFromCart = (cartItemId: string) => {
+    setCartItems(prevItems => prevItems.filter(item => item.id !== cartItemId));
   };
   
   const updateCartItemCustomData = useCallback((itemId: string, fieldLabel: string, value: string) => {

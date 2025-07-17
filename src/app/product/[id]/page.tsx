@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { getProductById } from '@/services/productService';
 import { getCategoryById } from '@/services/categoryService';
 import { getReviewsForProduct, addReview } from '@/services/reviewService';
-import type { Product, Review, Category } from '@/lib/types';
+import type { Product, Review, Category, ProductVariant } from '@/lib/types';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -24,6 +24,8 @@ import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 
 function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md' }) {
   const starClasses = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
@@ -52,6 +54,7 @@ export default function ProductDetailPage() {
   const { formatPrice } = useCurrency();
   const [isAdded, setIsAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -62,6 +65,9 @@ export default function ProductDetailPage() {
         setProduct(productData);
 
         if (productData) {
+            if (productData.variants && productData.variants.length > 0) {
+              setSelectedVariantId(productData.variants[0].id);
+            }
             const [categoryData, reviewsData] = await Promise.all([
                 getCategoryById(productData.categoryId),
                 getReviewsForProduct(id)
@@ -79,11 +85,22 @@ export default function ProductDetailPage() {
 
     fetchProductData();
   }, [id, toast]);
-  
 
+  const selectedVariant = useMemo(() => {
+    if (!product || !product.variants || !selectedVariantId) return null;
+    return product.variants.find(v => v.id === selectedVariantId);
+  }, [product, selectedVariantId]);
+  
   const handleAddToCart = () => {
     if (!product || product.stock === 0) return;
-    addToCart({ ...product, category }, quantity);
+    
+    const itemToAdd = {
+        ...product,
+        name: selectedVariant ? `${product.name} - ${selectedVariant.name}` : product.name,
+        price: selectedVariant ? selectedVariant.price : product.price,
+    };
+
+    addToCart(itemToAdd, quantity);
     setIsAdded(true);
     setTimeout(() => {
       setIsAdded(false);
@@ -119,6 +136,10 @@ export default function ProductDetailPage() {
     if (reviews.length === 0) return 0;
     return reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
   }, [reviews]);
+
+  const displayPrice = useMemo(() => {
+    return selectedVariant ? selectedVariant.price : product?.price ?? 0;
+  }, [selectedVariant, product]);
   
   const StockDisplay = ({ stock }: { stock: number }) => {
     let text = "In Stock";
@@ -217,11 +238,27 @@ export default function ProductDetailPage() {
                         className="text-3xl font-bold text-primary"
                         style={{ textShadow: '0 0 15px hsl(var(--primary) / 0.5)' }}
                     >
-                        {formatPrice(product.price)}
+                        {formatPrice(displayPrice)}
                     </span>
                 </div>
 
                 <p className="text-muted-foreground">{product.description}</p>
+                
+                {product.variants && product.variants.length > 0 && (
+                    <div>
+                        <Label htmlFor="variant-select">Select Option</Label>
+                        <Select value={selectedVariantId ?? ''} onValueChange={setSelectedVariantId}>
+                            <SelectTrigger id="variant-select">
+                                <SelectValue placeholder="Select an option" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {product.variants.map(variant => (
+                                    <SelectItem key={variant.id} value={variant.id}>{variant.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                )}
 
                 <div className="rounded-lg border bg-card/50 p-4 grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-3">
