@@ -20,23 +20,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+import { useCurrency } from '@/context/CurrencyContext';
+
 
 type OrderStatus = 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid';
-
-function formatPrice(total: number, currency: 'TND' | 'USD') {
-    const safeTotal = typeof total === 'number' ? total : 0;
-    if (currency === 'TND') {
-        return `${safeTotal.toFixed(2)} TND`;
-    }
-    // Default to USD if currency is not specified or is USD
-    return `$${safeTotal.toFixed(2)}`;
-}
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { formatPrice, convertPrice, currency: currentDisplayCurrency } = useCurrency();
+
+
+  const formatOrderPrice = (total: number, orderCurrency: 'TND' | 'USD') => {
+    let displayTotal = total;
+    if (currentDisplayCurrency === 'TND') {
+      displayTotal = convertPrice(total);
+    }
+    return formatPrice(displayTotal, currentDisplayCurrency, true);
+  }
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -55,17 +57,16 @@ export default function OrdersPage() {
     fetchOrders();
   }, [fetchOrders]);
 
-  const handleStatusChange = async (orderId: string, status: OrderStatus, userId: string, total: number) => {
+  const handleStatusChange = async (orderId: string, status: OrderStatus, userId: string, total: number, currency: 'TND' | 'USD') => {
     try {
       if (status === 'refunded') {
-        // This handles both refunding to wallet and updating order status
-        await refundToWallet(userId, total, orderId);
-        toast({ title: 'Success', description: 'Order refunded to user wallet successfully.' });
+        const refundAmount = total; 
+        await refundToWallet(userId, refundAmount, orderId);
+        toast({ title: 'Success', description: `Order refunded. ${formatOrderPrice(total, currency)} credited to user wallet.` });
       } else {
         await updateOrderStatus(orderId, status);
         toast({ title: 'Success', description: 'Order status updated successfully.' });
       }
-      // Re-fetch orders to show the latest status
       fetchOrders();
     } catch (error) {
       console.error("Failed to update order status:", error);
@@ -147,7 +148,7 @@ export default function OrdersPage() {
                       ))}
                     </div>
                   </TableCell>
-                  <TableCell className="text-right font-bold text-primary">{formatPrice(order.total, order.currency)}</TableCell>
+                  <TableCell className="text-right font-bold text-primary">{formatOrderPrice(order.total, order.currency)}</TableCell>
                   <TableCell className="text-right">
                     <Select 
                       value={order.status}
@@ -156,7 +157,7 @@ export default function OrdersPage() {
                               // Let the alert dialog handle the action
                               return;
                           }
-                          handleStatusChange(order.id, value, order.userId, order.total)
+                          handleStatusChange(order.id, value, order.userId, order.total, order.currency)
                       }}
                     >
                       <SelectTrigger className="w-[120px]">
@@ -177,12 +178,12 @@ export default function OrdersPage() {
                                 <AlertDialogHeader>
                                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    This will mark the order as refunded and credit {formatPrice(order.total, order.currency)} to the customer's wallet. This action cannot be undone.
+                                    This will mark the order as refunded and credit {formatOrderPrice(order.total, order.currency)} to the customer's wallet. This action cannot be undone.
                                 </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleStatusChange(order.id, 'refunded', order.userId, order.total)}>
+                                <AlertDialogAction onClick={() => handleStatusChange(order.id, 'refunded', order.userId, order.total, order.currency)}>
                                     Confirm Refund
                                 </AlertDialogAction>
                                 </AlertDialogFooter>

@@ -25,17 +25,9 @@ import { useCurrency } from '@/context/CurrencyContext';
 
 type OrderStatus = 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid';
 
-function formatPrice(total: number, currency: 'TND' | 'USD') {
-    const safeTotal = typeof total === 'number' ? total : 0;
-    if (currency === 'TND') {
-        return `${safeTotal.toFixed(2)} TND`;
-    }
-    return `$${safeTotal.toFixed(2)}`;
-}
-
 export default function AccountPage() {
   const { user, loading, logOut } = useAuth();
-  const { formatPrice: formatCurrency } = useCurrency();
+  const { formatPrice: formatCurrency, convertPrice, currency: currentDisplayCurrency } = useCurrency();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
@@ -62,6 +54,23 @@ export default function AccountPage() {
     };
     fetchAccountData();
   }, [user]);
+  
+  const formatOrderPrice = (total: number, orderCurrency: 'TND' | 'USD') => {
+    // Orders are stored in USD. We need to display them in the user's selected currency.
+    let displayTotal = total;
+    if (currentDisplayCurrency === 'TND') {
+      displayTotal = convertPrice(total);
+    }
+    return formatCurrency(displayTotal, currentDisplayCurrency, true);
+  }
+
+  const formatItemPrice = (price: number, quantity: number, orderCurrency: 'TND' | 'USD') => {
+    let displayPrice = price * quantity;
+    if (currentDisplayCurrency === 'TND') {
+        displayPrice = convertPrice(price) * quantity;
+    }
+    return formatCurrency(displayPrice, currentDisplayCurrency, true);
+  }
 
   if (loading || !user) {
     return <div className="text-center container mx-auto px-4 py-8">Loading account details...</div>;
@@ -145,7 +154,7 @@ export default function AccountPage() {
                             <Badge variant={'default'} className={cn('capitalize', getStatusBadgeClass(order.status))}>
                                 {order.status}
                             </Badge>
-                            <span className="font-bold text-primary">{formatPrice(order.total, order.currency)}</span>
+                            <span className="font-bold text-primary">{formatOrderPrice(order.total, order.currency)}</span>
                           </div>
                         </AccordionTrigger>
                         <AccordionContent>
@@ -166,28 +175,28 @@ export default function AccountPage() {
                                     </div>
                                   )}
                                 </div>
-                                <p className="font-semibold">{formatPrice(item.price * item.quantity, order.currency)}</p>
+                                <p className="font-semibold">{formatItemPrice(item.price, item.quantity, order.currency)}</p>
                               </div>
                             ))}
                             <Separator />
                             <div className="text-sm text-muted-foreground space-y-2">
                                 <div className="flex justify-between">
                                     <span>Subtotal:</span>
-                                    <span>{formatPrice(order.subtotal, order.currency)}</span>
+                                    <span>{formatOrderPrice(order.subtotal, order.currency)}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span>Tax:</span>
-                                    <span>{formatPrice(order.tax, order.currency)}</span>
+                                    <span>{formatOrderPrice(order.tax, order.currency)}</span>
                                 </div>
                                 {order.walletDeduction > 0 && (
                                      <div className="flex justify-between text-primary">
                                         <span>Wallet Credit:</span>
-                                        <span>-{formatPrice(order.walletDeduction, order.currency)}</span>
+                                        <span>-{formatOrderPrice(order.walletDeduction, order.currency)}</span>
                                     </div>
                                 )}
                                 <div className="flex justify-between font-bold text-foreground">
                                     <span>Total Paid:</span>
-                                    <span>{formatPrice(order.total, order.currency)}</span>
+                                    <span>{formatOrderPrice(order.total, order.currency)}</span>
                                 </div>
                             </div>
                             <Separator />
