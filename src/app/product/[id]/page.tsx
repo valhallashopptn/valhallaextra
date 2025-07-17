@@ -24,7 +24,6 @@ import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 
 function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md' }) {
@@ -245,19 +244,29 @@ export default function ProductDetailPage() {
                 <p className="text-muted-foreground">{product.description}</p>
                 
                 {product.variants && product.variants.length > 0 && (
-                    <div>
-                        <Label htmlFor="variant-select">Select Option</Label>
-                        <Select value={selectedVariantId ?? ''} onValueChange={setSelectedVariantId}>
-                            <SelectTrigger id="variant-select">
-                                <SelectValue placeholder="Select an option" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {product.variants.map(variant => (
-                                    <SelectItem key={variant.id} value={variant.id}>{variant.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                  <div className="space-y-2">
+                      <Label>Select Version</Label>
+                      <div className="grid grid-cols-2 gap-4">
+                          {product.variants.map((variant) => (
+                              <button
+                                  key={variant.id}
+                                  onClick={() => setSelectedVariantId(variant.id)}
+                                  className={cn(
+                                      "relative flex flex-col items-center justify-center rounded-lg border p-4 text-center transition-all duration-200 hover:border-primary",
+                                      selectedVariantId === variant.id ? "border-primary ring-2 ring-primary" : "border-border"
+                                  )}
+                              >
+                                  <span className="font-semibold">{variant.name}</span>
+                                  <span className="text-sm text-muted-foreground">{formatPrice(variant.price)}</span>
+                                  {selectedVariantId === variant.id && (
+                                      <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                                          <CheckCircle className="h-3 w-3" />
+                                      </div>
+                                  )}
+                              </button>
+                          ))}
+                      </div>
+                  </div>
                 )}
 
                 <div className="rounded-lg border bg-card/50 p-4 grid grid-cols-2 gap-4">
