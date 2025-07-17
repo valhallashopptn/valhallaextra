@@ -42,6 +42,7 @@ export interface Product {
   category?: Category;
   tabs?: ProductTab[];
   variants?: ProductVariant[];
+  dataAiHint?: string;
 }
 
 export interface CartItem extends Product {
@@ -65,6 +66,7 @@ export interface Order {
   items: CartItem[];
   subtotal: number;
   tax: number;
+  walletDeduction: number;
   total: number;
   currency: 'TND' | 'USD';
   status: 'pending' | 'completed' | 'canceled' | 'refunded';

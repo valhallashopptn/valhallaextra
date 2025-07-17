@@ -25,28 +25,29 @@ export const addOrder = async (orderData: {
   items: CartItem[];
   subtotal: number;
   tax: number;
+  walletDeduction: number;
   total: number;
   currency: 'TND' | 'USD';
   paymentMethod: { name: string; instructions: string };
   status?: 'pending' | 'completed';
 }) => {
-  if (orderData.paymentMethod.name === 'Wallet Balance') {
-    // This is a wallet transaction
+  if (orderData.walletDeduction > 0) {
+    // This is a transaction involving the wallet
     return runTransaction(db, async (transaction) => {
       // 1. Debit from wallet
-      await debitFromWallet(transaction, orderData.userId, orderData.total);
+      await debitFromWallet(transaction, orderData.userId, orderData.walletDeduction);
       
       // 2. Create the order document
       const orderRef = doc(collection(db, 'orders'));
       transaction.set(orderRef, {
         ...orderData,
-        status: orderData.status ?? 'completed', // Wallet orders are completed instantly
+        status: orderData.status ?? 'pending',
         createdAt: serverTimestamp(),
       });
       return orderRef;
     });
   } else {
-    // This is a manual payment method
+    // This is a standard manual payment method without wallet usage
     return await addDoc(ordersCollectionRef, {
       ...orderData,
       status: orderData.status ?? 'pending', // Default status for manual payments

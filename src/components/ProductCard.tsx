@@ -36,7 +36,7 @@ export function ProductCard({ product }: ProductCardProps) {
     e.preventDefault(); // Prevent link navigation when clicking the button
     
     // If there are variants, add the cheapest one by default
-    let itemToAdd = { ...product, category: category || undefined };
+    let itemToAdd = { ...product, category: category || undefined, dataAiHint: product.dataAiHint || product.categoryName };
     if (product.variants && product.variants.length > 0) {
         const cheapestVariant = [...product.variants].sort((a,b) => a.price - b.price)[0];
         itemToAdd = {
@@ -90,7 +90,7 @@ export function ProductCard({ product }: ProductCardProps) {
               alt={product.name}
               fill
               className="object-cover"
-              data-ai-hint={product.dataAiHint}
+              data-ai-hint={product.dataAiHint || product.categoryName}
             />
           </div>
 

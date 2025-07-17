@@ -23,6 +23,7 @@ import type { PaymentMethod, CartItem } from '@/lib/types';
 import { Lock, Info, AlertCircle, Wallet } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { Checkbox } from '@/components/ui/checkbox';
 
 function CustomFieldInput({ item, field, value, onChange }: { item: CartItem; field: any; value: string; onChange: (itemId: string, fieldLabel: string, value: string) => void; }) {
   const [error, setError] = useState('');
@@ -82,6 +83,7 @@ export default function CheckoutPage() {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const [useWallet, setUseWallet] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -118,20 +120,39 @@ export default function CheckoutPage() {
   }, [user, toast]);
 
   const selectedMethod = useMemo(() => {
-    if (selectedMethodId === 'wallet') {
-      return { id: 'wallet', name: 'Wallet Balance', instructions: 'Payment will be deducted from your wallet.', taxRate: 0, iconUrl: '' };
-    }
     return paymentMethods.find(method => method.id === selectedMethodId);
   }, [paymentMethods, selectedMethodId]);
 
   const taxAmount = useMemo(() => {
-    if (!selectedMethod || selectedMethodId === 'wallet') return 0;
+    if (!selectedMethod) return 0;
     return cartTotal * (selectedMethod.taxRate / 100);
-  }, [cartTotal, selectedMethod, selectedMethodId]);
+  }, [cartTotal, selectedMethod]);
 
-  const finalTotal = useMemo(() => {
+  const totalBeforeWallet = useMemo(() => {
     return cartTotal + taxAmount;
   }, [cartTotal, taxAmount]);
+
+  const walletCredit = useMemo(() => {
+    if (!useWallet || !walletBalance) return 0;
+    return Math.min(walletBalance, totalBeforeWallet);
+  }, [useWallet, walletBalance, totalBeforeWallet]);
+  
+  const finalTotal = useMemo(() => {
+    return totalBeforeWallet - walletCredit;
+  }, [totalBeforeWallet, walletCredit]);
+
+
+  const isFullPaymentByWallet = useMemo(() => {
+      return walletCredit > 0 && finalTotal <= 0;
+  }, [walletCredit, finalTotal]);
+
+  useEffect(() => {
+    if (isFullPaymentByWallet) {
+        setSelectedMethodId(null);
+    } else if (!selectedMethodId && paymentMethods.length > 0) {
+        setSelectedMethodId(paymentMethods[0].id);
+    }
+  }, [isFullPaymentByWallet, paymentMethods, selectedMethodId]);
 
   const itemsWithCustomFields = useMemo(() => {
     return cartItems.filter(item => item.category?.customFields && item.category.customFields.length > 0);
@@ -158,7 +179,7 @@ export default function CheckoutPage() {
         router.push('/login?redirect=/checkout');
         return;
     }
-    if (!selectedMethod) {
+    if (!isFullPaymentByWallet && !selectedMethod) {
         toast({ title: 'Payment method required', description: 'Please select a payment method.', variant: 'destructive' });
         return;
     }
@@ -169,19 +190,21 @@ export default function CheckoutPage() {
     
     setIsPlacingOrder(true);
     try {
+      const paymentMethodDetails = isFullPaymentByWallet 
+        ? { name: 'Wallet Balance', instructions: 'Paid in full with wallet balance.' }
+        : { name: selectedMethod!.name, instructions: selectedMethod!.instructions ?? '' }
+
       await addOrder({
         userId: user.uid,
         userEmail: user.email || 'Anonymous',
         items: cartItems,
         subtotal: cartTotal,
         tax: taxAmount,
+        walletDeduction: walletCredit,
         total: finalTotal,
         currency: currency,
-        paymentMethod: {
-            name: selectedMethod.name,
-            instructions: selectedMethod.instructions ?? ''
-        },
-        status: selectedMethodId === 'wallet' ? 'completed' : 'pending'
+        paymentMethod: paymentMethodDetails,
+        status: isFullPaymentByWallet ? 'completed' : 'pending'
       });
 
       clearCart();
@@ -199,7 +222,7 @@ export default function CheckoutPage() {
     }
   };
   
-  const isWalletPaymentDisabled = walletBalance === null || walletBalance < finalTotal;
+  const isWalletAvailable = walletBalance !== null && walletBalance > 0;
 
   if (authLoading || !user) {
     return <PageWrapper><div className="text-center">Loading...</div></PageWrapper>;
@@ -257,52 +280,53 @@ export default function CheckoutPage() {
               <CardDescription>Select your preferred way to pay.</CardDescription>
             </CardHeader>
             <CardContent>
-              <RadioGroup
-                value={selectedMethodId ?? ''}
-                onValueChange={setSelectedMethodId}
-                className="space-y-4"
-              >
-                <Label 
-                    htmlFor="wallet" 
+              <div className="space-y-4">
+                 <div
                     className={cn(
-                        "flex items-center p-4 border rounded-md has-[input:checked]:bg-primary/10 has-[input:checked]:border-primary",
-                        isWalletPaymentDisabled ? "cursor-not-allowed bg-muted/50 text-muted-foreground" : "cursor-pointer hover:bg-muted/50"
+                        "flex items-center space-x-4 p-4 border rounded-md",
+                        !isWalletAvailable && "bg-muted/50 text-muted-foreground"
                     )}
                 >
-                    <RadioGroupItem value="wallet" id="wallet" disabled={isWalletPaymentDisabled} />
-                    <Wallet className="ml-4 mr-2 h-5 w-5" />
-                    <div className="ml-4 flex-grow">
-                        <p className="font-semibold">Pay with Wallet</p>
-                        <p className="text-sm">
-                            Balance: {walletBalance !== null ? formatPrice(walletBalance) : 'Loading...'}
-                        </p>
-                    </div>
-                </Label>
-                {isWalletPaymentDisabled && selectedMethodId === 'wallet' && (
-                    <Alert variant="destructive" className="-mt-2">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Insufficient Balance</AlertTitle>
-                        <AlertDescription>
-                            Your wallet balance is not enough to cover this purchase.
-                        </AlertDescription>
-                    </Alert>
-                )}
-                {paymentMethods.map(method => (
-                  <Label key={method.id} htmlFor={method.id} className="flex items-center p-4 border rounded-md cursor-pointer hover:bg-muted/50 has-[input:checked]:bg-primary/10 has-[input:checked]:border-primary">
-                    <RadioGroupItem value={method.id} id={method.id} />
-                    {method.iconUrl && (
-                      <Image src={method.iconUrl} alt={method.name} width={32} height={32} className="ml-4 mr-2 object-contain" />
-                    )}
-                    <span className="ml-4 font-semibold">{method.name}</span>
-                  </Label>
-                ))}
-              </RadioGroup>
+                    <Checkbox id="useWallet"
+                        checked={useWallet}
+                        onCheckedChange={(checked) => setUseWallet(!!checked)}
+                        disabled={!isWalletAvailable}
+                    />
+                    <Label htmlFor="useWallet" className={cn("flex-grow", !isWalletAvailable ? "cursor-not-allowed" : "cursor-pointer")}>
+                        <div className="flex items-center">
+                            <Wallet className="mr-2 h-5 w-5" />
+                            <div className="flex-grow">
+                                <p className="font-semibold">Use Wallet Credit</p>
+                                <p className="text-sm">
+                                    Balance: {walletBalance !== null ? formatPrice(walletBalance) : 'Loading...'}
+                                </p>
+                            </div>
+                        </div>
+                    </Label>
+                </div>
+
+                <RadioGroup
+                    value={isFullPaymentByWallet ? '' : selectedMethodId ?? ''}
+                    onValueChange={setSelectedMethodId}
+                    className={cn("space-y-4", isFullPaymentByWallet && "opacity-50 pointer-events-none")}
+                    disabled={isFullPaymentByWallet}
+                >
+                    {paymentMethods.map(method => (
+                    <Label key={method.id} htmlFor={method.id} className="flex items-center p-4 border rounded-md cursor-pointer hover:bg-muted/50 has-[input:checked]:bg-primary/10 has-[input:checked]:border-primary">
+                        <RadioGroupItem value={method.id} id={method.id} />
+                        {method.iconUrl && (
+                        <Image src={method.iconUrl} alt={method.name} width={32} height={32} className="ml-4 mr-2 object-contain" />
+                        )}
+                        <span className="ml-4 font-semibold">{method.name}</span>
+                    </Label>
+                    ))}
+                </RadioGroup>
               
               {paymentMethods.length === 0 && (
                 <p className="text-muted-foreground text-center py-4">No other payment methods available. Please contact support.</p>
               )}
 
-              {selectedMethod && selectedMethodId !== 'wallet' && (
+              {selectedMethod && !isFullPaymentByWallet && (
                 <Alert className="mt-6">
                   <Info className="h-4 w-4" />
                   <AlertTitle>{selectedMethod.name} Instructions</AlertTitle>
@@ -311,6 +335,17 @@ export default function CheckoutPage() {
                   </AlertDescription>
                 </Alert>
               )}
+
+              {isFullPaymentByWallet && (
+                 <Alert className="mt-6" variant="default">
+                  <Wallet className="h-4 w-4" />
+                  <AlertTitle>Paid in full with wallet</AlertTitle>
+                  <AlertDescription>
+                    Your wallet balance covers the entire order. No other payment method is needed.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
             </CardContent>
           </Card>
         </div>
@@ -341,15 +376,23 @@ export default function CheckoutPage() {
                   </div>
                 ))}
                 <div className="animated-separator" />
-                <div className="space-y-2">
+                <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                         <span>Subtotal</span>
                         <span>{formatPrice(cartTotal)}</span>
                     </div>
-                    <div className="flex justify-between">
-                        <span>Tax ({selectedMethod?.taxRate ?? 0}%)</span>
-                        <span>{formatPrice(taxAmount)}</span>
-                    </div>
+                    {selectedMethod && (
+                        <div className="flex justify-between">
+                            <span>Tax ({selectedMethod.taxRate}%)</span>
+                            <span>{formatPrice(taxAmount)}</span>
+                        </div>
+                    )}
+                    {walletCredit > 0 && (
+                       <div className="flex justify-between text-primary">
+                            <span>Wallet Credit</span>
+                            <span>-{formatPrice(walletCredit)}</span>
+                        </div>
+                    )}
                 </div>
                  <div className="animated-separator" />
                  <div className="flex justify-between font-bold text-lg">
@@ -359,7 +402,7 @@ export default function CheckoutPage() {
               </div>
             </CardContent>
              <CardFooter className='flex-col items-stretch gap-4'>
-                 <Button onClick={handleCheckout} className="w-full mt-2" size="lg" disabled={isPlacingOrder || !selectedMethod || !areAllCustomFieldsValid || (selectedMethodId === 'wallet' && isWalletPaymentDisabled)}>
+                 <Button onClick={handleCheckout} className="w-full mt-2" size="lg" disabled={isPlacingOrder || (!selectedMethodId && !isFullPaymentByWallet) || !areAllCustomFieldsValid}>
                      <Lock className="mr-2 h-4 w-4" />
                     {isPlacingOrder ? 'Processing...' : `Place Order for ${formatPrice(finalTotal)}`}
                   </Button>

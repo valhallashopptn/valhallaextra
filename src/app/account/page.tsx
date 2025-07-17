@@ -177,8 +177,14 @@ export default function AccountPage() {
                                     <span>Tax:</span>
                                     <span>{formatPrice(order.tax, order.currency)}</span>
                                 </div>
+                                {order.walletDeduction > 0 && (
+                                     <div className="flex justify-between text-primary">
+                                        <span>Wallet Credit:</span>
+                                        <span>-{formatPrice(order.walletDeduction, order.currency)}</span>
+                                    </div>
+                                )}
                                 <div className="flex justify-between font-bold text-foreground">
-                                    <span>Total:</span>
+                                    <span>Total Paid:</span>
                                     <span>{formatPrice(order.total, order.currency)}</span>
                                 </div>
                             </div>
@@ -203,5 +209,3 @@ export default function AccountPage() {
     </PageWrapper>
   );
 }
-
-    
