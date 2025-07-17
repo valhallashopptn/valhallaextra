@@ -24,6 +24,7 @@ import { Lock, Info, Wallet } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
+import { OrderConfirmationDialog } from '@/components/OrderConfirmationDialog';
 
 function CustomFieldInput({ item, field, value, onChange }: { item: CartItem; field: any; value: string; onChange: (itemId: string, fieldLabel: string, value: string) => void; }) {
   const [error, setError] = useState('');
@@ -84,6 +85,7 @@ export default function CheckoutPage() {
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [useWallet, setUseWallet] = useState(false);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -218,8 +220,8 @@ export default function CheckoutPage() {
         status: isFullPaymentByWallet ? 'paid' : 'pending'
       });
       
-      router.push('/order-confirmation');
       clearCart();
+      setIsConfirmationOpen(true);
 
     } catch (error: any) {
        toast({
@@ -240,8 +242,6 @@ export default function CheckoutPage() {
   }
 
   if (cartItems.length === 0 && !isPlacingOrder) {
-    // This state is only shown if the user navigates here with an empty cart,
-    // not during the checkout process itself.
     return (
       <PageWrapper>
         <div className="flex h-[60vh] flex-col items-center justify-center text-center">
@@ -257,6 +257,7 @@ export default function CheckoutPage() {
 
   return (
     <PageWrapper>
+      <OrderConfirmationDialog isOpen={isConfirmationOpen} onOpenChange={setIsConfirmationOpen} />
       <div className="text-center mb-10">
           <h1 className="text-4xl font-bold font-headline">Checkout</h1>
           <p className="text-muted-foreground mt-2">Complete your purchase by providing the necessary details.</p>
@@ -385,19 +386,19 @@ export default function CheckoutPage() {
                             </div>
                         )}
                      </div>
-                     <p className="font-semibold text-right flex-shrink-0">{formatPrice(item.price * item.quantity)}</p>
+                     <p className="font-semibold text-right flex-shrink-0">{formatPrice(convertPrice(item.price) * item.quantity, currency, true)}</p>
                   </div>
                 ))}
                 <div className="animated-separator" />
                 <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                         <span>Subtotal</span>
-                        <span>{formatPrice(cartTotal)}</span>
+                        <span>{formatPrice(convertedCartTotal, currency, true)}</span>
                     </div>
                      {walletCredit > 0 && (
                        <div className="flex justify-between text-primary">
                             <span>Wallet Credit</span>
-                            <span>-{formatPrice(walletDeductionInUSD, currency)}</span>
+                            <span>-{formatPrice(walletCredit, currency, true)}</span>
                         </div>
                     )}
                     {selectedMethod && !isFullPaymentByWallet && (
@@ -426,4 +427,3 @@ export default function CheckoutPage() {
     </PageWrapper>
   );
 }
-
