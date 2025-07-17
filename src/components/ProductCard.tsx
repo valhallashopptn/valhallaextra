@@ -58,7 +58,7 @@ export function ProductCard({ product }: ProductCardProps) {
           
           <p className="text-sm text-muted-foreground mb-4 min-h-[40px]">{shortDescription}</p>
 
-          <div className="aspect-video relative rounded-md overflow-hidden my-4">
+          <div className="aspect-video relative rounded-md overflow-hidden">
             <Image
               src={product.imageUrl}
               alt={product.name}
@@ -68,7 +68,7 @@ export function ProductCard({ product }: ProductCardProps) {
             />
           </div>
 
-          <div className="mt-auto flex justify-between items-center">
+          <div className="mt-auto flex justify-between items-center pt-4">
             <div>
               <p className="text-sm text-muted-foreground">From</p>
               <p className="text-xl font-bold text-primary">{formatPrice(product.price)}</p>
