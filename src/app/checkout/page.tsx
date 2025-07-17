@@ -121,6 +121,7 @@ export default function CheckoutPage() {
   
   const convertedWalletBalance = useMemo(() => {
     if (walletBalance === null) return null;
+    // Wallet balance is always in USD, so we convert it to the selected currency for comparison
     return convertPrice(walletBalance);
   }, [walletBalance, convertPrice]);
 
@@ -149,6 +150,7 @@ export default function CheckoutPage() {
 
   const walletDeductionInUSD = useMemo(() => {
     if (!useWallet || walletBalance === null) return 0;
+    // This calculates the portion of the cart total (which is in USD) that the wallet covers
     return Math.min(walletBalance, cartTotal);
   }, [useWallet, walletBalance, cartTotal]);
 
@@ -188,7 +190,7 @@ export default function CheckoutPage() {
         router.push('/login?redirect=/checkout');
         return;
     }
-    if (!isFullPaymentByWallet && !selectedMethod) {
+    if (!isFullPaymentByWallet && !selectedMethodId) {
         toast({ title: 'Payment method required', description: 'Please select a payment method.', variant: 'destructive' });
         return;
     }
@@ -207,10 +209,10 @@ export default function CheckoutPage() {
         userId: user.uid,
         userEmail: user.email || 'Anonymous',
         items: cartItems,
-        subtotal: convertedCartTotal,
-        tax: taxAmount,
+        subtotal: cartTotal, // Store original subtotal in USD
+        tax: taxAmount / (currency === 'TND' ? 3.1 : 1), // Store tax in USD
         walletDeduction: walletDeductionInUSD,
-        total: finalTotal,
+        total: finalTotal / (currency === 'TND' ? 3.1 : 1), // Store final total in USD
         currency: currency,
         paymentMethod: paymentMethodDetails,
         status: isFullPaymentByWallet ? 'paid' : 'pending'
@@ -237,7 +239,7 @@ export default function CheckoutPage() {
     return <PageWrapper><div className="text-center">Loading...</div></PageWrapper>;
   }
 
-  if (cartItems.length === 0) {
+  if (cartItems.length === 0 && !isPlacingOrder) {
     // This state is only shown if the user navigates here with an empty cart,
     // not during the checkout process itself.
     return (
@@ -309,7 +311,7 @@ export default function CheckoutPage() {
                             <div className="flex-grow">
                                 <p className="font-semibold">Use Wallet Credit</p>
                                 <p className="text-sm">
-                                    Balance: {walletBalance !== null ? formatPrice(walletBalance) : 'Loading...'}
+                                    Balance: {walletBalance !== null ? formatPrice(walletBalance, 'USD') : 'Loading...'}
                                 </p>
                             </div>
                         </div>
@@ -395,27 +397,27 @@ export default function CheckoutPage() {
                      {walletCredit > 0 && (
                        <div className="flex justify-between text-primary">
                             <span>Wallet Credit</span>
-                            <span>-{formatPrice(walletDeductionInUSD)}</span>
+                            <span>-{formatPrice(walletDeductionInUSD, currency)}</span>
                         </div>
                     )}
                     {selectedMethod && !isFullPaymentByWallet && (
                         <div className="flex justify-between">
                             <span>Tax ({selectedMethod.taxRate}%)</span>
-                            <span>{formatPrice(taxAmount / (currency === 'TND' ? 3.1 : 1))}</span>
+                            <span>{formatPrice(taxAmount, currency, true)}</span>
                         </div>
                     )}
                 </div>
                  <div className="animated-separator" />
                  <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span className="text-primary">{formatPrice(finalTotal / (currency === 'TND' ? 3.1 : 1))}</span>
+                    <span className="text-primary">{formatPrice(finalTotal, currency, true)}</span>
                 </div>
               </div>
             </CardContent>
              <CardFooter className='flex-col items-stretch gap-4'>
                  <Button onClick={handleCheckout} className="w-full mt-2" size="lg" disabled={isPlacingOrder || (!selectedMethodId && !isFullPaymentByWallet) || !areAllCustomFieldsValid}>
                      <Lock className="mr-2 h-4 w-4" />
-                    {isPlacingOrder ? 'Processing...' : `Place Order for ${formatPrice(finalTotal / (currency === 'TND' ? 3.1 : 1))}`}
+                    {isPlacingOrder ? 'Processing...' : `Place Order for ${formatPrice(finalTotal, currency, true)}`}
                   </Button>
             </CardFooter>
            </Card>
@@ -424,3 +426,4 @@ export default function CheckoutPage() {
     </PageWrapper>
   );
 }
+
