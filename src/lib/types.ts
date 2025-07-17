@@ -69,7 +69,7 @@ export interface Order {
   walletDeduction: number;
   total: number;
   currency: 'TND' | 'USD';
-  status: 'pending' | 'completed' | 'canceled' | 'refunded';
+  status: 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid';
   paymentMethod?: {
     name: string;
     instructions: string;

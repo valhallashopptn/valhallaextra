@@ -204,7 +204,7 @@ export default function CheckoutPage() {
         total: finalTotal,
         currency: currency,
         paymentMethod: paymentMethodDetails,
-        status: isFullPaymentByWallet ? 'completed' : 'pending'
+        status: isFullPaymentByWallet ? 'paid' : 'pending'
       });
 
       clearCart();
@@ -413,5 +413,3 @@ export default function CheckoutPage() {
     </PageWrapper>
   );
 }
-
-    

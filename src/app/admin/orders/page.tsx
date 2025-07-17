@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 
-type OrderStatus = 'pending' | 'completed' | 'canceled' | 'refunded';
+type OrderStatus = 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid';
 
 function formatPrice(total: number, currency: 'TND' | 'USD') {
     const safeTotal = typeof total === 'number' ? total : 0;
@@ -77,12 +77,14 @@ export default function OrdersPage() {
     switch (status) {
       case 'completed':
         return 'bg-green-600';
+      case 'paid':
+        return 'bg-blue-600';
       case 'pending':
         return 'bg-yellow-500';
       case 'canceled':
         return 'bg-red-600';
       case 'refunded':
-        return 'bg-blue-600';
+        return 'bg-purple-600';
       default:
         return 'bg-gray-500';
     }
@@ -162,6 +164,7 @@ export default function OrdersPage() {
                       </SelectTrigger>
                       <SelectContent>
                           <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="paid">Paid</SelectItem>
                           <SelectItem value="completed">Completed</SelectItem>
                           <SelectItem value="canceled">Canceled</SelectItem>
                           <AlertDialog>

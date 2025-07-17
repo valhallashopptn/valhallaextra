@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 import { Wallet } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 
-type OrderStatus = 'pending' | 'completed' | 'canceled' | 'refunded';
+type OrderStatus = 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid';
 
 function formatPrice(total: number, currency: 'TND' | 'USD') {
     const safeTotal = typeof total === 'number' ? total : 0;
@@ -71,12 +71,14 @@ export default function AccountPage() {
     switch (status) {
       case 'completed':
         return 'bg-green-600';
+      case 'paid':
+        return 'bg-blue-600';
       case 'pending':
         return 'bg-yellow-500';
       case 'canceled':
         return 'bg-red-600';
       case 'refunded':
-        return 'bg-blue-600';
+        return 'bg-purple-600';
       default:
         return 'bg-gray-500';
     }

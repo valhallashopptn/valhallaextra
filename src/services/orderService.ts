@@ -29,7 +29,7 @@ export const addOrder = async (orderData: {
   total: number;
   currency: 'TND' | 'USD';
   paymentMethod: { name: string; instructions: string };
-  status?: 'pending' | 'completed';
+  status?: 'pending' | 'completed' | 'paid';
 }) => {
   if (orderData.walletDeduction > 0) {
     // This is a transaction involving the wallet
@@ -75,7 +75,7 @@ export const getAllOrders = async (): Promise<Order[]> => {
 };
 
 // Update an order's status
-export const updateOrderStatus = async (orderId: string, status: 'pending' | 'completed' | 'canceled' | 'refunded') => {
+export const updateOrderStatus = async (orderId: string, status: 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid') => {
   const orderDoc = doc(db, 'orders', orderId);
   return await updateDoc(orderDoc, { status });
 };
