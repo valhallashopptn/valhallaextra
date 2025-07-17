@@ -306,9 +306,6 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
           </div>
           
           <div className="flex items-center space-x-1 ml-2">
-            <CurrencySwitcher />
-            <LanguageSwitcher />
-
             {user && walletBalance !== null && (
               <Link href="/account">
                   <Button variant="outline" className="hidden md:flex items-center gap-2">
@@ -318,6 +315,9 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
               </Link>
             )}
 
+            <CurrencySwitcher />
+            <LanguageSwitcher />
+            
             <Button
               variant="ghost"
               size="icon"
