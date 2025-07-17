@@ -249,6 +249,9 @@ export default function CheckoutPage() {
                 {paymentMethods.map(method => (
                   <Label key={method.id} htmlFor={method.id} className="flex items-center p-4 border rounded-md cursor-pointer hover:bg-muted/50 has-[input:checked]:bg-primary/10 has-[input:checked]:border-primary">
                     <RadioGroupItem value={method.id} id={method.id} />
+                    {method.iconUrl && (
+                      <Image src={method.iconUrl} alt={method.name} width={32} height={32} className="ml-4 mr-2 object-contain" />
+                    )}
                     <span className="ml-4 font-semibold">{method.name}</span>
                   </Label>
                 ))}

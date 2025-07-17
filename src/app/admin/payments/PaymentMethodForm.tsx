@@ -15,6 +15,7 @@ const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   instructions: z.string().min(10, { message: 'Instructions must be at least 10 characters.' }),
   taxRate: z.coerce.number().min(0, { message: 'Tax rate must be non-negative.' }).max(100, { message: 'Tax rate cannot exceed 100.' }),
+  iconUrl: z.string().url({ message: 'Please enter a valid URL.' }).optional().or(z.literal('')),
 });
 
 type PaymentMethodFormData = z.infer<typeof formSchema>;
@@ -28,13 +29,11 @@ interface PaymentMethodFormProps {
 export function PaymentMethodForm({ onSubmit, initialData, onCancel }: PaymentMethodFormProps) {
   const form = useForm<PaymentMethodFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData ? {
-      ...initialData,
-      taxRate: Number(initialData.taxRate),
-    } : {
+    defaultValues: {
       name: '',
       instructions: '',
       taxRate: 0,
+      iconUrl: '',
     },
   });
 
@@ -43,12 +42,14 @@ export function PaymentMethodForm({ onSubmit, initialData, onCancel }: PaymentMe
       form.reset({
         ...initialData,
         taxRate: Number(initialData.taxRate),
+        iconUrl: initialData.iconUrl || '',
       });
     } else {
         form.reset({
             name: '',
             instructions: '',
             taxRate: 0,
+            iconUrl: '',
         });
     }
   }, [initialData, form]);
@@ -66,6 +67,19 @@ export function PaymentMethodForm({ onSubmit, initialData, onCancel }: PaymentMe
               <FormLabel>Method Name</FormLabel>
               <FormControl>
                 <Input placeholder="e.g., Bank Transfer" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="iconUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Icon URL</FormLabel>
+              <FormControl>
+                <Input placeholder="https://example.com/icon.png" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

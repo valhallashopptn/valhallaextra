@@ -47,6 +47,7 @@ export interface PaymentMethod {
   name: string;
   instructions: string;
   taxRate: number; // Stored as a percentage, e.g., 5 for 5%
+  iconUrl?: string;
   createdAt: Timestamp;
 }
 

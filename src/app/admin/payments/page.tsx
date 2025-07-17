@@ -12,6 +12,7 @@ import { PaymentMethodForm } from './PaymentMethodForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
 
 export default function PaymentsPage() {
   const { toast } = useToast();
@@ -91,6 +92,7 @@ export default function PaymentsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Icon</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Tax Rate</TableHead>
                   <TableHead>Instructions</TableHead>
@@ -100,10 +102,17 @@ export default function PaymentsPage() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center">Loading...</TableCell>
+                    <TableCell colSpan={5} className="text-center">Loading...</TableCell>
                   </TableRow>
                 ) : methods.map(method => (
                   <TableRow key={method.id}>
+                    <TableCell>
+                      {method.iconUrl ? (
+                        <Image src={method.iconUrl} alt={method.name} width={32} height={32} className="rounded-md object-contain" />
+                      ) : (
+                        <div className="h-8 w-8 rounded-md bg-muted flex items-center justify-center text-muted-foreground text-xs">No Icon</div>
+                      )}
+                    </TableCell>
                     <TableCell className="font-medium">{method.name}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">{method.taxRate}%</Badge>
