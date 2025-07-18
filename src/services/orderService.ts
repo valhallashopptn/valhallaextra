@@ -31,17 +31,32 @@ export const addOrder = async (orderData: {
   paymentMethod: { name: string; instructions: string };
   status?: 'pending' | 'completed' | 'paid';
 }) => {
-  if (orderData.walletDeduction > 0) {
+
+  // Sanitize items to remove potentially problematic fields for Firestore
+  const sanitizedItems = orderData.items.map(item => {
+    // The 'category' object can contain undefined 'customFields' which Firestore rejects.
+    // It's not needed in the final order document anyway.
+    const { category, ...restOfItem } = item;
+    return restOfItem;
+  });
+
+  const finalOrderData = {
+    ...orderData,
+    items: sanitizedItems,
+  };
+
+
+  if (finalOrderData.walletDeduction > 0) {
     // This is a transaction involving the wallet
     return runTransaction(db, async (transaction) => {
       // 1. Debit from wallet (wallet is always in USD)
-      await debitFromWallet(transaction, orderData.userId, orderData.walletDeduction);
+      await debitFromWallet(transaction, finalOrderData.userId, finalOrderData.walletDeduction);
       
       // 2. Create the order document
       const orderRef = doc(collection(db, 'orders'));
       transaction.set(orderRef, {
-        ...orderData,
-        status: orderData.status ?? 'pending',
+        ...finalOrderData,
+        status: finalOrderData.status ?? 'pending',
         createdAt: serverTimestamp(),
       });
       return orderRef;
@@ -49,8 +64,8 @@ export const addOrder = async (orderData: {
   } else {
     // This is a standard manual payment method without wallet usage
     return await addDoc(ordersCollectionRef, {
-      ...orderData,
-      status: orderData.status ?? 'pending', // Default status for manual payments
+      ...finalOrderData,
+      status: finalOrderData.status ?? 'pending', // Default status for manual payments
       createdAt: serverTimestamp(),
     });
   }
