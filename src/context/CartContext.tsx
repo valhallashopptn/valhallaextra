@@ -6,7 +6,7 @@ import type { CartItem, Product, Category } from '@/lib/types';
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (item: Product & { category?: Category }, quantity?: number) => void;
+  addToCart: (item: Product, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -70,7 +70,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
 
-  const addToCart = (product: Product & { category?: Category }, quantity: number = 1) => {
+  const addToCart = (product: Product, quantity: number = 1) => {
     setCartItems(prevItems => {
       // Create a unique ID for the cart item, including variant info if it exists
       const cartItemId = (product.variants && product.variants.length > 0 && product.name.includes('-')) 
@@ -87,13 +87,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         );
       }
       
-      // Ensure customFieldData is initialized as an empty object for new items.
       const productToAdd = { 
         ...product, 
         id: cartItemId, 
         quantity, 
-        customFieldData: {},
-        category: product.category, // Make sure category object is passed
       };
 
       return [...prevItems, productToAdd];

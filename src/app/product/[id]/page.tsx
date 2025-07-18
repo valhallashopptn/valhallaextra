@@ -2,12 +2,11 @@
 
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { getProductById } from '@/services/productService';
-import { getCategoryById } from '@/services/categoryService';
 import { getReviewsForProduct, addReview } from '@/services/reviewService';
-import type { Product, Review, Category, ProductVariant } from '@/lib/types';
+import type { Product, Review, Category, ProductVariant, CustomField } from '@/lib/types';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -26,6 +25,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+
 
 function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md' }) {
   const starClasses = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
@@ -41,13 +42,83 @@ function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md
   );
 }
 
+function CustomFieldInput({ field, value, onChange }: { field: CustomField; value: string; onChange: (fieldLabel: string, value: string) => void; }) {
+  const [error, setError] = useState('');
+
+  const validate = useCallback((val: string) => {
+    if (!val) {
+      setError('This field is required.');
+      return false;
+    }
+    if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+      setError('Please enter a valid email.');
+      return false;
+    }
+    if (field.type === 'number' && !/^\d+$/.test(val)) {
+      setError('Please enter a valid number.');
+      return false;
+    }
+    setError('');
+    return true;
+  }, [field.type]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    validate(newValue);
+    onChange(field.label, newValue);
+  };
+  
+  useEffect(() => {
+    validate(value);
+  }, [value, validate]);
+
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={field.id}>{field.label}</Label>
+      <Input
+        id={field.id}
+        type={field.type}
+        value={value}
+        onChange={handleChange}
+        placeholder={`Enter ${field.label.toLowerCase()}`}
+        className={error ? 'border-destructive' : ''}
+      />
+      {error && <p className="text-sm text-destructive">{error}</p>}
+    </div>
+  );
+}
+
+const RequiredInformationFields = ({ product, customFieldData, onCustomFieldChange }: { product: Product; customFieldData: Record<string, string>; onCustomFieldChange: (fieldLabel: string, value: string) => void;}) => {
+  if (!product.customFields || product.customFields.length === 0) {
+    return null;
+  }
+  
+  return (
+    <div className="space-y-6 mt-6">
+        <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Required Information</h3>
+            <p className="text-sm text-muted-foreground">Please provide the following details.</p>
+        </div>
+        <div className="space-y-4">
+            {product.customFields.map(field => (
+            <CustomFieldInput
+                key={field.id}
+                field={field}
+                value={customFieldData[field.label] || ''}
+                onChange={onCustomFieldChange}
+            />
+            ))}
+        </div>
+    </div>
+  );
+};
+
 
 export default function ProductDetailPage() {
   const { id } = useParams();
   const { user } = useAuth();
   const { toast } = useToast();
   const [product, setProduct] = useState<Product | null>(null);
-  const [category, setCategory] = useState<Category | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
@@ -55,6 +126,7 @@ export default function ProductDetailPage() {
   const [isAdded, setIsAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
+  const [customFieldData, setCustomFieldData] = useState<Record<string, string>>({});
 
   const sortedVariants = useMemo(() => {
     if (!product || !product.variants) return [];
@@ -74,11 +146,7 @@ export default function ProductDetailPage() {
             if (variants.length > 0) {
               setSelectedVariantId(variants[0].id);
             }
-            const [categoryData, reviewsData] = await Promise.all([
-                getCategoryById(productData.categoryId),
-                getReviewsForProduct(id)
-            ]);
-            setCategory(categoryData);
+            const reviewsData = await getReviewsForProduct(id);
             setReviews(reviewsData);
         }
       } catch (error) {
@@ -97,13 +165,43 @@ export default function ProductDetailPage() {
     return product.variants.find(v => v.id === selectedVariantId);
   }, [product, selectedVariantId]);
   
+  const handleCustomFieldChange = (fieldLabel: string, value: string) => {
+    setCustomFieldData(prev => ({
+      ...prev,
+      [fieldLabel]: value,
+    }));
+  };
+  
+  const areAllCustomFieldsValid = useMemo(() => {
+    if (!product?.customFields || product.customFields.length === 0) {
+      return true;
+    }
+    return product.customFields.every(field => {
+      const value = customFieldData[field.label];
+      if (!value) return false;
+      if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return false;
+      if (field.type === 'number' && !/^\d+$/.test(value)) return false;
+      return true;
+    });
+  }, [product, customFieldData]);
+  
   const handleAddToCart = () => {
     if (!product || product.stock === 0) return;
     
+    if (!areAllCustomFieldsValid) {
+      toast({
+        title: 'Information Required',
+        description: 'Please fill out all required fields correctly.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const itemToAdd = {
         ...product,
         name: selectedVariant ? `${product.name} - ${selectedVariant.name}` : product.name,
         price: selectedVariant ? selectedVariant.price : product.price,
+        customFieldData: customFieldData,
     };
 
     addToCart(itemToAdd, quantity);
@@ -226,6 +324,9 @@ export default function ProductDetailPage() {
                     data-ai-hint={product.categoryName}
                     />
                 </div>
+                <div className="hidden md:block">
+                  <RequiredInformationFields product={product} customFieldData={customFieldData} onCustomFieldChange={handleCustomFieldChange} />
+                </div>
             </div>
 
             <div className="space-y-6">
@@ -317,6 +418,9 @@ export default function ProductDetailPage() {
                         )}
                     </Button>
                 </div>
+                 <div className="block md:hidden">
+                  <RequiredInformationFields product={product} customFieldData={customFieldData} onCustomFieldChange={handleCustomFieldChange} />
+                </div>
             </div>
         </div>
 
@@ -384,5 +488,3 @@ export default function ProductDetailPage() {
     </PageWrapper>
   );
 }
-
-    

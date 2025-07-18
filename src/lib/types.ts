@@ -2,12 +2,6 @@
 import type { User as FirebaseUser } from 'firebase/auth';
 import type { Timestamp } from 'firebase/firestore';
 
-export interface CustomField {
-  id: string;
-  label: string;
-  type: 'text' | 'number' | 'email';
-}
-
 export interface Category {
   id: string;
   name: string;
@@ -15,7 +9,6 @@ export interface Category {
   imageUrl: string;
   backImageUrl: string;
   createdAt: Timestamp;
-  customFields?: CustomField[];
 }
 
 export interface ProductTab {
@@ -30,6 +23,12 @@ export interface ProductVariant {
   price: number;
 }
 
+export interface CustomField {
+  id: string;
+  label: string;
+  type: 'text' | 'number' | 'email';
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -42,6 +41,7 @@ export interface Product {
   category?: Category;
   tabs?: ProductTab[];
   variants?: ProductVariant[];
+  customFields?: CustomField[];
   dataAiHint?: string;
 }
 

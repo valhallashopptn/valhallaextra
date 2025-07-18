@@ -27,6 +27,14 @@ const productVariantSchema = z.object({
   price: z.coerce.number().min(0.01, { message: 'Price must be a positive number.' }),
 });
 
+const customFieldSchema = z.object({
+  id: z.string().default(() => `field_${crypto.randomUUID()}`),
+  label: z.string().min(2, { message: 'Label must be at least 2 characters.' }),
+  type: z.enum(['text', 'number', 'email'], {
+    errorMap: () => ({ message: 'Please select a valid field type.' }),
+  }),
+});
+
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
@@ -36,6 +44,7 @@ const formSchema = z.object({
   imageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/600x400.png'),
   tabs: z.array(productTabSchema).optional(),
   variants: z.array(productVariantSchema).optional(),
+  customFields: z.array(customFieldSchema).optional(),
 });
 
 type ProductFormData = z.infer<typeof formSchema>;
@@ -59,6 +68,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
       imageUrl: 'https://placehold.co/600x400.png',
       tabs: [],
       variants: [],
+      customFields: [],
     },
   });
   
@@ -72,6 +82,11 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
     name: "variants",
   });
 
+  const { fields: customFields, append: appendCustomField, remove: removeCustomField } = useFieldArray({
+    control: form.control,
+    name: 'customFields',
+  });
+
   useEffect(() => {
     if (initialData) {
       form.reset({
@@ -80,6 +95,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
         stock: Number(initialData.stock),
         tabs: initialData.tabs || [],
         variants: initialData.variants || [],
+        customFields: initialData.customFields || [],
       });
     } else {
         form.reset({
@@ -91,6 +107,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
             imageUrl: 'https://placehold.co/600x400.png',
             tabs: [],
             variants: [],
+            customFields: [],
         });
     }
   }, [initialData, form]);
@@ -254,6 +271,67 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add Variant
               </Button>
+            </div>
+            
+            <Separator />
+
+            <div>
+                <h3 className="text-lg font-medium mb-2">Custom Fields</h3>
+                <p className="text-sm text-muted-foreground mb-2">Add custom fields for users to fill out on the product page (e.g., Player ID, Server Name).</p>
+                <div className="space-y-4">
+                    {customFields.map((field, index) => (
+                        <div key={field.id} className="flex items-end gap-2 p-3 border rounded-md">
+                            <FormField
+                                control={form.control}
+                                name={`customFields.${index}.label`}
+                                render={({ field }) => (
+                                    <FormItem className="flex-grow">
+                                        <FormLabel>Field Label</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="e.g., Player ID" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name={`customFields.${index}.type`}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Field Type</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select type" />
+                                            </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="text">Text</SelectItem>
+                                                <SelectItem value="number">Number</SelectItem>
+                                                <SelectItem value="email">Email</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button type="button" variant="destructive" size="icon" onClick={() => removeCustomField(index)}>
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    ))}
+                </div>
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={() => appendCustomField({ id: `field_${crypto.randomUUID()}`, label: '', type: 'text' })}
+                    >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add Field
+                </Button>
             </div>
             
             <Separator />

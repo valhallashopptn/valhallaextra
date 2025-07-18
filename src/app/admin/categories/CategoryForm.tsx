@@ -15,20 +15,11 @@ import { PlusCircle, Trash2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-const customFieldSchema = z.object({
-  id: z.string().default(() => `field_${crypto.randomUUID()}`),
-  label: z.string().min(2, { message: 'Label must be at least 2 characters.' }),
-  type: z.enum(['text', 'number', 'email'], {
-    errorMap: () => ({ message: 'Please select a valid field type.' }),
-  }),
-});
-
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Category name must be at least 2 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
   imageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/300x200.png'),
   backImageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/300x200.png'),
-  customFields: z.array(customFieldSchema).optional(),
 });
 
 type CategoryFormData = z.infer<typeof formSchema>;
@@ -47,20 +38,13 @@ export function CategoryForm({ onSubmit, initialData, onCancel }: CategoryFormPr
       description: '',
       imageUrl: 'https://placehold.co/300x200.png',
       backImageUrl: 'https://placehold.co/300x200.png',
-      customFields: [],
     },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: 'customFields',
   });
 
   useEffect(() => {
     if (initialData) {
       form.reset({
         ...initialData,
-        customFields: initialData.customFields || [],
       });
     } else {
       form.reset({
@@ -68,7 +52,6 @@ export function CategoryForm({ onSubmit, initialData, onCancel }: CategoryFormPr
         description: '',
         imageUrl: 'https://placehold.co/300x200.png',
         backImageUrl: 'https://placehold.co/300x200.png',
-        customFields: [],
       });
     }
   }, [initialData, form]);
@@ -132,66 +115,6 @@ export function CategoryForm({ onSubmit, initialData, onCancel }: CategoryFormPr
                 </FormItem>
               )}
             />
-            
-            <Separator />
-            
-            <div>
-                <h3 className="text-lg font-medium mb-2">Custom Fields</h3>
-                <div className="space-y-4">
-                    {fields.map((field, index) => (
-                        <div key={field.id} className="flex items-end gap-2 p-3 border rounded-md">
-                            <FormField
-                                control={form.control}
-                                name={`customFields.${index}.label`}
-                                render={({ field }) => (
-                                    <FormItem className="flex-grow">
-                                        <FormLabel>Field Label</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="e.g., Player ID" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name={`customFields.${index}.type`}
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Field Type</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select type" />
-                                            </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="text">Text</SelectItem>
-                                                <SelectItem value="number">Number</SelectItem>
-                                                <SelectItem value="email">Email</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    ))}
-                </div>
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="mt-4"
-                    onClick={() => append({ id: `field_${crypto.randomUUID()}`, label: '', type: 'text' })}
-                    >
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Add Field
-                </Button>
-            </div>
           </div>
         </ScrollArea>
         <div className="flex justify-end gap-2 pt-6">

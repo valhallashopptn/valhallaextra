@@ -24,16 +24,11 @@ export function ProductCard({ product }: ProductCardProps) {
   const [isAdded, setIsAdded] = useState(false);
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
-  const [category, setCategory] = useState<Category | null>(null);
   const [isLoadingCategory, setIsLoadingCategory] = useState(true);
 
   useEffect(() => {
     if (product.categoryId) {
-      setIsLoadingCategory(true);
-      getCategoryById(product.categoryId).then(cat => {
-        setCategory(cat);
-        setIsLoadingCategory(false);
-      });
+      setIsLoadingCategory(false);
     } else {
         setIsLoadingCategory(false);
     }
@@ -43,9 +38,8 @@ export function ProductCard({ product }: ProductCardProps) {
     e.preventDefault(); // Prevent link navigation when clicking the button
     
     // If there are variants, add the cheapest one by default
-    let itemToAdd: Product & { category?: Category } = { 
+    let itemToAdd: Product = { 
         ...product, 
-        category: category || undefined, 
         dataAiHint: product.dataAiHint || product.categoryName 
     };
 
@@ -134,5 +128,3 @@ export function ProductCard({ product }: ProductCardProps) {
     </Link>
   );
 }
-
-    

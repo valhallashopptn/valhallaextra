@@ -166,12 +166,12 @@ export default function CheckoutPage() {
   }, [isFullPaymentByWallet]);
 
   const itemsWithCustomFields = useMemo(() => {
-    return cartItems.filter(item => item.category?.customFields && item.category.customFields.length > 0);
+    return cartItems.filter(item => item.customFields && item.customFields.length > 0);
   }, [cartItems]);
 
   const areAllCustomFieldsValid = useMemo(() => {
     return itemsWithCustomFields.every(item => 
-        item.category?.customFields?.every(field => {
+        item.customFields?.every(field => {
             const value = item.customFieldData?.[field.label];
             if (!value) return false;
              if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return false;
@@ -277,7 +277,7 @@ export default function CheckoutPage() {
                         {itemsWithCustomFields.map(item => (
                             <div key={item.id} className="p-4 border rounded-lg space-y-4">
                                 <h3 className="font-semibold">{item.name}</h3>
-                                {item.category?.customFields?.map(field => (
+                                {item.customFields?.map(field => (
                                     <CustomFieldInput 
                                         key={field.id}
                                         item={item}
@@ -430,5 +430,3 @@ export default function CheckoutPage() {
     </PageWrapper>
   );
 }
-
-    
