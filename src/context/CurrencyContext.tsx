@@ -42,7 +42,9 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     const formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: targetCurrency,
-        currencyDisplay: 'code' // Use 'code' to ensure "TND" is displayed instead of a symbol
+        currencyDisplay: 'code', // Use 'code' to ensure "TND" is displayed instead of a symbol
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
     });
 
     // Remove the currency code from the start if Intl.NumberFormat adds it (some locales do)
