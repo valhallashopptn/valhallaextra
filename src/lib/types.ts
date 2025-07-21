@@ -38,6 +38,7 @@ export interface Product {
   stock: number;
   categoryId: string;
   categoryName: string;
+  deliveryType: 'standard' | 'manual_delivery' | 'automatic_delivery';
   category?: Category;
   tabs?: ProductTab[];
   variants?: ProductVariant[];
@@ -104,3 +105,18 @@ export interface Review {
     comment: string;
     createdAt: Timestamp;
 }
+
+export interface DigitalAsset {
+  id: string;
+  productId: string;
+  productName?: string; // Optional, for display purposes
+  type: string;
+  data: string;
+  extraInfo?: string;
+  status: 'available' | 'delivered';
+  createdAt: Timestamp;
+  deliveredAt?: Timestamp;
+  orderId?: string;
+}
+
+    

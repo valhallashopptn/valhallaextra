@@ -1,6 +1,6 @@
 
 import { db } from '@/lib/firebase';
-import type { Order, CartItem, PaymentMethod, DeliveredAssetInfo } from '@/lib/types';
+import type { Order, CartItem, PaymentMethod, DeliveredAssetInfo, Product, DigitalAsset } from '@/lib/types';
 import {
   collection,
   addDoc,
@@ -13,11 +13,14 @@ import {
   updateDoc,
   runTransaction,
   increment,
-  limit
+  limit,
+  getDoc
 } from 'firebase/firestore';
 import { debitFromWallet } from './walletService';
 
 const ordersCollectionRef = collection(db, 'orders');
+const productsCollectionRef = collection(db, 'products');
+const digitalAssetsCollectionRef = collection(db, 'digital_assets');
 
 // Add a new order
 export const addOrder = async (orderData: {
@@ -104,3 +107,71 @@ export const deliverOrderManually = async (orderId: string, deliveryData: Delive
         status: 'completed'
     });
 };
+
+// Attempt to automatically deliver an order
+export const attemptAutoDelivery = async (orderId: string): Promise<{ delivered: boolean, message: string }> => {
+    const orderDocRef = doc(db, 'orders', orderId);
+
+    return await runTransaction(db, async (transaction) => {
+        const orderSnap = await transaction.get(orderDocRef);
+        if (!orderSnap.exists()) {
+            throw new Error("Order not found.");
+        }
+        const orderData = orderSnap.data() as Order;
+
+        // Check if all items in order are automatic delivery type
+        const autoDeliveryItems = orderData.items.filter(item => item.deliveryType === 'automatic_delivery');
+        
+        if (autoDeliveryItems.length === 0) {
+            return { delivered: false, message: "No items for automatic delivery in this order." };
+        }
+        
+        if (orderData.status !== 'paid') {
+            return { delivered: false, message: "Order is not in 'paid' status." };
+        }
+
+        // We'll handle the first auto-delivery item. A more complex system could handle multiple.
+        // For now, we assume one auto-deliverable product per order for simplicity.
+        const itemToDeliver = autoDeliveryItems[0];
+        
+        // Find an available digital asset for this product
+        const assetsQuery = query(
+            digitalAssetsCollectionRef,
+            where('productId', '==', itemToDeliver.id),
+            where('status', '==', 'available'),
+            limit(1)
+        );
+        const assetsSnap = await getDocs(assetsQuery); // getDocs can be used outside transaction if read-only
+
+        if (assetsSnap.empty) {
+            throw new Error(`Out of stock for product: ${itemToDeliver.name}. Please deliver manually.`);
+        }
+
+        const assetDoc = assetsSnap.docs[0];
+        const assetData = assetDoc.data() as DigitalAsset;
+        
+        // Prepare delivery info
+        const deliveredAsset: DeliveredAssetInfo = {
+            type: assetData.type,
+            data: assetData.data,
+            extraInfo: assetData.extraInfo || '',
+        };
+
+        // Update the asset to mark as delivered
+        transaction.update(assetDoc.ref, {
+            status: 'delivered',
+            deliveredAt: serverTimestamp(),
+            orderId: orderId,
+        });
+
+        // Update the order with the delivery info and set status to completed
+        transaction.update(orderDocRef, {
+            deliveredAsset: deliveredAsset,
+            status: 'completed'
+        });
+
+        return { delivered: true, message: "Order delivered successfully." };
+    });
+};
+
+    

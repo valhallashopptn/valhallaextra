@@ -42,7 +42,7 @@ const formSchema = z.object({
   stock: z.coerce.number().int().min(0, { message: 'Stock must be a non-negative integer.' }),
   categoryId: z.string().min(1, { message: 'Please select a category.' }),
   imageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/600x400.png'),
-  deliveryType: z.enum(['standard', 'digital_asset']).default('standard'),
+  deliveryType: z.enum(['standard', 'manual_delivery', 'automatic_delivery']).default('standard'),
   tabs: z.array(productTabSchema).optional(),
   variants: z.array(productVariantSchema).optional(),
   customFields: z.array(customFieldSchema).optional(),
@@ -192,8 +192,9 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="standard">Standard</SelectItem>
-                        <SelectItem value="digital_asset">Digital Asset (Key/Account)</SelectItem>
+                        <SelectItem value="standard">Standard (No Delivery)</SelectItem>
+                        <SelectItem value="manual_delivery">Digital Asset (Manual)</SelectItem>
+                        <SelectItem value="automatic_delivery">Digital Asset (Automatic)</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -431,3 +432,5 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
     </Form>
   );
 }
+
+    

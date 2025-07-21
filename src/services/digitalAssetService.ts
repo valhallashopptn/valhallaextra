@@ -60,3 +60,5 @@ export const deleteDigitalAsset = async (id: string) => {
   const assetDoc = doc(db, 'digital_assets', id);
   return await deleteDoc(assetDoc);
 };
+
+    

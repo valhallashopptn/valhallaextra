@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getAllOrders, updateOrderStatus, deliverOrderManually } from '@/services/orderService';
+import { getAllOrders, updateOrderStatus, deliverOrderManually, attemptAutoDelivery } from '@/services/orderService';
 import { refundToWallet } from '@/services/walletService';
 import type { Order } from '@/lib/types';
 import {
@@ -22,7 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useCurrency } from '@/context/CurrencyContext';
-import { KeySquare, Truck } from 'lucide-react';
+import { KeySquare, Truck, Bot } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -135,7 +135,8 @@ export default function OrdersPage() {
     fetchOrders();
   }, [fetchOrders]);
 
-  const handleStatusChange = async (orderId: string, status: OrderStatus, userId: string, total: number, currency: 'TND' | 'USD') => {
+  const handleStatusChange = async (order: Order, status: OrderStatus) => {
+    const { id: orderId, userId, total, currency } = order;
     try {
       if (status === 'refunded') {
         const refundAmount = total; 
@@ -144,6 +145,9 @@ export default function OrdersPage() {
       } else {
         await updateOrderStatus(orderId, status);
         toast({ title: 'Success', description: 'Order status updated successfully.' });
+        if (status === 'paid') {
+            await handleAutoDelivery(order);
+        }
       }
       fetchOrders();
     } catch (error: any) {
@@ -151,6 +155,24 @@ export default function OrdersPage() {
       toast({ title: 'Error', description: error.message || 'Failed to update order status.', variant: 'destructive' });
     }
   };
+
+  const handleAutoDelivery = async (order: Order) => {
+     try {
+        const result = await attemptAutoDelivery(order.id);
+        if (result.delivered) {
+            toast({
+                title: 'Auto-Delivery Successful',
+                description: `Order ${order.id.substring(0,8)} was automatically delivered.`,
+            });
+        }
+     } catch(error: any) {
+        toast({
+            title: 'Auto-Delivery Failed',
+            description: error.message || 'An unexpected error occurred during auto-delivery.',
+            variant: 'destructive',
+        });
+     }
+  }
   
   const handleDeliverySubmit = async (data: DeliveryFormData) => {
     if (!deliveringOrder) return;
@@ -234,7 +256,8 @@ export default function OrdersPage() {
                     <TableCell>
                       <div className="flex flex-wrap gap-1 max-w-xs">
                         {order.items.map(item => (
-                          <Badge key={item.id} variant="secondary">
+                          <Badge key={item.id} variant={item.deliveryType === 'automatic_delivery' ? 'default' : 'secondary'}>
+                            {item.deliveryType === 'automatic_delivery' && <Bot className="h-3 w-3 mr-1"/>}
                             {item.name} (x{item.quantity})
                           </Badge>
                         ))}
@@ -258,7 +281,7 @@ export default function OrdersPage() {
                                 // Let the alert dialog handle the action
                                 return;
                             }
-                            handleStatusChange(order.id, value, order.userId, order.total, order.currency)
+                            handleStatusChange(order, value)
                         }}
                       >
                         <SelectTrigger className="w-[120px] inline-flex">
@@ -284,7 +307,7 @@ export default function OrdersPage() {
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleStatusChange(order.id, 'refunded', order.userId, order.total, order.currency)}>
+                                  <AlertDialogAction onClick={() => handleStatusChange(order, 'refunded')}>
                                       Confirm Refund
                                   </AlertDialogAction>
                                   </AlertDialogFooter>
@@ -332,3 +355,5 @@ export default function OrdersPage() {
     </>
   );
 }
+
+    

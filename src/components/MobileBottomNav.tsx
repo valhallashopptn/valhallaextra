@@ -3,15 +3,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, Package, ShoppingCart, Tag, Palette, CreditCard } from 'lucide-react';
+import { LayoutGrid, Package, ShoppingCart, Warehouse, Palette, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/admin', icon: LayoutGrid, label: 'Dashboard' },
   { href: '/admin/products', icon: Package, label: 'Products' },
+  { href: '/admin/stock', icon: Warehouse, label: 'Stock' },
   { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
   { href: '/admin/appearance', icon: Palette, label: 'Appearance' },
-  { href: '/admin/payments', icon: CreditCard, label: 'Payments' },
 ];
 
 export function MobileBottomNav() {
@@ -44,3 +44,5 @@ export function MobileBottomNav() {
     </div>
   );
 }
+
+    
