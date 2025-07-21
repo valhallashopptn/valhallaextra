@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { getProducts, addProduct, updateProduct } from '@/services/productService';
 import { getCategories } from '@/services/categoryService';
 import type { Product, Category } from '@/lib/types';
-import { PlusCircle, Edit, KeySquare } from 'lucide-react';
+import { PlusCircle, Edit } from 'lucide-react';
 import { ProductForm } from '../ProductForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
@@ -104,7 +104,6 @@ export default function ProductsPage() {
                   <TableHead>Category</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Stock</TableHead>
-                  <TableHead>Delivery Type</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -112,7 +111,7 @@ export default function ProductsPage() {
                 {loading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                      <TableCell colSpan={7} className="text-center">Loading...</TableCell>
+                      <TableCell colSpan={6} className="text-center">Loading...</TableCell>
                     </TableRow>
                   ))
                 ) : products.map(product => (
@@ -126,22 +125,10 @@ export default function ProductsPage() {
                     </TableCell>
                     <TableCell>${product.price.toFixed(2)}</TableCell>
                     <TableCell>{product.stock}</TableCell>
-                    <TableCell>
-                       <Badge variant={product.deliveryType === 'digital_asset' ? "default" : "outline"}>
-                        {product.deliveryType === 'digital_asset' ? "Digital Asset" : "Standard"}
-                      </Badge>
-                    </TableCell>
                     <TableCell className="text-right space-x-1">
                        <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}>
                           <Edit className="h-4 w-4" />
                        </Button>
-                        {product.deliveryType === 'digital_asset' && (
-                          <Button variant="ghost" size="icon" asChild>
-                            <Link href={`/admin/digital-assets?productId=${product.id}`}>
-                                <KeySquare className="h-4 w-4" />
-                            </Link>
-                          </Button>
-                        )}
                     </TableCell>
                   </TableRow>
                 ))}

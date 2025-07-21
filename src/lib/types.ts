@@ -43,7 +43,6 @@ export interface Product {
   variants?: ProductVariant[];
   customFields?: CustomField[];
   dataAiHint?: string;
-  deliveryType?: 'standard' | 'digital_asset';
 }
 
 export interface CartItem extends Product {
@@ -58,6 +57,12 @@ export interface PaymentMethod {
   taxRate: number; // Stored as a percentage, e.g., 5 for 5%
   iconUrl?: string;
   createdAt: Timestamp;
+}
+
+export interface DeliveredAssetInfo {
+  type: string;
+  data: string;
+  extraInfo?: string;
 }
 
 export interface Order {
@@ -76,7 +81,7 @@ export interface Order {
     instructions: string;
   };
   createdAt: Timestamp;
-  deliveredAssetId?: string;
+  deliveredAsset?: DeliveredAssetInfo;
 }
 
 export type User = FirebaseUser;
@@ -98,21 +103,4 @@ export interface Review {
     rating: number;
     comment: string;
     createdAt: Timestamp;
-}
-
-export interface DigitalAsset {
-  id: string;
-  productId: string;
-  productName: string;
-  type: 'key' | 'account';
-  data: {
-    key?: string;
-    username?: string;
-    password?: string;
-    extraInfo?: string;
-  };
-  status: 'available' | 'claimed';
-  orderId?: string;
-  userId?: string;
-  createdAt: Timestamp;
 }

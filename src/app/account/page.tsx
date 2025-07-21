@@ -8,8 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { getOrdersForUser } from '@/services/orderService';
 import { getUserWalletBalance } from '@/services/walletService';
-import { getDigitalAssetById } from '@/services/digitalAssetService';
-import type { Order, DigitalAsset } from '@/lib/types';
+import type { Order, DeliveredAssetInfo } from '@/lib/types';
 import {
   Accordion,
   AccordionContent,
@@ -17,6 +16,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import Image from 'next/image';
+import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
@@ -26,61 +26,23 @@ import { useCurrency } from '@/context/CurrencyContext';
 
 type OrderStatus = 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid';
 
-function DeliveredAsset({ assetId }: { assetId: string }) {
-    const [asset, setAsset] = useState<DigitalAsset | null>(null);
-    const [loading, setLoading] = useState(true);
+function DeliveredAsset({ asset }: { asset: DeliveredAssetInfo }) {
     const [showPassword, setShowPassword] = useState(false);
-
-    useEffect(() => {
-        const fetchAsset = async () => {
-            setLoading(true);
-            const fetchedAsset = await getDigitalAssetById(assetId);
-            setAsset(fetchedAsset);
-            setLoading(false);
-        };
-        fetchAsset();
-    }, [assetId]);
-
-    if (loading) return <div className="text-sm text-muted-foreground">Loading asset...</div>;
-    if (!asset) return <div className="text-sm text-destructive">Could not load asset. Please contact support.</div>;
 
     return (
         <Card className="mt-4 bg-muted/50">
             <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2"><KeySquare className="h-5 w-5" /> Your Digital Asset</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2"><KeySquare className="h-5 w-5" /> Your Delivered Item: {asset.type}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
-                {asset.type === 'key' && (
-                     <div>
-                        <Label className="text-xs font-semibold">Key</Label>
-                        <p className="font-mono bg-background p-2 rounded-md break-all">{asset.data.key}</p>
-                    </div>
-                )}
-                {asset.type === 'account' && (
-                    <>
-                        {asset.data.username && (
-                             <div>
-                                <Label className="text-xs font-semibold">Username / Email</Label>
-                                <p className="font-mono bg-background p-2 rounded-md break-all">{asset.data.username}</p>
-                            </div>
-                        )}
-                        {asset.data.password && (
-                            <div>
-                                <Label className="text-xs font-semibold">Password</Label>
-                                <div className="flex items-center gap-2 font-mono bg-background p-2 rounded-md">
-                                    <p className="flex-grow break-all">{showPassword ? asset.data.password : '••••••••••••'}</p>
-                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowPassword(!showPassword)}>
-                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                    </Button>
-                                </div>
-                            </div>
-                        )}
-                    </>
-                )}
-                 {asset.data.extraInfo && (
+                <div>
+                    <Label className="text-xs font-semibold">Details</Label>
+                    <p className="font-mono bg-background p-2 rounded-md break-all whitespace-pre-wrap">{asset.data}</p>
+                </div>
+                {asset.extraInfo && (
                      <div>
                         <Label className="text-xs font-semibold">Additional Information</Label>
-                        <p className="whitespace-pre-wrap p-2">{asset.data.extraInfo}</p>
+                        <p className="whitespace-pre-wrap p-2">{asset.extraInfo}</p>
                     </div>
                 )}
             </CardContent>
@@ -150,13 +112,13 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
                     <h4 className="font-semibold">Payment Method: {order.paymentMethod?.name || 'N/A'}</h4>
                     <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{order.paymentMethod?.instructions}</p>
                 </div>
-                {order.deliveredAssetId && (
+                {order.deliveredAsset && (
                      <>
                         <Separator />
                         <Button onClick={() => setIsAssetVisible(!isAssetVisible)} variant="outline" size="sm">
-                            {isAssetVisible ? "Hide My Asset" : "View My Asset"}
+                            {isAssetVisible ? "Hide My Item" : "View My Item"}
                         </Button>
-                        {isAssetVisible && <DeliveredAsset assetId={order.deliveredAssetId} />}
+                        {isAssetVisible && <DeliveredAsset asset={order.deliveredAsset} />}
                      </>
                 )}
                 </div>
