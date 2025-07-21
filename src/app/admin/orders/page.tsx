@@ -68,9 +68,9 @@ export default function OrdersPage() {
         toast({ title: 'Success', description: 'Order status updated successfully.' });
       }
       fetchOrders();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to update order status:", error);
-      toast({ title: 'Error', description: 'Failed to update order status.', variant: 'destructive' });
+      toast({ title: 'Error', description: error.message || 'Failed to update order status.', variant: 'destructive' });
     }
   };
   

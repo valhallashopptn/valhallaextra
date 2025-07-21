@@ -43,6 +43,7 @@ export interface Product {
   variants?: ProductVariant[];
   customFields?: CustomField[];
   dataAiHint?: string;
+  deliveryType?: 'standard' | 'digital_asset';
 }
 
 export interface CartItem extends Product {
@@ -75,6 +76,7 @@ export interface Order {
     instructions: string;
   };
   createdAt: Timestamp;
+  deliveredAssetId?: string;
 }
 
 export type User = FirebaseUser;
@@ -96,4 +98,21 @@ export interface Review {
     rating: number;
     comment: string;
     createdAt: Timestamp;
+}
+
+export interface DigitalAsset {
+  id: string;
+  productId: string;
+  productName: string;
+  type: 'key' | 'account';
+  data: {
+    key?: string;
+    username?: string;
+    password?: string;
+    extraInfo?: string;
+  };
+  status: 'available' | 'claimed';
+  orderId?: string;
+  userId?: string;
+  createdAt: Timestamp;
 }

@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { getOrdersForUser } from '@/services/orderService';
 import { getUserWalletBalance } from '@/services/walletService';
-import type { Order } from '@/lib/types';
+import { getDigitalAssetById } from '@/services/digitalAssetService';
+import type { Order, DigitalAsset } from '@/lib/types';
 import {
   Accordion,
   AccordionContent,
@@ -20,10 +21,149 @@ import { Separator } from '@/components/ui/separator';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Wallet } from 'lucide-react';
+import { Wallet, KeySquare, Eye, EyeOff } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 
 type OrderStatus = 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid';
+
+function DeliveredAsset({ assetId }: { assetId: string }) {
+    const [asset, setAsset] = useState<DigitalAsset | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [showPassword, setShowPassword] = useState(false);
+
+    useEffect(() => {
+        const fetchAsset = async () => {
+            setLoading(true);
+            const fetchedAsset = await getDigitalAssetById(assetId);
+            setAsset(fetchedAsset);
+            setLoading(false);
+        };
+        fetchAsset();
+    }, [assetId]);
+
+    if (loading) return <div className="text-sm text-muted-foreground">Loading asset...</div>;
+    if (!asset) return <div className="text-sm text-destructive">Could not load asset. Please contact support.</div>;
+
+    return (
+        <Card className="mt-4 bg-muted/50">
+            <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2"><KeySquare className="h-5 w-5" /> Your Digital Asset</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+                {asset.type === 'key' && (
+                     <div>
+                        <Label className="text-xs font-semibold">Key</Label>
+                        <p className="font-mono bg-background p-2 rounded-md break-all">{asset.data.key}</p>
+                    </div>
+                )}
+                {asset.type === 'account' && (
+                    <>
+                        {asset.data.username && (
+                             <div>
+                                <Label className="text-xs font-semibold">Username / Email</Label>
+                                <p className="font-mono bg-background p-2 rounded-md break-all">{asset.data.username}</p>
+                            </div>
+                        )}
+                        {asset.data.password && (
+                            <div>
+                                <Label className="text-xs font-semibold">Password</Label>
+                                <div className="flex items-center gap-2 font-mono bg-background p-2 rounded-md">
+                                    <p className="flex-grow break-all">{showPassword ? asset.data.password : '••••••••••••'}</p>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowPassword(!showPassword)}>
+                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
+                 {asset.data.extraInfo && (
+                     <div>
+                        <Label className="text-xs font-semibold">Additional Information</Label>
+                        <p className="whitespace-pre-wrap p-2">{asset.data.extraInfo}</p>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    )
+}
+
+function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadgeClass }: { order: Order, formatOrderPrice: any, formatItemPrice: any, getStatusBadgeClass: any }) {
+    const [isAssetVisible, setIsAssetVisible] = useState(false);
+
+    return (
+        <AccordionItem value={order.id} key={order.id}>
+            <AccordionTrigger>
+                <div className="flex justify-between items-center w-full pr-4">
+                <span>Order #{order.id.substring(0, 8)}</span>
+                <span className="text-muted-foreground">{new Date(order.createdAt.toDate()).toLocaleDateString()}</span>
+                <Badge variant={'default'} className={cn('capitalize', getStatusBadgeClass(order.status))}>
+                    {order.status}
+                </Badge>
+                <span className="font-bold text-primary">{formatOrderPrice(order.total, order.currency)}</span>
+                </div>
+            </AccordionTrigger>
+            <AccordionContent>
+                <div className="space-y-4 pt-2">
+                {order.items.map((item, index) => (
+                    <div key={item.id + index} className="flex items-center space-x-4">
+                    <Image src={item.imageUrl} alt={item.name} width={64} height={64} className="rounded-md object-cover" data-ai-hint={item.dataAiHint} />
+                    <div className="flex-grow">
+                        <p className="font-semibold">{item.name}</p>
+                        <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
+                        {item.customFieldData && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                            {Object.entries(item.customFieldData).map(([key, value]) => (
+                            <div key={key}>
+                                <span className="font-medium">{key}:</span> {value}
+                            </div>
+                            ))}
+                        </div>
+                        )}
+                    </div>
+                    <p className="font-semibold">{formatItemPrice(item.price, item.quantity, order.currency)}</p>
+                    </div>
+                ))}
+                <Separator />
+                <div className="text-sm text-muted-foreground space-y-2">
+                    <div className="flex justify-between">
+                        <span>Subtotal:</span>
+                        <span>{formatOrderPrice(order.subtotal, order.currency)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span>Tax:</span>
+                        <span>{formatOrderPrice(order.tax, order.currency)}</span>
+                    </div>
+                    {order.walletDeduction > 0 && (
+                            <div className="flex justify-between text-primary">
+                            <span>Wallet Credit:</span>
+                            <span>-{formatOrderPrice(order.walletDeduction, order.currency)}</span>
+                        </div>
+                    )}
+                    <div className="flex justify-between font-bold text-foreground">
+                        <span>Total Paid:</span>
+                        <span>{formatOrderPrice(order.total, order.currency)}</span>
+                    </div>
+                </div>
+                <Separator />
+                <div>
+                    <h4 className="font-semibold">Payment Method: {order.paymentMethod?.name || 'N/A'}</h4>
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{order.paymentMethod?.instructions}</p>
+                </div>
+                {order.deliveredAssetId && (
+                     <>
+                        <Separator />
+                        <Button onClick={() => setIsAssetVisible(!isAssetVisible)} variant="outline" size="sm">
+                            {isAssetVisible ? "Hide My Asset" : "View My Asset"}
+                        </Button>
+                        {isAssetVisible && <DeliveredAsset assetId={order.deliveredAssetId} />}
+                     </>
+                )}
+                </div>
+            </AccordionContent>
+        </AccordionItem>
+    );
+}
 
 export default function AccountPage() {
   const { user, loading, logOut } = useAuth();
@@ -146,67 +286,13 @@ export default function AccountPage() {
                 ) : orders.length > 0 ? (
                   <Accordion type="single" collapsible className="w-full">
                     {orders.map(order => (
-                      <AccordionItem value={order.id} key={order.id}>
-                        <AccordionTrigger>
-                          <div className="flex justify-between items-center w-full pr-4">
-                            <span>Order #{order.id.substring(0, 8)}</span>
-                            <span className="text-muted-foreground">{new Date(order.createdAt.toDate()).toLocaleDateString()}</span>
-                            <Badge variant={'default'} className={cn('capitalize', getStatusBadgeClass(order.status))}>
-                                {order.status}
-                            </Badge>
-                            <span className="font-bold text-primary">{formatOrderPrice(order.total, order.currency)}</span>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="space-y-4 pt-2">
-                            {order.items.map((item, index) => (
-                              <div key={item.id + index} className="flex items-center space-x-4">
-                                <Image src={item.imageUrl} alt={item.name} width={64} height={64} className="rounded-md object-cover" data-ai-hint={item.dataAiHint} />
-                                <div className="flex-grow">
-                                  <p className="font-semibold">{item.name}</p>
-                                  <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
-                                   {item.customFieldData && (
-                                    <div className="text-xs text-muted-foreground mt-1">
-                                      {Object.entries(item.customFieldData).map(([key, value]) => (
-                                        <div key={key}>
-                                          <span className="font-medium">{key}:</span> {value}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                                <p className="font-semibold">{formatItemPrice(item.price, item.quantity, order.currency)}</p>
-                              </div>
-                            ))}
-                            <Separator />
-                            <div className="text-sm text-muted-foreground space-y-2">
-                                <div className="flex justify-between">
-                                    <span>Subtotal:</span>
-                                    <span>{formatOrderPrice(order.subtotal, order.currency)}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span>Tax:</span>
-                                    <span>{formatOrderPrice(order.tax, order.currency)}</span>
-                                </div>
-                                {order.walletDeduction > 0 && (
-                                     <div className="flex justify-between text-primary">
-                                        <span>Wallet Credit:</span>
-                                        <span>-{formatOrderPrice(order.walletDeduction, order.currency)}</span>
-                                    </div>
-                                )}
-                                <div className="flex justify-between font-bold text-foreground">
-                                    <span>Total Paid:</span>
-                                    <span>{formatOrderPrice(order.total, order.currency)}</span>
-                                </div>
-                            </div>
-                            <Separator />
-                            <div>
-                                <h4 className="font-semibold">Payment Method: {order.paymentMethod?.name || 'N/A'}</h4>
-                                <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{order.paymentMethod?.instructions}</p>
-                            </div>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
+                      <OrderItemCard 
+                        key={order.id}
+                        order={order}
+                        formatOrderPrice={formatOrderPrice}
+                        formatItemPrice={formatItemPrice}
+                        getStatusBadgeClass={getStatusBadgeClass}
+                      />
                     ))}
                   </Accordion>
                 ) : (

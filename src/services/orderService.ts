@@ -12,11 +12,13 @@ import {
   doc,
   updateDoc,
   runTransaction,
-  increment
+  increment,
+  limit
 } from 'firebase/firestore';
 import { debitFromWallet } from './walletService';
 
 const ordersCollectionRef = collection(db, 'orders');
+const digitalAssetsCollectionRef = collection(db, 'digital_assets');
 
 // Add a new order
 export const addOrder = async (orderData: {
@@ -91,6 +93,54 @@ export const getAllOrders = async (): Promise<Order[]> => {
 
 // Update an order's status
 export const updateOrderStatus = async (orderId: string, status: 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid') => {
-  const orderDoc = doc(db, 'orders', orderId);
-  return await updateDoc(orderDoc, { status });
+  const orderDocRef = doc(db, 'orders', orderId);
+
+  await runTransaction(db, async (transaction) => {
+    const orderDoc = await transaction.get(orderDocRef);
+    if (!orderDoc.exists()) {
+      throw new Error("Order does not exist!");
+    }
+    const orderData = orderDoc.data() as Order;
+
+    // Handle digital asset delivery on completion
+    if (status === 'completed' && !orderData.deliveredAssetId) {
+      const digitalProductItem = orderData.items.find(item => item.deliveryType === 'digital_asset');
+      
+      if (digitalProductItem) {
+        // Find an available asset for this product
+        const assetQuery = query(
+          digitalAssetsCollectionRef,
+          where('productId', '==', digitalProductItem.id),
+          where('status', '==', 'available'),
+          limit(1)
+        );
+        const assetSnapshot = await getDocs(assetQuery); // Use getDocs instead of transaction.get for queries
+        
+        if (assetSnapshot.empty) {
+          throw new Error(`No available digital assets for product ${digitalProductItem.name}. Please add more stock.`);
+        }
+        
+        const assetDoc = assetSnapshot.docs[0];
+        const assetRef = assetDoc.ref;
+        
+        // Claim the asset and link it to the order
+        transaction.update(assetRef, {
+          status: 'claimed',
+          orderId: orderId,
+          userId: orderData.userId,
+        });
+        
+        // Link the order to the asset
+        transaction.update(orderDocRef, {
+          deliveredAssetId: assetDoc.id,
+          status: status
+        });
+        
+        return; // Early return after handling digital asset
+      }
+    }
+    
+    // For all other cases, just update the status
+    transaction.update(orderDocRef, { status: status });
+  });
 };
