@@ -1,12 +1,11 @@
 
-
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getAllOrders, updateOrderStatus, deliverOrderManually, attemptAutoDelivery } from '@/services/orderService';
 import { refundToWallet } from '@/services/walletService';
-import type { Order } from '@/lib/types';
+import type { Order, CartItem } from '@/lib/types';
 import {
   Table,
   TableBody,
@@ -29,8 +28,8 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useCurrency } from '@/context/CurrencyContext';
-import { KeySquare, Truck, Bot, ChevronDown } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { KeySquare, Truck, Bot, ChevronDown, Info } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -97,10 +96,45 @@ function DeliveryForm({ onSubmit, onCancel }: { onSubmit: (data: DeliveryFormDat
     );
 }
 
+function CustomerInfoDialog({ isOpen, onOpenChange, items }: { isOpen: boolean, onOpenChange: (open: boolean) => void, items: CartItem[] }) {
+    if (!items || items.length === 0) return null;
+
+    const itemsWithInfo = items.filter(item => item.customFieldData && Object.keys(item.customFieldData).length > 0);
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Customer Submitted Info</DialogTitle>
+                    <DialogDescription>
+                        This is the information the customer provided for their order items.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+                    {itemsWithInfo.map(item => (
+                        <div key={item.id} className="p-4 border rounded-lg">
+                            <h3 className="font-semibold mb-2">{item.name}</h3>
+                            <div className="space-y-1 text-sm">
+                                {Object.entries(item.customFieldData!).map(([key, value]) => (
+                                    <div key={key} className="flex justify-between">
+                                        <span className="text-muted-foreground">{key}:</span>
+                                        <span className="font-mono text-right">{value}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [deliveringOrder, setDeliveringOrder] = useState<Order | null>(null);
+  const [viewingInfoForOrder, setViewingInfoForOrder] = useState<Order | null>(null);
   const { toast } = useToast();
   const { formatPrice, convertPrice, currency: currentDisplayCurrency } = useCurrency();
 
@@ -210,6 +244,10 @@ export default function OrdersPage() {
         return 'bg-gray-500';
     }
   }
+  
+  const hasCustomFields = (order: Order): boolean => {
+    return order.items.some(item => item.customFieldData && Object.keys(item.customFieldData).length > 0);
+  }
 
   return (
     <>
@@ -257,15 +295,6 @@ export default function OrdersPage() {
                                             <div className="flex-grow">
                                                 <p className="font-semibold">{item.name}</p>
                                                 <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
-                                                {item.customFieldData && (
-                                                <div className="text-xs text-muted-foreground mt-1">
-                                                    {Object.entries(item.customFieldData).map(([key, value]) => (
-                                                    <div key={key}>
-                                                        <span className="font-medium">{key}:</span> {value}
-                                                    </div>
-                                                    ))}
-                                                </div>
-                                                )}
                                             </div>
                                             <p className="font-semibold min-w-[80px] text-right">{formatItemPrice(item.price, item.quantity, order.currency)}</p>
                                         </div>
@@ -316,6 +345,16 @@ export default function OrdersPage() {
                                             <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{order.paymentMethod?.instructions}</p>
                                         </div>
                                         <div className="flex items-start justify-end gap-2">
+                                            {hasCustomFields(order) && (
+                                                <Button 
+                                                    variant="secondary" 
+                                                    size="sm" 
+                                                    onClick={() => setViewingInfoForOrder(order)}
+                                                >
+                                                    <Info className="mr-2 h-4 w-4" />
+                                                    View Info
+                                                </Button>
+                                            )}
                                             <Button 
                                                 variant="outline" 
                                                 size="sm" 
@@ -402,6 +441,13 @@ export default function OrdersPage() {
                  )}
             </DialogContent>
         </Dialog>
+        
+        <CustomerInfoDialog 
+            isOpen={!!viewingInfoForOrder} 
+            onOpenChange={(isOpen) => !isOpen && setViewingInfoForOrder(null)}
+            items={viewingInfoForOrder?.items || []}
+        />
     </>
   );
 }
+
