@@ -15,6 +15,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -23,7 +29,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useCurrency } from '@/context/CurrencyContext';
-import { KeySquare, Truck, Bot } from 'lucide-react';
+import { KeySquare, Truck, Bot, ChevronDown } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,6 +37,8 @@ import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
+import Image from 'next/image';
 
 
 type OrderStatus = 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid';
@@ -103,6 +111,13 @@ export default function OrdersPage() {
       displayTotal = convertPrice(total);
     }
     return formatPrice(displayTotal, currentDisplayCurrency, true);
+  }
+   const formatItemPrice = (price: number, quantity: number, orderCurrency: 'TND' | 'USD') => {
+    let displayPrice = price * quantity;
+    if (currentDisplayCurrency === 'TND') {
+        displayPrice = convertPrice(price) * quantity;
+    }
+    return formatPrice(displayPrice, currentDisplayCurrency, true);
   }
 
   const fetchOrders = useCallback(async () => {
@@ -210,107 +225,140 @@ export default function OrdersPage() {
             <CardDescription>Review all customer purchases.</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Items</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                      <TableRow key={i}>
-                        <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                        <TableCell><Skeleton className="h-6 w-24" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-48" /></TableCell>
-                        <TableCell className="text-right"><Skeleton className="h-4 w-16" /></TableCell>
-                        <TableCell className="text-right"><Skeleton className="h-8 w-28" /></TableCell>
-                      </TableRow>
-                  ))
-                ) : orders.map(order => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">#{order.id.substring(0, 8)}</TableCell>
-                    <TableCell>{new Date(order.createdAt.toDate()).toLocaleDateString()}</TableCell>
-                    <TableCell>{order.userEmail}</TableCell>
-                    <TableCell>
-                      <Badge variant={'default'} className={cn('capitalize', getStatusBadgeClass(order.status))}>
-                        {order.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1 max-w-xs">
-                        {order.items.map(item => (
-                          <Badge key={item.id} variant='secondary'>
-                            {item.name} (x{item.quantity})
-                          </Badge>
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right font-bold text-primary">{formatOrderPrice(order.total, order.currency)}</TableCell>
-                    <TableCell className="text-right space-x-2">
-                       <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => setDeliveringOrder(order)}
-                            disabled={!isOrderDeliverable(order) && order.status !== 'completed'}
-                        >
-                            <Truck className="mr-2 h-4 w-4" />
-                            {order.deliveredAsset ? 'View Delivery' : 'Deliver'}
-                        </Button>
-                      <Select 
-                        value={order.status}
-                        onValueChange={(value: OrderStatus) => {
-                            if (value === 'refunded') {
-                                // Let the alert dialog handle the action
-                                return;
-                            }
-                            handleStatusChange(order, value)
-                        }}
-                      >
-                        <SelectTrigger className="w-[120px] inline-flex">
-                            <SelectValue placeholder="Change status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="paid">Paid</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                            <SelectItem value="canceled">Canceled</SelectItem>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                  <div className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
-                                      Refund
-                                  </div>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                      This will mark the order as refunded and credit {formatOrderPrice(order.subtotal, order.currency)} to the customer's wallet. This action cannot be undone.
-                                  </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleStatusChange(order, 'refunded')}>
-                                      Confirm Refund
-                                  </AlertDialogAction>
-                                  </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            {loading ? (
+                 <div className="p-6">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Skeleton key={i} className="h-12 w-full mb-2" />
+                    ))}
+                 </div>
+            ) : (
+                <Accordion type="single" collapsible className="w-full">
+                    {orders.map(order => (
+                        <AccordionItem value={order.id} key={order.id}>
+                            <AccordionTrigger className="hover:no-underline">
+                                <div className="grid grid-cols-5 md:grid-cols-6 gap-4 items-center w-full text-sm px-4 text-left">
+                                    <span className="font-medium truncate col-span-2 md:col-span-1">#{order.id.substring(0, 8)}</span>
+                                    <span className="hidden md:block truncate">{new Date(order.createdAt.toDate()).toLocaleDateString()}</span>
+                                    <span className="truncate">{order.userEmail}</span>
+                                    <span>
+                                        <Badge variant={'default'} className={cn('capitalize', getStatusBadgeClass(order.status))}>
+                                            {order.status}
+                                        </Badge>
+                                    </span>
+                                    <span className="font-bold text-primary text-right">{formatOrderPrice(order.total, order.currency)}</span>
+                                </div>
+                                <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 mr-4" />
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <div className="bg-muted/50 p-4 space-y-4">
+                                    {order.items.map((item, index) => (
+                                        <div key={item.id + index} className="flex items-center space-x-4">
+                                            <Image src={item.imageUrl} alt={item.name} width={64} height={64} className="rounded-md object-cover" data-ai-hint={item.dataAiHint} />
+                                            <div className="flex-grow">
+                                                <p className="font-semibold">{item.name}</p>
+                                                <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
+                                                {item.customFieldData && (
+                                                <div className="text-xs text-muted-foreground mt-1">
+                                                    {Object.entries(item.customFieldData).map(([key, value]) => (
+                                                    <div key={key}>
+                                                        <span className="font-medium">{key}:</span> {value}
+                                                    </div>
+                                                    ))}
+                                                </div>
+                                                )}
+                                            </div>
+                                            <p className="font-semibold min-w-[80px] text-right">{formatItemPrice(item.price, item.quantity, order.currency)}</p>
+                                        </div>
+                                    ))}
+                                    <Separator />
+                                     <div className="text-sm text-muted-foreground space-y-2">
+                                        <div className="flex justify-between">
+                                            <span>Subtotal:</span>
+                                            <span>{formatOrderPrice(order.subtotal, order.currency)}</span>
+                                        </div>
+                                        {order.couponDiscount && order.couponDiscount > 0 && (
+                                            <div className="flex justify-between text-primary">
+                                                <span>Coupon ({order.couponCode}):</span>
+                                                <span>-{formatOrderPrice(order.couponDiscount, order.currency)}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between">
+                                            <span>Tax:</span>
+                                            <span>{formatOrderPrice(order.tax, order.currency)}</span>
+                                        </div>
+                                        {order.walletDeduction > 0 && (
+                                            <div className="flex justify-between text-primary">
+                                                <span>Wallet Credit:</span>
+                                                <span>-{formatOrderPrice(order.walletDeduction, order.currency)}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between font-bold text-foreground">
+                                            <span>Total Paid:</span>
+                                            <span>{formatOrderPrice(order.total, order.currency)}</span>
+                                        </div>
+                                    </div>
+                                    <Separator />
+                                    <div className="grid md:grid-cols-2 gap-4 items-start">
+                                        <div>
+                                            <h4 className="font-semibold">Payment Method: {order.paymentMethod?.name || 'N/A'}</h4>
+                                            <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{order.paymentMethod?.instructions}</p>
+                                        </div>
+                                        <div className="flex items-start justify-end gap-2">
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm" 
+                                                onClick={() => setDeliveringOrder(order)}
+                                                disabled={!isOrderDeliverable(order) && order.status !== 'completed'}
+                                            >
+                                                <Truck className="mr-2 h-4 w-4" />
+                                                {order.deliveredAsset ? 'View Delivery' : 'Deliver'}
+                                            </Button>
+                                            <Select 
+                                                value={order.status}
+                                                onValueChange={(value: OrderStatus) => {
+                                                    if (value === 'refunded') return;
+                                                    handleStatusChange(order, value)
+                                                }}
+                                                >
+                                                <SelectTrigger className="w-[120px] h-9">
+                                                    <SelectValue placeholder="Change status" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="pending">Pending</SelectItem>
+                                                    <SelectItem value="paid">Paid</SelectItem>
+                                                    <SelectItem value="completed">Completed</SelectItem>
+                                                    <SelectItem value="canceled">Canceled</SelectItem>
+                                                    <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <div className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                                                            Refund
+                                                        </div>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            This will refund {formatOrderPrice(order.subtotal, order.currency)} to the customer's wallet and mark the order as refunded. This action cannot be undone.
+                                                        </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleStatusChange(order, 'refunded')}>
+                                                            Confirm Refund
+                                                        </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                    </AlertDialog>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    ))}
+                </Accordion>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -63,14 +63,14 @@ export const addOrder = async (orderData: {
     // 2. Mark coupon as used if applicable
     if (finalOrderData.couponCode) {
         const couponQuery = query(collection(db, 'coupons'), where('code', '==', finalOrderData.couponCode));
-        const couponSnapshot = await getDocs(couponQuery); // Note: getDocs is not a transaction operation. This is a limitation. For true atomicity, we'd need a Cloud Function.
+        // This part runs outside the transaction and is a known limitation for atomicity without Cloud Functions.
+        const couponSnapshot = await getDocs(couponQuery); 
         if (!couponSnapshot.empty) {
             const couponDoc = couponSnapshot.docs[0];
-            if (couponDoc.data().oneTimeUse) {
-                 transaction.update(couponDoc.ref, {
-                    usedBy: arrayUnion(finalOrderData.userId)
-                });
-            }
+            // Always track usage, not just for one-time use coupons.
+            transaction.update(couponDoc.ref, {
+                usedBy: arrayUnion(finalOrderData.userId)
+            });
         }
     }
     
