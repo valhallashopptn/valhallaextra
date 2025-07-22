@@ -4,6 +4,9 @@
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, MessageSquare, Home } from 'lucide-react';
@@ -34,12 +37,14 @@ export function OrderConfirmationDialog({ isOpen, onOpenChange }: OrderConfirmat
       <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
         <div className="flex flex-col items-center text-center p-6">
             <CheckCircle2 className="h-24 w-24 text-primary animate-in zoom-in duration-500" />
-            <h2 className="mt-6 text-2xl font-bold tracking-tight text-primary font-headline">
-                Thank You For Your Order!
-            </h2>
-            <p className="mt-3 max-w-2xl mx-auto text-muted-foreground">
-                Your purchase is complete. If you have any questions, please check your order history or contact support.
-            </p>
+            <DialogHeader className="mt-6 text-center">
+              <DialogTitle className="text-2xl font-bold tracking-tight text-primary font-headline">
+                  Thank You For Your Order!
+              </DialogTitle>
+              <DialogDescription className="mt-3 max-w-2xl mx-auto text-muted-foreground">
+                  Your purchase is complete. If you have any questions, please check your order history or contact support.
+              </DialogDescription>
+            </DialogHeader>
             <div className="mt-8 flex flex-col gap-3 w-full max-w-xs">
                 <Button asChild onClick={handleLinkClick}>
                     <Link href="/account">View Order History</Link>
