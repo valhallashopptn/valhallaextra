@@ -164,6 +164,7 @@ export default function OrdersPage() {
                 title: 'Auto-Delivery Successful',
                 description: `Order ${order.id.substring(0,8)} was automatically delivered.`,
             });
+            fetchOrders();
         }
      } catch(error: any) {
         toast({
@@ -186,6 +187,15 @@ export default function OrdersPage() {
         toast({ title: 'Error', description: error.message || 'Failed to deliver order.', variant: 'destructive' });
     }
   }
+  
+  const isOrderDeliverable = (order: Order): boolean => {
+    // An order is deliverable if any of its items are not 'standard' delivery
+    // and the order status is 'paid'.
+    if (order.status !== 'paid') {
+      return false;
+    }
+    return order.items.some(item => item.deliveryType !== 'standard');
+  };
 
   const getStatusBadgeClass = (status: OrderStatus) => {
     switch (status) {
@@ -269,7 +279,7 @@ export default function OrdersPage() {
                             variant="outline" 
                             size="sm" 
                             onClick={() => setDeliveringOrder(order)}
-                            disabled={order.status !== 'paid' && order.status !== 'completed'}
+                            disabled={!isOrderDeliverable(order) && order.status !== 'completed'}
                         >
                             <Truck className="mr-2 h-4 w-4" />
                             {order.deliveredAsset ? 'View Delivery' : 'Deliver'}

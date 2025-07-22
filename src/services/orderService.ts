@@ -119,25 +119,27 @@ export const attemptAutoDelivery = async (orderId: string): Promise<{ delivered:
         }
         const orderData = orderSnap.data() as Order;
 
-        // Check if all items in order are automatic delivery type
+        if (orderData.status !== 'paid') {
+            return { delivered: false, message: "Order is not in 'paid' status." };
+        }
+
+        // Check if any item in the order is for automatic delivery
         const autoDeliveryItems = orderData.items.filter(item => item.deliveryType === 'automatic_delivery');
         
         if (autoDeliveryItems.length === 0) {
             return { delivered: false, message: "No items for automatic delivery in this order." };
         }
         
-        if (orderData.status !== 'paid') {
-            return { delivered: false, message: "Order is not in 'paid' status." };
-        }
-
         // We'll handle the first auto-delivery item. A more complex system could handle multiple.
         // For now, we assume one auto-deliverable product per order for simplicity.
         const itemToDeliver = autoDeliveryItems[0];
         
         // Find an available digital asset for this product
+        // Note: Using `itemToDeliver.id` which might be a composite ID if variants are used.
+        // It should match the `productId` on the DigitalAsset document.
         const assetsQuery = query(
             digitalAssetsCollectionRef,
-            where('productId', '==', itemToDeliver.id),
+            where('productId', '==', itemToDeliver.id.split('-')[0]), // Use base product ID
             where('status', '==', 'available'),
             limit(1)
         );

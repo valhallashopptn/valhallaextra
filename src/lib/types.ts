@@ -38,7 +38,7 @@ export interface Product {
   stock: number;
   categoryId: string;
   categoryName: string;
-  deliveryType: 'standard' | 'manual_delivery' | 'automatic_delivery';
+  deliveryType: 'standard' | 'automatic_delivery';
   category?: Category;
   tabs?: ProductTab[];
   variants?: ProductVariant[];
