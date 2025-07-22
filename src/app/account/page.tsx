@@ -116,7 +116,8 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
                      <>
                         <Separator />
                         <Button onClick={() => setIsAssetVisible(!isAssetVisible)} variant="outline" size="sm">
-                            {isAssetVisible ? "Hide My Item" : "View My Item"}
+                            <KeySquare className="mr-2 h-4 w-4" />
+                            {isAssetVisible ? "Hide My Item" : "Reveal My Item"}
                         </Button>
                         {isAssetVisible && <DeliveredAsset asset={order.deliveredAsset} />}
                      </>
