@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
@@ -68,10 +67,6 @@ function CustomFieldInput({ field, value, onChange }: { field: CustomField; valu
     onChange(field.label, newValue);
   };
   
-  useEffect(() => {
-    validate(value);
-  }, [value, validate]);
-
   return (
     <div className="space-y-2">
       <Label htmlFor={field.id}>{field.label}</Label>
@@ -80,6 +75,7 @@ function CustomFieldInput({ field, value, onChange }: { field: CustomField; valu
         type={field.type}
         value={value}
         onChange={handleChange}
+        onBlur={() => validate(value)}
         placeholder={`Enter ${field.label.toLowerCase()}`}
         className={error ? 'border-destructive' : ''}
       />
