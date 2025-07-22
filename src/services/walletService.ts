@@ -26,7 +26,16 @@ export const createUserProfile = async (userId: string, email: string): Promise<
     await setDoc(userDocRef, newUserProfile);
     return { ...newUserProfile, id: userId, createdAt: new Date() } as UserProfile;
   }
-  return { ...docSnap.data(), id: docSnap.id } as UserProfile;
+  
+  const profileData = { ...docSnap.data(), id: docSnap.id } as UserProfile;
+
+  // Backfill valhallaCoins if it's missing for an existing user
+  if (profileData.valhallaCoins === undefined) {
+    await updateDoc(userDocRef, { valhallaCoins: 0 });
+    profileData.valhallaCoins = 0;
+  }
+  
+  return profileData;
 };
 
 /**
@@ -38,7 +47,13 @@ export const getUserProfile = async (userId: string): Promise<UserProfile> => {
   const docSnap = await getDoc(userDocRef);
 
   if (docSnap.exists()) {
-    return { ...docSnap.data(), id: docSnap.id } as UserProfile;
+    const profileData = { ...docSnap.data(), id: docSnap.id } as UserProfile;
+    // Backfill valhallaCoins if it's missing for an existing user
+    if (profileData.valhallaCoins === undefined) {
+      await updateDoc(userDocRef, { valhallaCoins: 0 });
+      profileData.valhallaCoins = 0;
+    }
+    return profileData;
   }
   
   // If user profile doesn't exist, create it with zero balances
