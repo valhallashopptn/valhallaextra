@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { getSettings, updateSetting } from '@/services/settingsService';
@@ -24,9 +24,13 @@ const identityFormSchema = z.object({
   siteTitle: z.string().min(2, { message: 'Site title must be at least 2 characters.' }),
   logoUrl: z.string().url({ message: 'Please enter a valid URL.' }).or(z.literal('')),
 });
+const notificationFormSchema = z.object({
+  orderWebhookUrl: z.string().url({ message: 'Please enter a valid webhook URL.' }).or(z.literal('')),
+});
 
 type AppearanceFormData = z.infer<typeof appearanceFormSchema>;
 type IdentityFormData = z.infer<typeof identityFormSchema>;
+type NotificationFormData = z.infer<typeof notificationFormSchema>;
 
 export default function AppearancePage() {
   const { toast } = useToast();
@@ -48,15 +52,23 @@ export default function AppearancePage() {
     },
   });
 
+  const notificationForm = useForm<NotificationFormData>({
+    resolver: zodResolver(notificationFormSchema),
+    defaultValues: {
+      orderWebhookUrl: '',
+    },
+  });
+
   useEffect(() => {
     const fetchSettings = async () => {
       setLoading(true);
       try {
-        const settings = await getSettings(['heroImageUrl', 'theme', 'siteTitle', 'logoUrl']);
+        const settings = await getSettings(['heroImageUrl', 'theme', 'siteTitle', 'logoUrl', 'orderWebhookUrl']);
         
         appearanceForm.setValue('heroImageUrl', settings.heroImageUrl || 'https://placehold.co/1920x1080.png');
         identityForm.setValue('siteTitle', settings.siteTitle || 'TopUp Hub');
         identityForm.setValue('logoUrl', settings.logoUrl || '');
+        notificationForm.setValue('orderWebhookUrl', settings.orderWebhookUrl || '');
         setActiveTheme(settings.theme || 'Night Runner');
 
       } catch (error) {
@@ -66,7 +78,7 @@ export default function AppearancePage() {
       }
     };
     fetchSettings();
-  }, [appearanceForm, identityForm, toast]);
+  }, [appearanceForm, identityForm, notificationForm, toast]);
 
   const handleAppearanceSubmit = async (data: AppearanceFormData) => {
     try {
@@ -90,6 +102,16 @@ export default function AppearancePage() {
        console.error("Failed to update store identity", error);
     }
   }
+
+  const handleNotificationSubmit = async (data: NotificationFormData) => {
+    try {
+      await updateSetting('orderWebhookUrl', data.orderWebhookUrl);
+      toast({ title: 'Success', description: 'Notification settings updated successfully.' });
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to update notification settings.', variant: 'destructive' });
+      console.error("Failed to update webhook URL", error);
+    }
+  };
 
   const handleThemeSelect = async (themeName: string) => {
     try {
@@ -234,6 +256,38 @@ export default function AppearancePage() {
                 </div>
             )}
           </div>
+        </CardContent>
+      </Card>
+
+       <Card>
+        <CardHeader>
+          <CardTitle>Notifications</CardTitle>
+          <CardDescription>Get notified when new orders are placed.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...notificationForm}>
+            <form onSubmit={notificationForm.handleSubmit(handleNotificationSubmit)} className="space-y-4">
+              <FormField
+                control={notificationForm.control}
+                name="orderWebhookUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Order Notification Webhook URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://hook.make.com/..." {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Sends order details to this URL for services like Make.com or Zapier. Leave blank to disable.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" disabled={notificationForm.formState.isSubmitting}>
+                {notificationForm.formState.isSubmitting ? 'Saving...' : 'Save Webhook'}
+              </Button>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>

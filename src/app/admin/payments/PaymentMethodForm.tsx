@@ -16,7 +16,6 @@ const formSchema = z.object({
   instructions: z.string().min(10, { message: 'Instructions must be at least 10 characters.' }),
   taxRate: z.coerce.number().min(0, { message: 'Tax rate must be non-negative.' }).max(100, { message: 'Tax rate cannot exceed 100.' }),
   iconUrl: z.string().url({ message: 'Please enter a valid URL.' }).optional().or(z.literal('')),
-  webhookUrl: z.string().url({ message: 'Please enter a valid webhook URL.' }).optional().or(z.literal('')),
 });
 
 type PaymentMethodFormData = z.infer<typeof formSchema>;
@@ -35,7 +34,6 @@ export function PaymentMethodForm({ onSubmit, initialData, onCancel }: PaymentMe
       instructions: '',
       taxRate: 0,
       iconUrl: '',
-      webhookUrl: '',
     },
   });
 
@@ -45,7 +43,6 @@ export function PaymentMethodForm({ onSubmit, initialData, onCancel }: PaymentMe
         ...initialData,
         taxRate: Number(initialData.taxRate),
         iconUrl: initialData.iconUrl || '',
-        webhookUrl: initialData.webhookUrl || '',
       });
     } else {
         form.reset({
@@ -53,7 +50,6 @@ export function PaymentMethodForm({ onSubmit, initialData, onCancel }: PaymentMe
             instructions: '',
             taxRate: 0,
             iconUrl: '',
-            webhookUrl: '',
         });
     }
   }, [initialData, form]);
@@ -111,22 +107,6 @@ export function PaymentMethodForm({ onSubmit, initialData, onCancel }: PaymentMe
               <FormControl>
                 <Textarea placeholder="Provide payment instructions for the customer..." {...field} rows={5}/>
               </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="webhookUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Order Notification Webhook URL (Optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="https://hook.make.com/..." {...field} />
-              </FormControl>
-              <FormDescription>
-                Sends order details to this URL for services like Zapier or Make.com.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

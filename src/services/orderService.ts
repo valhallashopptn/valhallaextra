@@ -19,6 +19,7 @@ import {
   arrayUnion
 } from 'firebase/firestore';
 import { debitFromWallet, addCoinsForPurchase, redeemCoins } from './walletService';
+import { getSetting } from './settingsService';
 
 const ordersCollectionRef = collection(db, 'orders');
 const productsCollectionRef = collection(db, 'products');
@@ -39,7 +40,7 @@ export const addOrder = async (orderData: {
   coinDiscount?: number;
   total: number;
   currency: 'TND' | 'USD';
-  paymentMethod: { name: string; instructions: string; webhookUrl?: string };
+  paymentMethod: { name: string; instructions: string; };
   status?: 'pending' | 'completed' | 'paid';
 }) => {
 
@@ -82,23 +83,20 @@ export const addOrder = async (orderData: {
     const newOrderRef = doc(collection(db, 'orders'));
     transaction.set(newOrderRef, {
       ...finalOrderData,
-      paymentMethod: {
-        name: finalOrderData.paymentMethod.name,
-        instructions: finalOrderData.paymentMethod.instructions,
-      },
       status: finalOrderData.status ?? 'pending',
       createdAt: serverTimestamp(),
     });
 
     return newOrderRef;
   });
-
-  // 5. Send webhook notification if URL is provided
-  if (finalOrderData.paymentMethod.webhookUrl) {
+  
+  // 5. Send webhook notification if URL is configured
+  const webhookUrl = await getSetting('orderWebhookUrl');
+  if (webhookUrl) {
     try {
       // We don't await this, as we don't want to block the user's flow
       // if the webhook fails.
-      fetch(finalOrderData.paymentMethod.webhookUrl, {
+      fetch(webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
