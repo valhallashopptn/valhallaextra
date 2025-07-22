@@ -21,12 +21,24 @@ import { Separator } from '@/components/ui/separator';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Wallet, KeySquare, Eye, EyeOff } from 'lucide-react';
+import { Wallet, KeySquare, Copy, Check } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 function DeliveredAssetDialog({ asset, isOpen, onOpenChange }: { asset: DeliveredAssetInfo | null, isOpen: boolean, onOpenChange: (open: boolean) => void }) {
+    const [isCopied, setIsCopied] = useState(false);
+    
     if (!asset) return null;
+
+    const handleCopy = () => {
+        let textToCopy = asset.data;
+        if(asset.extraInfo) {
+            textToCopy += `\n\nAdditional Information:\n${asset.extraInfo}`;
+        }
+        navigator.clipboard.writeText(textToCopy);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+    };
     
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -40,7 +52,18 @@ function DeliveredAssetDialog({ asset, isOpen, onOpenChange }: { asset: Delivere
                 <div className="space-y-4 pt-4">
                     <div>
                         <Label className="text-xs font-semibold">Details</Label>
-                        <p className="font-mono bg-muted p-3 rounded-md break-all whitespace-pre-wrap text-sm">{asset.data}</p>
+                        <div className="relative font-mono bg-muted p-3 rounded-md break-all whitespace-pre-wrap text-sm">
+                            {asset.data}
+                            <Button
+                                size="icon"
+                                variant="ghost"
+                                className="absolute top-2 right-2 h-7 w-7"
+                                onClick={handleCopy}
+                            >
+                                {isCopied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
+                                <span className="sr-only">Copy</span>
+                            </Button>
+                        </div>
                     </div>
                     {asset.extraInfo && (
                          <div>
