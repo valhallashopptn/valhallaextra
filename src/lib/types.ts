@@ -61,7 +61,6 @@ export interface PaymentMethod {
 }
 
 export interface DeliveredAssetInfo {
-  type: string;
   data: string;
   extraInfo?: string;
 }
@@ -110,7 +109,6 @@ export interface DigitalAsset {
   id: string;
   productId: string;
   productName?: string; // Optional, for display purposes
-  type: string;
   data: string;
   extraInfo?: string;
   status: 'available' | 'delivered';

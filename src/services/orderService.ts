@@ -100,7 +100,7 @@ export const updateOrderStatus = async (orderId: string, status: 'pending' | 'co
 };
 
 // Deliver an order manually
-export const deliverOrderManually = async (orderId: string, deliveryData: DeliveredAssetInfo) => {
+export const deliverOrderManually = async (orderId: string, deliveryData: Omit<DeliveredAssetInfo, 'type'>) => {
     const orderDocRef = doc(db, 'orders', orderId);
     return await updateDoc(orderDocRef, {
         deliveredAsset: deliveryData,
@@ -152,7 +152,6 @@ export const attemptAutoDelivery = async (orderId: string): Promise<{ delivered:
         
         // Prepare delivery info
         const deliveredAsset: DeliveredAssetInfo = {
-            type: assetData.type,
             data: assetData.data,
             extraInfo: assetData.extraInfo || '',
         };

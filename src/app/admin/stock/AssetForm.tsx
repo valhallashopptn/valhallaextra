@@ -14,7 +14,6 @@ import { useEffect } from 'react';
 
 const formSchema = z.object({
   productId: z.string().min(1, { message: 'Please select a product.' }),
-  type: z.string().min(2, { message: 'Asset type must be at least 2 characters.' }),
   data: z.string().min(5, { message: 'Data must be at least 5 characters.' }),
   extraInfo: z.string().optional(),
 });
@@ -33,7 +32,6 @@ export function AssetForm({ onSubmit, initialData, onCancel, products }: AssetFo
     resolver: zodResolver(formSchema),
     defaultValues: {
       productId: '',
-      type: '',
       data: '',
       extraInfo: '',
     },
@@ -48,7 +46,6 @@ export function AssetForm({ onSubmit, initialData, onCancel, products }: AssetFo
     } else {
         form.reset({
             productId: '',
-            type: '',
             data: '',
             extraInfo: '',
         });
@@ -84,19 +81,6 @@ export function AssetForm({ onSubmit, initialData, onCancel, products }: AssetFo
                   )}
                 </SelectContent>
               </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Asset Type</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., Steam Key, Netflix Account" {...field} />
-              </FormControl>
               <FormMessage />
             </FormItem>
           )}

@@ -32,7 +32,7 @@ function DeliveredAsset({ asset }: { asset: DeliveredAssetInfo }) {
     return (
         <Card className="mt-4 bg-muted/50">
             <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2"><KeySquare className="h-5 w-5" /> Your Delivered Item: {asset.type}</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2"><KeySquare className="h-5 w-5" /> Your Delivered Item</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
                 <div>

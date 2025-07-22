@@ -115,7 +115,6 @@ export default function StockPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Product</TableHead>
-                  <TableHead>Type</TableHead>
                   <TableHead>Data</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Date Added</TableHead>
@@ -125,12 +124,11 @@ export default function StockPage() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center">Loading...</TableCell>
+                    <TableCell colSpan={5} className="text-center">Loading...</TableCell>
                   </TableRow>
                 ) : assets.map(asset => (
                   <TableRow key={asset.id}>
                     <TableCell className="font-medium">{asset.productName}</TableCell>
-                    <TableCell>{asset.type}</TableCell>
                     <TableCell className="font-mono text-xs max-w-xs truncate">{asset.data}</TableCell>
                     <TableCell>
                         <Badge variant={asset.status === 'available' ? 'default' : 'secondary'} className={asset.status === 'available' ? 'bg-green-600' : 'bg-gray-500'}>
@@ -186,5 +184,3 @@ export default function StockPage() {
     </Dialog>
   );
 }
-
-    

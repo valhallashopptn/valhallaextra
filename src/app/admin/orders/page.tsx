@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -35,7 +36,6 @@ import { Textarea } from '@/components/ui/textarea';
 type OrderStatus = 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid';
 
 const deliveryFormSchema = z.object({
-  type: z.string().min(2, { message: 'Please provide a type for the delivery (e.g., Game Key, Account Info).' }),
   data: z.string().min(5, { message: 'Please provide the delivery data (key, credentials, etc.).' }),
   extraInfo: z.string().optional(),
 });
@@ -45,25 +45,12 @@ type DeliveryFormData = z.infer<typeof deliveryFormSchema>;
 function DeliveryForm({ onSubmit, onCancel }: { onSubmit: (data: DeliveryFormData) => void; onCancel: () => void; }) {
     const form = useForm<DeliveryFormData>({
         resolver: zodResolver(deliveryFormSchema),
-        defaultValues: { type: '', data: '', extraInfo: '' }
+        defaultValues: { data: '', extraInfo: '' }
     });
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                 <FormField
-                    control={form.control}
-                    name="type"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Delivery Type</FormLabel>
-                        <FormControl>
-                            <Input placeholder="e.g., Game Key, Account Login" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                />
                  <FormField
                     control={form.control}
                     name="data"
@@ -335,7 +322,6 @@ export default function OrdersPage() {
                 </DialogHeader>
                  {deliveringOrder?.deliveredAsset ? (
                      <div className="space-y-4 py-4">
-                        <p><strong>Type:</strong> {deliveringOrder.deliveredAsset.type}</p>
                         <div>
                             <strong>Data:</strong>
                             <pre className="mt-1 font-mono text-sm bg-muted p-3 rounded-md whitespace-pre-wrap">{deliveringOrder.deliveredAsset.data}</pre>
