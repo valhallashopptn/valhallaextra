@@ -18,7 +18,7 @@ import {
   getDoc,
   arrayUnion
 } from 'firebase/firestore';
-import { debitFromWallet } from './walletService';
+import { debitFromWallet, addCoinsForPurchase, redeemCoins } from './walletService';
 
 const ordersCollectionRef = collection(db, 'orders');
 const productsCollectionRef = collection(db, 'products');
@@ -31,9 +31,12 @@ export const addOrder = async (orderData: {
   items: CartItem[];
   subtotal: number;
   tax: number;
-  walletDeduction: number; // This should be in USD for consistent wallet logic
+  tip?: number;
+  walletDeduction: number;
   couponDiscount?: number;
   couponCode?: string;
+  coinsRedeemed?: number;
+  coinDiscount?: number;
   total: number;
   currency: 'TND' | 'USD';
   paymentMethod: { name: string; instructions: string };
@@ -42,8 +45,6 @@ export const addOrder = async (orderData: {
 
   // Sanitize items to remove potentially problematic fields for Firestore
   const sanitizedItems = orderData.items.map(item => {
-    // The 'category' object can contain undefined 'customFields' which Firestore rejects.
-    // It's not needed in the final order document anyway.
     const { category, ...restOfItem } = item;
     return restOfItem;
   });
@@ -59,22 +60,25 @@ export const addOrder = async (orderData: {
     if (finalOrderData.walletDeduction > 0) {
       await debitFromWallet(transaction, finalOrderData.userId, finalOrderData.walletDeduction);
     }
+    
+    // 2. Redeem coins if used
+    if (finalOrderData.coinsRedeemed && finalOrderData.coinsRedeemed > 0) {
+      await redeemCoins(transaction, finalOrderData.userId, finalOrderData.coinsRedeemed);
+    }
 
-    // 2. Mark coupon as used if applicable
+    // 3. Mark coupon as used if applicable
     if (finalOrderData.couponCode) {
         const couponQuery = query(collection(db, 'coupons'), where('code', '==', finalOrderData.couponCode));
-        // This part runs outside the transaction and is a known limitation for atomicity without Cloud Functions.
         const couponSnapshot = await getDocs(couponQuery); 
         if (!couponSnapshot.empty) {
             const couponDoc = couponSnapshot.docs[0];
-            // Always track usage, not just for one-time use coupons.
             transaction.update(couponDoc.ref, {
                 usedBy: arrayUnion(finalOrderData.userId)
             });
         }
     }
     
-    // 3. Create the order document
+    // 4. Create the order document
     const orderRef = doc(collection(db, 'orders'));
     transaction.set(orderRef, {
       ...finalOrderData,
@@ -107,12 +111,34 @@ export const getAllOrders = async (): Promise<Order[]> => {
 // Update an order's status
 export const updateOrderStatus = async (orderId: string, status: 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid') => {
   const orderDocRef = doc(db, 'orders', orderId);
+  const orderSnap = await getDoc(orderDocRef);
+  if (!orderSnap.exists()) {
+    throw new Error("Order not found");
+  }
+  const orderData = orderSnap.data() as Order;
+
+  // Add Valhalla coins if order is being marked as completed
+  if (status === 'completed' && orderData.status !== 'completed') {
+    // We only award points on the subtotal (pre-discounts, pre-tax)
+    await addCoinsForPurchase(orderData.userId, orderData.subtotal);
+  }
+
   return await updateDoc(orderDocRef, { status: status });
 };
 
 // Deliver an order manually
 export const deliverOrderManually = async (orderId: string, deliveryData: DeliveredAssetInfo) => {
     const orderDocRef = doc(db, 'orders', orderId);
+     const orderSnap = await getDoc(orderDocRef);
+      if (!orderSnap.exists()) {
+        throw new Error("Order not found");
+      }
+    const orderData = orderSnap.data() as Order;
+    // Award coins on manual completion
+     if (orderData.status !== 'completed') {
+        await addCoinsForPurchase(orderData.userId, orderData.subtotal);
+    }
+
     return await updateDoc(orderDocRef, {
         deliveredAsset: deliveryData,
         status: 'completed'
@@ -135,18 +161,14 @@ export const attemptAutoDelivery = async (orderId: string): Promise<{ delivered:
         }
         
         if (orderData.items.length > 1) {
-            // This is a simplified check. A more complex system might handle this differently.
              return { delivered: false, message: "Auto-delivery is only supported for single-item orders." };
         }
         
         const itemToDeliver = orderData.items[0];
         
-        // Find an available digital asset for this product
-        // Note: Using `itemToDeliver.id` which might be a composite ID if variants are used.
-        // It should match the `productId` on the DigitalAsset document.
         const assetsQuery = query(
             digitalAssetsCollectionRef,
-            where('productId', '==', itemToDeliver.id.split('-')[0]), // Use base product ID
+            where('productId', '==', itemToDeliver.id.split('-')[0]),
             where('status', '==', 'available'),
             limit(1)
         );
@@ -160,20 +182,20 @@ export const attemptAutoDelivery = async (orderId: string): Promise<{ delivered:
         const assetDoc = assetsSnap.docs[0];
         const assetData = assetDoc.data() as DigitalAsset;
         
-        // Prepare delivery info
         const deliveredAsset: DeliveredAssetInfo = {
             data: assetData.data,
             extraInfo: assetData.extraInfo || '',
         };
 
-        // Update the asset to mark as delivered
         transaction.update(assetDoc.ref, {
             status: 'delivered',
             deliveredAt: serverTimestamp(),
             orderId: orderId,
         });
 
-        // Update the order with the delivery info and set status to completed
+        // Award Valhalla coins
+        await addCoinsForPurchase(orderData.userId, orderData.subtotal);
+
         transaction.update(orderDocRef, {
             deliveredAsset: deliveredAsset,
             status: 'completed'

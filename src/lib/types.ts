@@ -83,9 +83,12 @@ export interface Order {
   items: CartItem[];
   subtotal: number;
   tax: number;
+  tip?: number;
   walletDeduction: number;
   couponDiscount?: number;
   couponCode?: string;
+  coinsRedeemed?: number;
+  coinDiscount?: number;
   total: number;
   currency: 'TND' | 'USD';
   status: 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid';
@@ -103,6 +106,7 @@ export interface UserProfile {
     id: string;
     email: string;
     walletBalance: number;
+    valhallaCoins: number;
     createdAt: Timestamp;
 }
 
@@ -129,5 +133,3 @@ export interface DigitalAsset {
   deliveredAt?: Timestamp;
   orderId?: string;
 }
-
-    

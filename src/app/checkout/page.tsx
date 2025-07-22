@@ -16,16 +16,20 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { addOrder } from '@/services/orderService';
 import { getPaymentMethods } from '@/services/paymentMethodService';
-import { getUserWalletBalance } from '@/services/walletService';
+import { getUserProfile } from '@/services/walletService';
 import { getCouponByCode } from '@/services/couponService';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { PageWrapper } from '@/components/PageWrapper';
-import type { PaymentMethod, CartItem, Coupon } from '@/lib/types';
-import { Lock, Info, Wallet, Tag, CheckCircle } from 'lucide-react';
+import type { PaymentMethod, CartItem, Coupon, UserProfile } from '@/lib/types';
+import { Lock, Info, Wallet, Tag, CheckCircle, Star } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { OrderConfirmationDialog } from '@/components/OrderConfirmationDialog';
+import { Slider } from '@/components/ui/slider';
+
+
+const COINS_TO_USD_RATE = 100; // 100 coins = $1
 
 function CustomFieldInput({ item, field, value, onChange }: { item: CartItem; field: any; value: string; onChange: (itemId: string, fieldLabel: string, value: string) => void; }) {
   const [error, setError] = useState('');
@@ -84,7 +88,7 @@ export default function CheckoutPage() {
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
-  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [useWallet, setUseWallet] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
@@ -92,6 +96,11 @@ export default function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [couponError, setCouponError] = useState('');
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
+  const [tipPercentage, setTipPercentage] = useState(0);
+  const [customTip, setCustomTip] = useState('');
+
+  const [coinsToRedeem, setCoinsToRedeem] = useState(0);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -108,12 +117,15 @@ export default function CheckoutPage() {
     const fetchCheckoutData = async () => {
       if (user) {
         try {
-          const [methods, balance] = await Promise.all([
+          const [methods, profile] = await Promise.all([
             getPaymentMethods(),
-            getUserWalletBalance(user.uid)
+            getUserProfile(user.uid)
           ]);
           setPaymentMethods(methods);
-          setWalletBalance(balance);
+          setUserProfile(profile);
+          if (methods.length > 0) {
+            setSelectedMethodId(methods[0].id)
+          }
         } catch (error) {
           console.error("Failed to fetch checkout data:", error);
           toast({ title: 'Error', description: 'Could not load payment options.', variant: 'destructive' });
@@ -128,10 +140,9 @@ export default function CheckoutPage() {
   }, [cartTotal, convertPrice]);
   
   const convertedWalletBalance = useMemo(() => {
-    if (walletBalance === null) return null;
-    return convertPrice(walletBalance);
-  }, [walletBalance, convertPrice]);
-
+    if (userProfile === null) return null;
+    return convertPrice(userProfile.walletBalance);
+  }, [userProfile, convertPrice]);
 
   const selectedMethod = useMemo(() => {
     return paymentMethods.find(method => method.id === selectedMethodId);
@@ -146,7 +157,6 @@ export default function CheckoutPage() {
     } else { // percentage
       discount = convertedCartTotal * (appliedCoupon.discountValue / 100);
     }
-    // Discount cannot be more than the cart total
     return Math.min(discount, convertedCartTotal);
   }, [appliedCoupon, convertedCartTotal, convertPrice]);
   
@@ -154,30 +164,50 @@ export default function CheckoutPage() {
     return convertedCartTotal - couponDiscountAmount;
   }, [convertedCartTotal, couponDiscountAmount]);
 
+  const coinDiscountAmount = useMemo(() => {
+    const discountInUSD = coinsToRedeem / COINS_TO_USD_RATE;
+    return convertPrice(discountInUSD);
+  }, [coinsToRedeem, convertPrice]);
+
+  const subtotalAfterCoins = useMemo(() => {
+    return Math.max(0, subtotalAfterCoupon - coinDiscountAmount);
+  }, [subtotalAfterCoupon, coinDiscountAmount]);
+
   const walletCredit = useMemo(() => {
     if (!useWallet || convertedWalletBalance === null) return 0;
-    return Math.min(convertedWalletBalance, subtotalAfterCoupon);
-  }, [useWallet, convertedWalletBalance, subtotalAfterCoupon]);
+    return Math.min(convertedWalletBalance, subtotalAfterCoins);
+  }, [useWallet, convertedWalletBalance, subtotalAfterCoins]);
 
   const subtotalAfterWallet = useMemo(() => {
-    return subtotalAfterCoupon - walletCredit;
-  }, [subtotalAfterCoupon, walletCredit]);
+    return subtotalAfterCoins - walletCredit;
+  }, [subtotalAfterCoins, walletCredit]);
+
+  const tipAmount = useMemo(() => {
+      if (customTip) {
+          return parseFloat(customTip) || 0;
+      }
+      return subtotalAfterWallet * (tipPercentage / 100);
+  }, [tipPercentage, customTip, subtotalAfterWallet]);
+
+  const subtotalAfterTip = useMemo(() => {
+    return subtotalAfterWallet + tipAmount;
+  }, [subtotalAfterWallet, tipAmount]);
 
   const taxAmount = useMemo(() => {
     if (!selectedMethod) return 0;
-    return subtotalAfterWallet * (selectedMethod.taxRate / 100);
-  }, [subtotalAfterWallet, selectedMethod]);
+    return subtotalAfterTip * (selectedMethod.taxRate / 100);
+  }, [subtotalAfterTip, selectedMethod]);
 
   const finalTotal = useMemo(() => {
-    return subtotalAfterWallet + taxAmount;
-  }, [subtotalAfterWallet, taxAmount]);
+    return subtotalAfterTip + taxAmount;
+  }, [subtotalAfterTip, taxAmount]);
 
   const walletDeductionInUSD = useMemo(() => {
-    if (!useWallet || walletBalance === null) return 0;
+    if (!useWallet || userProfile?.walletBalance === null) return 0;
     const subtotalAfterCouponInUSD = cartTotal - (couponDiscountAmount / (currency === 'TND' ? CONVERSION_RATE_USD_TO_TND : 1));
-    return Math.min(walletBalance, subtotalAfterCouponInUSD);
-  }, [useWallet, walletBalance, cartTotal, couponDiscountAmount, currency]);
-
+     const subtotalAfterCoinsInUSD = Math.max(0, subtotalAfterCouponInUSD - (coinsToRedeem / COINS_TO_USD_RATE));
+    return Math.min(userProfile!.walletBalance, subtotalAfterCoinsInUSD);
+  }, [useWallet, userProfile, cartTotal, couponDiscountAmount, currency, coinsToRedeem]);
 
   const isFullPaymentByWallet = useMemo(() => {
       return walletCredit > 0 && finalTotal <= 0.001; // Use a small epsilon for floating point comparison
@@ -186,8 +216,12 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (isFullPaymentByWallet) {
         setSelectedMethodId(null);
+    } else {
+      if (!selectedMethodId && paymentMethods.length > 0) {
+        setSelectedMethodId(paymentMethods[0].id)
+      }
     }
-  }, [isFullPaymentByWallet]);
+  }, [isFullPaymentByWallet, paymentMethods, selectedMethodId]);
 
   const itemsWithCustomFields = useMemo(() => {
     return cartItems.filter(item => item.customFields && item.customFields.length > 0);
@@ -269,16 +303,21 @@ export default function CheckoutPage() {
       const finalTotalInUSD = finalTotal / conversionRate;
       const taxInUSD = taxAmount / conversionRate;
       const couponDiscountInUSD = couponDiscountAmount / conversionRate;
+      const tipInUSD = tipAmount / conversionRate;
+      const coinDiscountInUSD = coinDiscountAmount / conversionRate;
 
       await addOrder({
         userId: user.uid,
         userEmail: user.email || 'Anonymous',
         items: cartItems,
-        subtotal: cartTotal, // cartTotal is always in USD
+        subtotal: cartTotal,
         tax: taxInUSD,
+        tip: tipInUSD,
         walletDeduction: walletDeductionInUSD,
         couponDiscount: couponDiscountInUSD,
         couponCode: appliedCoupon?.code,
+        coinsRedeemed: coinsToRedeem,
+        coinDiscount: coinDiscountInUSD,
         total: finalTotalInUSD,
         currency: currency,
         paymentMethod: paymentMethodDetails,
@@ -300,7 +339,9 @@ export default function CheckoutPage() {
     }
   };
   
-  const isWalletAvailable = walletBalance !== null && walletBalance > 0;
+  const isWalletAvailable = (userProfile?.walletBalance ?? 0) > 0;
+  const areCoinsAvailable = (userProfile?.valhallaCoins ?? 0) > 0;
+
 
   if (authLoading || !user) {
     return <PageWrapper><div className="text-center">Loading...</div></PageWrapper>;
@@ -318,6 +359,15 @@ export default function CheckoutPage() {
         </div>
       </PageWrapper>
     );
+  }
+
+  const handleTipButtonClick = (p: number) => {
+    setTipPercentage(p);
+    setCustomTip('');
+  }
+  const handleCustomTipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCustomTip(e.target.value);
+    setTipPercentage(0);
   }
 
   return (
@@ -377,7 +427,7 @@ export default function CheckoutPage() {
                             <div className="flex-grow">
                                 <p className="font-semibold">Use Wallet Credit</p>
                                 <p className="text-sm">
-                                    Balance: {walletBalance !== null ? formatPrice(walletBalance, undefined, false) : 'Loading...'}
+                                    Balance: {userProfile !== null ? formatPrice(userProfile.walletBalance, undefined, false) : 'Loading...'}
                                 </p>
                             </div>
                         </div>
@@ -455,6 +505,33 @@ export default function CheckoutPage() {
                   </div>
                 ))}
                 <div className="animated-separator" />
+
+                {areCoinsAvailable && (
+                  <>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                       <Label className="flex items-center gap-2">
+                        <Star className="h-4 w-4 text-accent" />
+                        <span>Use Valhalla Coins</span>
+                       </Label>
+                       <span className="text-xs font-mono">{coinsToRedeem} / {userProfile?.valhallaCoins.toLocaleString()}</span>
+                    </div>
+                    <Slider 
+                      min={0}
+                      max={userProfile?.valhallaCoins ?? 0}
+                      step={1}
+                      value={[coinsToRedeem]}
+                      onValueChange={(value) => setCoinsToRedeem(value[0])}
+                    />
+                     <div className="text-right text-sm text-muted-foreground">
+                        <span>Discount: </span>
+                        <span className="font-semibold text-primary">{formatPrice(coinDiscountAmount, undefined, true)}</span>
+                    </div>
+                  </div>
+                  <div className="animated-separator" />
+                  </>
+                )}
+
                 <div className="space-y-4">
                     {!appliedCoupon ? (
                         <div className="flex items-end gap-2">
@@ -487,6 +564,22 @@ export default function CheckoutPage() {
                     {couponError && <p className="text-sm text-destructive">{couponError}</p>}
                 </div>
                  <div className="animated-separator" />
+                 <div className="space-y-2">
+                    <Label>Leave a Tip? (Optional)</Label>
+                    <div className="grid grid-cols-4 gap-2">
+                        {[10, 15, 20].map(p => (
+                            <Button key={p} variant={tipPercentage === p ? 'default' : 'outline'} onClick={() => handleTipButtonClick(p)}>{p}%</Button>
+                        ))}
+                         <Input 
+                            placeholder="Custom" 
+                            type="number"
+                            value={customTip}
+                            onChange={handleCustomTipChange}
+                            className={cn(customTip && "border-primary ring-1 ring-primary")}
+                          />
+                    </div>
+                 </div>
+                 <div className="animated-separator" />
                 <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                         <span>Subtotal</span>
@@ -498,10 +591,22 @@ export default function CheckoutPage() {
                             <span>-{formatPrice(couponDiscountAmount, undefined, true)}</span>
                         </div>
                     )}
+                     {coinDiscountAmount > 0 && (
+                       <div className="flex justify-between text-primary">
+                            <span>Valhalla Coins Discount</span>
+                            <span>-{formatPrice(coinDiscountAmount, undefined, true)}</span>
+                        </div>
+                    )}
                      {walletCredit > 0 && (
                        <div className="flex justify-between text-primary">
                             <span>Wallet Credit</span>
                             <span>-{formatPrice(walletCredit, undefined, true)}</span>
+                        </div>
+                    )}
+                     {tipAmount > 0 && (
+                        <div className="flex justify-between">
+                            <span>Tip</span>
+                            <span>{formatPrice(tipAmount, undefined, true)}</span>
                         </div>
                     )}
                     {selectedMethod && !isFullPaymentByWallet && (

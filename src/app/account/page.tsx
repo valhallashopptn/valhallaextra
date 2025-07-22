@@ -7,8 +7,8 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getOrdersForUser } from '@/services/orderService';
-import { getUserWalletBalance } from '@/services/walletService';
-import type { Order, DeliveredAssetInfo } from '@/lib/types';
+import { getUserProfile } from '@/services/walletService';
+import type { Order, DeliveredAssetInfo, UserProfile } from '@/lib/types';
 import {
   Accordion,
   AccordionContent,
@@ -21,7 +21,7 @@ import { Separator } from '@/components/ui/separator';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Wallet, KeySquare, Copy, Check } from 'lucide-react';
+import { Wallet, KeySquare, Copy, Check, Star } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
@@ -131,10 +131,22 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
                         <span>Tax:</span>
                         <span>{formatOrderPrice(order.tax, order.currency)}</span>
                     </div>
+                     {order.tip && order.tip > 0 && (
+                        <div className="flex justify-between">
+                            <span>Tip:</span>
+                            <span>{formatOrderPrice(order.tip, order.currency)}</span>
+                        </div>
+                    )}
                     {order.walletDeduction > 0 && (
                             <div className="flex justify-between text-primary">
                             <span>Wallet Credit:</span>
                             <span>-{formatOrderPrice(order.walletDeduction, order.currency)}</span>
+                        </div>
+                    )}
+                     {order.coinsRedeemed && order.coinsRedeemed > 0 && (
+                        <div className="flex justify-between text-primary">
+                            <span>Valhalla Coins:</span>
+                            <span>-{formatOrderPrice(order.coinDiscount ?? 0, order.currency)}</span>
                         </div>
                     )}
                     <div className="flex justify-between font-bold text-foreground">
@@ -166,7 +178,7 @@ export default function AccountPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
-  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [viewingAsset, setViewingAsset] = useState<DeliveredAssetInfo | null>(null);
 
   useEffect(() => {
@@ -179,12 +191,12 @@ export default function AccountPage() {
     const fetchAccountData = async () => {
       if (user) {
         setOrdersLoading(true);
-        const [userOrders, balance] = await Promise.all([
+        const [userOrders, profile] = await Promise.all([
             getOrdersForUser(user.uid),
-            getUserWalletBalance(user.uid)
+            getUserProfile(user.uid)
         ]);
         setOrders(userOrders);
-        setWalletBalance(balance);
+        setUserProfile(profile);
         setOrdersLoading(false);
       }
     };
@@ -270,10 +282,25 @@ export default function AccountPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-primary">
-                    {walletBalance !== null ? formatCurrency(walletBalance) : 'Loading...'}
+                    {userProfile !== null ? formatCurrency(userProfile.walletBalance) : 'Loading...'}
                 </div>
                 <p className="text-xs text-muted-foreground">
                     Your available credit for purchases.
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Valhalla Coins</CardTitle>
+                <Star className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-accent">
+                    {userProfile !== null ? userProfile.valhallaCoins.toLocaleString() : 'Loading...'}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                    Your loyalty points for discounts.
                 </p>
               </CardContent>
             </Card>

@@ -286,10 +286,22 @@ export default function OrdersPage() {
                                             <span>Tax:</span>
                                             <span>{formatOrderPrice(order.tax, order.currency)}</span>
                                         </div>
+                                        {order.tip && order.tip > 0 && (
+                                            <div className="flex justify-between">
+                                                <span>Tip:</span>
+                                                <span>{formatOrderPrice(order.tip, order.currency)}</span>
+                                            </div>
+                                        )}
                                         {order.walletDeduction > 0 && (
                                             <div className="flex justify-between text-primary">
                                                 <span>Wallet Credit:</span>
                                                 <span>-{formatOrderPrice(order.walletDeduction, order.currency)}</span>
+                                            </div>
+                                        )}
+                                        {order.coinsRedeemed && order.coinsRedeemed > 0 && (
+                                            <div className="flex justify-between text-primary">
+                                                <span>Valhalla Coins ({order.coinsRedeemed}):</span>
+                                                <span>-{formatOrderPrice(order.coinDiscount ?? 0, order.currency)}</span>
                                             </div>
                                         )}
                                         <div className="flex justify-between font-bold text-foreground">
