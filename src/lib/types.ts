@@ -1,4 +1,5 @@
 
+
 import type { User as FirebaseUser } from 'firebase/auth';
 import type { Timestamp } from 'firebase/firestore';
 
@@ -38,7 +39,6 @@ export interface Product {
   stock: number;
   categoryId: string;
   categoryName: string;
-  deliveryType: 'standard' | 'automatic_delivery';
   category?: Category;
   tabs?: ProductTab[];
   variants?: ProductVariant[];

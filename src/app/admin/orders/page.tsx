@@ -187,16 +187,11 @@ export default function OrdersPage() {
         toast({ title: 'Error', description: error.message || 'Failed to deliver order.', variant: 'destructive' });
     }
   }
-  
-  const isOrderDeliverable = (order: Order): boolean => {
-    // An order is deliverable if any of its items are not 'standard' delivery
-    // and the order status is 'paid'.
-    if (order.status !== 'paid') {
-      return false;
-    }
-    return order.items.some(item => item.deliveryType !== 'standard');
-  };
 
+  const isOrderDeliverable = (order: Order): boolean => {
+    return order.status === 'paid';
+  };
+  
   const getStatusBadgeClass = (status: OrderStatus) => {
     switch (status) {
       case 'completed':
@@ -266,8 +261,7 @@ export default function OrdersPage() {
                     <TableCell>
                       <div className="flex flex-wrap gap-1 max-w-xs">
                         {order.items.map(item => (
-                          <Badge key={item.id} variant={item.deliveryType === 'automatic_delivery' ? 'default' : 'secondary'}>
-                            {item.deliveryType === 'automatic_delivery' && <Bot className="h-3 w-3 mr-1"/>}
+                          <Badge key={item.id} variant='secondary'>
                             {item.name} (x{item.quantity})
                           </Badge>
                         ))}

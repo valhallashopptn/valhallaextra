@@ -42,7 +42,6 @@ const formSchema = z.object({
   stock: z.coerce.number().int().min(0, { message: 'Stock must be a non-negative integer.' }),
   categoryId: z.string().min(1, { message: 'Please select a category.' }),
   imageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/600x400.png'),
-  deliveryType: z.enum(['standard', 'automatic_delivery']).default('standard'),
   tabs: z.array(productTabSchema).optional(),
   variants: z.array(productVariantSchema).optional(),
   customFields: z.array(customFieldSchema).optional(),
@@ -67,7 +66,6 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
       stock: 100,
       categoryId: '',
       imageUrl: 'https://placehold.co/600x400.png',
-      deliveryType: 'standard',
       tabs: [],
       variants: [],
       customFields: [],
@@ -95,7 +93,6 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
         ...initialData,
         price: Number(initialData.price),
         stock: Number(initialData.stock),
-        deliveryType: initialData.deliveryType || 'standard',
         tabs: initialData.tabs || [],
         variants: initialData.variants || [],
         customFields: initialData.customFields || [],
@@ -108,7 +105,6 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
             stock: 100,
             categoryId: '',
             imageUrl: 'https://placehold.co/600x400.png',
-            deliveryType: 'standard',
             tabs: [],
             variants: [],
             customFields: [],
@@ -156,7 +152,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                 </FormItem>
               )}
             />
-             <div className="grid grid-cols-2 gap-4">
+             <div className="grid grid-cols-1 gap-4">
               <FormField
                 control={form.control}
                 name="categoryId"
@@ -173,27 +169,6 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                         {categories.map(category => (
                           <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
                         ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="deliveryType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Delivery Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a delivery type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="standard">Standard (No Digital Delivery)</SelectItem>
-                        <SelectItem value="automatic_delivery">Automatic Digital Delivery</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

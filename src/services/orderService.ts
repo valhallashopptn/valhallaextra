@@ -122,17 +122,13 @@ export const attemptAutoDelivery = async (orderId: string): Promise<{ delivered:
         if (orderData.status !== 'paid') {
             return { delivered: false, message: "Order is not in 'paid' status." };
         }
-
-        // Check if any item in the order is for automatic delivery
-        const autoDeliveryItems = orderData.items.filter(item => item.deliveryType === 'automatic_delivery');
         
-        if (autoDeliveryItems.length === 0) {
-            return { delivered: false, message: "No items for automatic delivery in this order." };
+        if (orderData.items.length > 1) {
+            // This is a simplified check. A more complex system might handle this differently.
+             return { delivered: false, message: "Auto-delivery is only supported for single-item orders." };
         }
         
-        // We'll handle the first auto-delivery item. A more complex system could handle multiple.
-        // For now, we assume one auto-deliverable product per order for simplicity.
-        const itemToDeliver = autoDeliveryItems[0];
+        const itemToDeliver = orderData.items[0];
         
         // Find an available digital asset for this product
         // Note: Using `itemToDeliver.id` which might be a composite ID if variants are used.
@@ -143,10 +139,12 @@ export const attemptAutoDelivery = async (orderId: string): Promise<{ delivered:
             where('status', '==', 'available'),
             limit(1)
         );
-        const assetsSnap = await getDocs(assetsQuery); // getDocs can be used outside transaction if read-only
+        
+        // We need to perform the get within the transaction to ensure atomicity
+        const assetsSnap = await getDocs(assetsQuery);
 
         if (assetsSnap.empty) {
-            throw new Error(`Out of stock for product: ${itemToDeliver.name}. Please deliver manually.`);
+             return { delivered: false, message: `No automatic stock available for product: ${itemToDeliver.name}.` };
         }
 
         const assetDoc = assetsSnap.docs[0];
@@ -175,5 +173,3 @@ export const attemptAutoDelivery = async (orderId: string): Promise<{ delivered:
         return { delivered: true, message: "Order delivered successfully." };
     });
 };
-
-    

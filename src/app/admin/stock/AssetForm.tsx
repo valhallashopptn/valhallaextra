@@ -57,9 +57,6 @@ export function AssetForm({ onSubmit, initialData, onCancel, products }: AssetFo
 
   const { formState } = form;
 
-  // Filter products that are set up for automatic delivery
-  const automaticDeliveryProducts = products.filter(p => p.deliveryType === 'automatic_delivery');
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -76,13 +73,13 @@ export function AssetForm({ onSubmit, initialData, onCancel, products }: AssetFo
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {automaticDeliveryProducts.length > 0 ? (
-                    automaticDeliveryProducts.map(product => (
+                  {products.length > 0 ? (
+                    products.map(product => (
                       <SelectItem key={product.id} value={product.id}>{product.name}</SelectItem>
                     ))
                   ) : (
                     <div className="p-4 text-center text-sm text-muted-foreground">
-                        No products are configured for automatic delivery.
+                        No products found. Add products first.
                     </div>
                   )}
                 </SelectContent>
