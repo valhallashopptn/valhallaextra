@@ -296,7 +296,7 @@ export default function CheckoutPage() {
     try {
       const paymentMethodDetails = isFullPaymentByWallet 
         ? { name: 'Wallet Balance', instructions: 'Paid in full with wallet balance.' }
-        : { name: selectedMethod!.name, instructions: selectedMethod!.instructions ?? '' }
+        : { name: selectedMethod!.name, instructions: selectedMethod!.instructions ?? '', webhookUrl: selectedMethod!.webhookUrl }
 
       // Convert displayed amounts back to USD for storage
       const conversionRate = currency === 'TND' ? CONVERSION_RATE_USD_TO_TND : 1;

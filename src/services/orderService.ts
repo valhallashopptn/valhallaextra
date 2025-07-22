@@ -39,7 +39,7 @@ export const addOrder = async (orderData: {
   coinDiscount?: number;
   total: number;
   currency: 'TND' | 'USD';
-  paymentMethod: { name: string; instructions: string };
+  paymentMethod: { name: string; instructions: string; webhookUrl?: string };
   status?: 'pending' | 'completed' | 'paid';
 }) => {
 
@@ -55,7 +55,7 @@ export const addOrder = async (orderData: {
   };
 
 
-  return runTransaction(db, async (transaction) => {
+  const orderRef = await runTransaction(db, async (transaction) => {
     // 1. Debit from wallet if used
     if (finalOrderData.walletDeduction > 0) {
       await debitFromWallet(transaction, finalOrderData.userId, finalOrderData.walletDeduction);
@@ -79,15 +79,43 @@ export const addOrder = async (orderData: {
     }
     
     // 4. Create the order document
-    const orderRef = doc(collection(db, 'orders'));
-    transaction.set(orderRef, {
+    const newOrderRef = doc(collection(db, 'orders'));
+    transaction.set(newOrderRef, {
       ...finalOrderData,
+      paymentMethod: {
+        name: finalOrderData.paymentMethod.name,
+        instructions: finalOrderData.paymentMethod.instructions,
+      },
       status: finalOrderData.status ?? 'pending',
       createdAt: serverTimestamp(),
     });
 
-    return orderRef;
+    return newOrderRef;
   });
+
+  // 5. Send webhook notification if URL is provided
+  if (finalOrderData.paymentMethod.webhookUrl) {
+    try {
+      // We don't await this, as we don't want to block the user's flow
+      // if the webhook fails.
+      fetch(finalOrderData.paymentMethod.webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...finalOrderData,
+          id: orderRef.id,
+          createdAt: new Date().toISOString()
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to send order notification webhook:", error);
+      // Do not re-throw, as this is a non-critical background task.
+    }
+  }
+
+  return orderRef;
 };
 
 // Get all orders for a specific user
