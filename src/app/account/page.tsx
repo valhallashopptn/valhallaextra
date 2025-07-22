@@ -85,6 +85,11 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
                     <p className="font-semibold">{formatItemPrice(item.price, item.quantity, order.currency)}</p>
                     </div>
                 ))}
+
+                {order.deliveredAsset && order.status === 'completed' && (
+                    <DeliveredAsset asset={order.deliveredAsset} />
+                )}
+                
                 <Separator />
                 <div className="text-sm text-muted-foreground space-y-2">
                     <div className="flex justify-between">
@@ -111,12 +116,6 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
                     <h4 className="font-semibold">Payment Method: {order.paymentMethod?.name || 'N/A'}</h4>
                     <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{order.paymentMethod?.instructions}</p>
                 </div>
-                {order.deliveredAsset && order.status === 'completed' && (
-                     <>
-                        <Separator />
-                        <DeliveredAsset asset={order.deliveredAsset} />
-                     </>
-                )}
                 </div>
             </AccordionContent>
         </AccordionItem>
