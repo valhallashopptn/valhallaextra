@@ -29,7 +29,7 @@ import { OrderConfirmationDialog } from '@/components/OrderConfirmationDialog';
 import { Slider } from '@/components/ui/slider';
 
 
-const COINS_TO_USD_RATE = 100; // 100 coins = $1
+const COINS_TO_USD_RATE = 500; // 500 coins = $1
 
 function CustomFieldInput({ item, field, value, onChange }: { item: CartItem; field: any; value: string; onChange: (itemId: string, fieldLabel: string, value: string) => void; }) {
   const [error, setError] = useState('');

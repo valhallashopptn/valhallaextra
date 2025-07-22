@@ -6,7 +6,7 @@ import { updateOrderStatus } from './orderService';
 import type { UserProfile } from '@/lib/types';
 
 const usersCollectionRef = 'users';
-const COINS_EARNED_PER_DOLLAR = 1;
+const COINS_EARNED_PER_DOLLAR = 10;
 
 /**
  * Creates a user profile document if it doesn't exist.
