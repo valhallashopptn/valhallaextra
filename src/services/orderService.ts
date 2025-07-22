@@ -83,6 +83,8 @@ export const addOrder = async (orderData: {
     const newOrderRef = doc(collection(db, 'orders'));
     transaction.set(newOrderRef, {
       ...finalOrderData,
+      couponCode: finalOrderData.couponCode || null,
+      couponDiscount: finalOrderData.couponDiscount || 0,
       status: finalOrderData.status ?? 'pending',
       createdAt: serverTimestamp(),
     });
