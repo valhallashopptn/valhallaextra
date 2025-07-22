@@ -89,12 +89,12 @@ export const debitFromWallet = async (transaction: Transaction, userId: string, 
 
 
 /**
- * Processes a refund by adding the order total to the user's wallet
+ * Processes a refund by adding the order's subtotal to the user's wallet
  * and updating the order status to 'refunded'. This is a transaction
  * to ensure both operations succeed or fail together.
  */
-export const refundToWallet = async (userId: string, amount: number, orderId: string) => {
-    if (amount <= 0) {
+export const refundToWallet = async (userId: string, subtotal: number, orderId: string) => {
+    if (subtotal <= 0) {
         throw new Error("Refund amount must be positive.");
     }
 
@@ -108,12 +108,12 @@ export const refundToWallet = async (userId: string, amount: number, orderId: st
             if (!userDoc.exists()) {
                 // If the user profile doesn't exist, create it within the transaction
                  transaction.set(userDocRef, {
-                    walletBalance: amount,
+                    walletBalance: subtotal,
                     createdAt: serverTimestamp()
                  });
             } else {
                  transaction.update(userDocRef, {
-                    walletBalance: increment(amount)
+                    walletBalance: increment(subtotal)
                  });
             }
             

@@ -123,12 +123,12 @@ export default function OrdersPage() {
   }, [fetchOrders]);
 
   const handleStatusChange = async (order: Order, status: OrderStatus) => {
-    const { id: orderId, userId, total, currency } = order;
+    const { id: orderId, userId, subtotal, currency } = order;
     try {
       if (status === 'refunded') {
-        const refundAmount = total; 
+        const refundAmount = subtotal; 
         await refundToWallet(userId, refundAmount, orderId);
-        toast({ title: 'Success', description: `Order refunded. ${formatOrderPrice(total, currency)} credited to user wallet.` });
+        toast({ title: 'Success', description: `Order refunded. ${formatOrderPrice(refundAmount, currency)} credited to user wallet.` });
       } else {
         await updateOrderStatus(orderId, status);
         toast({ title: 'Success', description: 'Order status updated successfully.' });
@@ -293,7 +293,7 @@ export default function OrdersPage() {
                                   <AlertDialogHeader>
                                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                      This will mark the order as refunded and credit {formatOrderPrice(order.total, order.currency)} to the customer's wallet. This action cannot be undone.
+                                      This will mark the order as refunded and credit {formatOrderPrice(order.subtotal, order.currency)} to the customer's wallet. This action cannot be undone.
                                   </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
