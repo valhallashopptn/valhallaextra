@@ -51,7 +51,6 @@ function DeliveredAsset({ asset }: { asset: DeliveredAssetInfo }) {
 }
 
 function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadgeClass }: { order: Order, formatOrderPrice: any, formatItemPrice: any, getStatusBadgeClass: any }) {
-    const [isAssetVisible, setIsAssetVisible] = useState(false);
 
     return (
         <AccordionItem value={order.id} key={order.id}>
@@ -112,14 +111,10 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
                     <h4 className="font-semibold">Payment Method: {order.paymentMethod?.name || 'N/A'}</h4>
                     <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{order.paymentMethod?.instructions}</p>
                 </div>
-                {order.deliveredAsset && (
+                {order.deliveredAsset && order.status === 'completed' && (
                      <>
                         <Separator />
-                        <Button onClick={() => setIsAssetVisible(!isAssetVisible)} variant="outline" size="sm">
-                            <KeySquare className="mr-2 h-4 w-4" />
-                            {isAssetVisible ? "Hide My Item" : "Reveal My Item"}
-                        </Button>
-                        {isAssetVisible && <DeliveredAsset asset={order.deliveredAsset} />}
+                        <DeliveredAsset asset={order.deliveredAsset} />
                      </>
                 )}
                 </div>
