@@ -110,11 +110,6 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
                                 </div>
                                 )}
                             </div>
-                            {order.deliveredAsset && order.status === 'completed' && (
-                                <Button size="sm" onClick={() => onViewAsset(order.deliveredAsset!)}>
-                                    <KeySquare className="mr-2 h-4 w-4" /> View Item
-                                </Button>
-                            )}
                         </div>
                         <p className="font-semibold min-w-[80px] text-right">{formatItemPrice(item.price, item.quantity, order.currency)}</p>
                     </div>
@@ -142,9 +137,16 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
                     </div>
                 </div>
                 <Separator />
-                <div>
-                    <h4 className="font-semibold">Payment Method: {order.paymentMethod?.name || 'N/A'}</h4>
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{order.paymentMethod?.instructions}</p>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h4 className="font-semibold">Payment Method: {order.paymentMethod?.name || 'N/A'}</h4>
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{order.paymentMethod?.instructions}</p>
+                    </div>
+                    {order.deliveredAsset && order.status === 'completed' && (
+                        <Button size="sm" onClick={() => onViewAsset(order.deliveredAsset!)}>
+                            <KeySquare className="mr-2 h-4 w-4" /> View Item
+                        </Button>
+                    )}
                 </div>
                 </div>
             </AccordionContent>
