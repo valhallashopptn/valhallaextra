@@ -72,21 +72,28 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
                 <div className="space-y-4 pt-2">
                 {order.items.map((item, index) => (
                     <div key={item.id + index} className="flex items-center space-x-4">
-                    <Image src={item.imageUrl} alt={item.name} width={64} height={64} className="rounded-md object-cover" data-ai-hint={item.dataAiHint} />
-                    <div className="flex-grow">
-                        <p className="font-semibold">{item.name}</p>
-                        <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
-                        {item.customFieldData && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                            {Object.entries(item.customFieldData).map(([key, value]) => (
-                            <div key={key}>
-                                <span className="font-medium">{key}:</span> {value}
+                        <Image src={item.imageUrl} alt={item.name} width={64} height={64} className="rounded-md object-cover" data-ai-hint={item.dataAiHint} />
+                        <div className="flex-grow">
+                            <p className="font-semibold">{item.name}</p>
+                            <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
+                            {item.customFieldData && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                                {Object.entries(item.customFieldData).map(([key, value]) => (
+                                <div key={key}>
+                                    <span className="font-medium">{key}:</span> {value}
+                                </div>
+                                ))}
                             </div>
-                            ))}
+                            )}
                         </div>
-                        )}
-                    </div>
-                    <p className="font-semibold">{formatItemPrice(item.price, item.quantity, order.currency)}</p>
+                        <div className="flex items-center gap-4">
+                            <p className="font-semibold">{formatItemPrice(item.price, item.quantity, order.currency)}</p>
+                             {order.deliveredAsset && order.status === 'completed' && (
+                                <Button size="sm" onClick={() => onViewAsset(order.deliveredAsset!)}>
+                                    <KeySquare className="mr-2 h-4 w-4" /> View Item
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 ))}
                 
@@ -116,14 +123,6 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
                     <h4 className="font-semibold">Payment Method: {order.paymentMethod?.name || 'N/A'}</h4>
                     <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{order.paymentMethod?.instructions}</p>
                 </div>
-
-                {order.deliveredAsset && order.status === 'completed' && (
-                    <div className="mt-4">
-                        <Button onClick={() => onViewAsset(order.deliveredAsset!)}>
-                            <KeySquare className="mr-2 h-4 w-4" /> View Delivered Item
-                        </Button>
-                    </div>
-                )}
                 </div>
             </AccordionContent>
         </AccordionItem>
