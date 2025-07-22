@@ -282,7 +282,7 @@ export default function AccountPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-primary">
-                    {userProfile !== null ? formatCurrency(userProfile.walletBalance) : 'Loading...'}
+                    {userProfile?.walletBalance !== undefined ? formatCurrency(userProfile.walletBalance) : 'Loading...'}
                 </div>
                 <p className="text-xs text-muted-foreground">
                     Your available credit for purchases.
@@ -297,7 +297,7 @@ export default function AccountPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-accent">
-                    {userProfile !== null ? userProfile.valhallaCoins.toLocaleString() : 'Loading...'}
+                    {userProfile?.valhallaCoins !== undefined ? userProfile.valhallaCoins.toLocaleString() : 'Loading...'}
                 </div>
                 <p className="text-xs text-muted-foreground">
                     Your loyalty points for discounts.
