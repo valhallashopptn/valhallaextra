@@ -23,34 +23,38 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Wallet, KeySquare, Eye, EyeOff } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
-type OrderStatus = 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid';
-
-function DeliveredAsset({ asset }: { asset: DeliveredAssetInfo }) {
-    const [showPassword, setShowPassword] = useState(false);
-
+function DeliveredAssetDialog({ asset, isOpen, onOpenChange }: { asset: DeliveredAssetInfo | null, isOpen: boolean, onOpenChange: (open: boolean) => void }) {
+    if (!asset) return null;
+    
     return (
-        <Card className="mt-4 bg-muted/50">
-            <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2"><KeySquare className="h-5 w-5" /> Your Delivered Item</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-                <div>
-                    <Label className="text-xs font-semibold">Details</Label>
-                    <p className="font-mono bg-background p-2 rounded-md break-all whitespace-pre-wrap">{asset.data}</p>
-                </div>
-                {asset.extraInfo && (
-                     <div>
-                        <Label className="text-xs font-semibold">Additional Information</Label>
-                        <p className="whitespace-pre-wrap p-2">{asset.extraInfo}</p>
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2"><KeySquare className="h-5 w-5" /> Your Delivered Item</DialogTitle>
+                    <DialogDescription>
+                        This is the digital item you purchased. Keep it safe.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                    <div>
+                        <Label className="text-xs font-semibold">Details</Label>
+                        <p className="font-mono bg-muted p-3 rounded-md break-all whitespace-pre-wrap text-sm">{asset.data}</p>
                     </div>
-                )}
-            </CardContent>
-        </Card>
+                    {asset.extraInfo && (
+                         <div>
+                            <Label className="text-xs font-semibold">Additional Information</Label>
+                            <p className="whitespace-pre-wrap p-2 text-sm">{asset.extraInfo}</p>
+                        </div>
+                    )}
+                </div>
+            </DialogContent>
+        </Dialog>
     )
 }
 
-function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadgeClass }: { order: Order, formatOrderPrice: any, formatItemPrice: any, getStatusBadgeClass: any }) {
+function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadgeClass, onViewAsset }: { order: Order, formatOrderPrice: any, formatItemPrice: any, getStatusBadgeClass: any, onViewAsset: (asset: DeliveredAssetInfo) => void }) {
 
     return (
         <AccordionItem value={order.id} key={order.id}>
@@ -85,10 +89,6 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
                     <p className="font-semibold">{formatItemPrice(item.price, item.quantity, order.currency)}</p>
                     </div>
                 ))}
-
-                {order.deliveredAsset && order.status === 'completed' && (
-                    <DeliveredAsset asset={order.deliveredAsset} />
-                )}
                 
                 <Separator />
                 <div className="text-sm text-muted-foreground space-y-2">
@@ -116,6 +116,14 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
                     <h4 className="font-semibold">Payment Method: {order.paymentMethod?.name || 'N/A'}</h4>
                     <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{order.paymentMethod?.instructions}</p>
                 </div>
+
+                {order.deliveredAsset && order.status === 'completed' && (
+                    <div className="mt-4">
+                        <Button onClick={() => onViewAsset(order.deliveredAsset!)}>
+                            <KeySquare className="mr-2 h-4 w-4" /> View Delivered Item
+                        </Button>
+                    </div>
+                )}
                 </div>
             </AccordionContent>
         </AccordionItem>
@@ -129,6 +137,7 @@ export default function AccountPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const [viewingAsset, setViewingAsset] = useState<DeliveredAssetInfo | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -189,8 +198,18 @@ export default function AccountPage() {
         return 'bg-gray-500';
     }
   }
+  
+  const handleViewAsset = (asset: DeliveredAssetInfo) => {
+    setViewingAsset(asset);
+  }
 
   return (
+    <>
+    <DeliveredAssetDialog 
+        asset={viewingAsset}
+        isOpen={!!viewingAsset}
+        onOpenChange={(isOpen) => !isOpen && setViewingAsset(null)}
+    />
     <PageWrapper>
       <div className="space-y-8">
         <div>
@@ -249,6 +268,7 @@ export default function AccountPage() {
                         formatOrderPrice={formatOrderPrice}
                         formatItemPrice={formatItemPrice}
                         getStatusBadgeClass={getStatusBadgeClass}
+                        onViewAsset={handleViewAsset}
                       />
                     ))}
                   </Accordion>
@@ -261,5 +281,6 @@ export default function AccountPage() {
         </div>
       </div>
     </PageWrapper>
+    </>
   );
 }
