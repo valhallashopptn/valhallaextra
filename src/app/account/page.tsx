@@ -121,6 +121,12 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
                         <span>Subtotal:</span>
                         <span>{formatOrderPrice(order.subtotal, order.currency)}</span>
                     </div>
+                     {order.couponDiscount && order.couponDiscount > 0 && (
+                        <div className="flex justify-between text-primary">
+                            <span>Coupon ({order.couponCode}):</span>
+                            <span>-{formatOrderPrice(order.couponDiscount, order.currency)}</span>
+                        </div>
+                    )}
                     <div className="flex justify-between">
                         <span>Tax:</span>
                         <span>{formatOrderPrice(order.tax, order.currency)}</span>
@@ -206,7 +212,7 @@ export default function AccountPage() {
     return <div className="text-center container mx-auto px-4 py-8">Loading account details...</div>;
   }
 
-  const getStatusBadgeClass = (status: OrderStatus) => {
+  const getStatusBadgeClass = (status: Order['status']) => {
     switch (status) {
       case 'completed':
         return 'bg-green-600';

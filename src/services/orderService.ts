@@ -15,7 +15,8 @@ import {
   runTransaction,
   increment,
   limit,
-  getDoc
+  getDoc,
+  arrayUnion
 } from 'firebase/firestore';
 import { debitFromWallet } from './walletService';
 
@@ -31,6 +32,8 @@ export const addOrder = async (orderData: {
   subtotal: number;
   tax: number;
   walletDeduction: number; // This should be in USD for consistent wallet logic
+  couponDiscount?: number;
+  couponCode?: string;
   total: number;
   currency: 'TND' | 'USD';
   paymentMethod: { name: string; instructions: string };
@@ -51,29 +54,36 @@ export const addOrder = async (orderData: {
   };
 
 
-  if (finalOrderData.walletDeduction > 0) {
-    // This is a transaction involving the wallet
-    return runTransaction(db, async (transaction) => {
-      // 1. Debit from wallet (wallet is always in USD)
+  return runTransaction(db, async (transaction) => {
+    // 1. Debit from wallet if used
+    if (finalOrderData.walletDeduction > 0) {
       await debitFromWallet(transaction, finalOrderData.userId, finalOrderData.walletDeduction);
-      
-      // 2. Create the order document
-      const orderRef = doc(collection(db, 'orders'));
-      transaction.set(orderRef, {
-        ...finalOrderData,
-        status: finalOrderData.status ?? 'pending',
-        createdAt: serverTimestamp(),
-      });
-      return orderRef;
-    });
-  } else {
-    // This is a standard manual payment method without wallet usage
-    return await addDoc(ordersCollectionRef, {
+    }
+
+    // 2. Mark coupon as used if applicable
+    if (finalOrderData.couponCode) {
+        const couponQuery = query(collection(db, 'coupons'), where('code', '==', finalOrderData.couponCode));
+        const couponSnapshot = await getDocs(couponQuery); // Note: getDocs is not a transaction operation. This is a limitation. For true atomicity, we'd need a Cloud Function.
+        if (!couponSnapshot.empty) {
+            const couponDoc = couponSnapshot.docs[0];
+            if (couponDoc.data().oneTimeUse) {
+                 transaction.update(couponDoc.ref, {
+                    usedBy: arrayUnion(finalOrderData.userId)
+                });
+            }
+        }
+    }
+    
+    // 3. Create the order document
+    const orderRef = doc(collection(db, 'orders'));
+    transaction.set(orderRef, {
       ...finalOrderData,
-      status: finalOrderData.status ?? 'pending', // Default status for manual payments
+      status: finalOrderData.status ?? 'pending',
       createdAt: serverTimestamp(),
     });
-  }
+
+    return orderRef;
+  });
 };
 
 // Get all orders for a specific user
@@ -101,7 +111,7 @@ export const updateOrderStatus = async (orderId: string, status: 'pending' | 'co
 };
 
 // Deliver an order manually
-export const deliverOrderManually = async (orderId: string, deliveryData: Omit<DeliveredAssetInfo, 'type'>) => {
+export const deliverOrderManually = async (orderId: string, deliveryData: DeliveredAssetInfo) => {
     const orderDocRef = doc(db, 'orders', orderId);
     return await updateDoc(orderDocRef, {
         deliveredAsset: deliveryData,
@@ -141,7 +151,6 @@ export const attemptAutoDelivery = async (orderId: string): Promise<{ delivered:
             limit(1)
         );
         
-        // We need to perform the get within the transaction to ensure atomicity
         const assetsSnap = await getDocs(assetsQuery);
 
         if (assetsSnap.empty) {

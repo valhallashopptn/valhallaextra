@@ -17,10 +17,11 @@ import { useToast } from '@/hooks/use-toast';
 import { addOrder } from '@/services/orderService';
 import { getPaymentMethods } from '@/services/paymentMethodService';
 import { getUserWalletBalance } from '@/services/walletService';
+import { getCouponByCode } from '@/services/couponService';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { PageWrapper } from '@/components/PageWrapper';
-import type { PaymentMethod, CartItem } from '@/lib/types';
-import { Lock, Info, Wallet } from 'lucide-react';
+import type { PaymentMethod, CartItem, Coupon } from '@/lib/types';
+import { Lock, Info, Wallet, Tag, CheckCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -87,6 +88,11 @@ export default function CheckoutPage() {
   const [useWallet, setUseWallet] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [couponError, setCouponError] = useState('');
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
   useEffect(() => {
     if (!authLoading && !user) {
       toast({
@@ -131,14 +137,31 @@ export default function CheckoutPage() {
     return paymentMethods.find(method => method.id === selectedMethodId);
   }, [paymentMethods, selectedMethodId]);
   
+  const couponDiscountAmount = useMemo(() => {
+    if (!appliedCoupon) return 0;
+
+    let discount = 0;
+    if (appliedCoupon.discountType === 'fixed') {
+      discount = convertPrice(appliedCoupon.discountValue);
+    } else { // percentage
+      discount = convertedCartTotal * (appliedCoupon.discountValue / 100);
+    }
+    // Discount cannot be more than the cart total
+    return Math.min(discount, convertedCartTotal);
+  }, [appliedCoupon, convertedCartTotal, convertPrice]);
+  
+  const subtotalAfterCoupon = useMemo(() => {
+    return convertedCartTotal - couponDiscountAmount;
+  }, [convertedCartTotal, couponDiscountAmount]);
+
   const walletCredit = useMemo(() => {
     if (!useWallet || convertedWalletBalance === null) return 0;
-    return Math.min(convertedWalletBalance, convertedCartTotal);
-  }, [useWallet, convertedWalletBalance, convertedCartTotal]);
+    return Math.min(convertedWalletBalance, subtotalAfterCoupon);
+  }, [useWallet, convertedWalletBalance, subtotalAfterCoupon]);
 
   const subtotalAfterWallet = useMemo(() => {
-    return convertedCartTotal - walletCredit;
-  }, [convertedCartTotal, walletCredit]);
+    return subtotalAfterCoupon - walletCredit;
+  }, [subtotalAfterCoupon, walletCredit]);
 
   const taxAmount = useMemo(() => {
     if (!selectedMethod) return 0;
@@ -151,8 +174,9 @@ export default function CheckoutPage() {
 
   const walletDeductionInUSD = useMemo(() => {
     if (!useWallet || walletBalance === null) return 0;
-    return Math.min(walletBalance, cartTotal);
-  }, [useWallet, walletBalance, cartTotal]);
+    const subtotalAfterCouponInUSD = cartTotal - (couponDiscountAmount / (currency === 'TND' ? CONVERSION_RATE_USD_TO_TND : 1));
+    return Math.min(walletBalance, subtotalAfterCouponInUSD);
+  }, [useWallet, walletBalance, cartTotal, couponDiscountAmount, currency]);
 
 
   const isFullPaymentByWallet = useMemo(() => {
@@ -185,6 +209,41 @@ export default function CheckoutPage() {
     updateCartItemCustomData(itemId, fieldLabel, value);
   }, [updateCartItemCustomData]);
 
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setIsApplyingCoupon(true);
+    setCouponError('');
+    setAppliedCoupon(null);
+    
+    try {
+        const coupon = await getCouponByCode(couponCode);
+        if (!coupon) {
+            setCouponError('Invalid coupon code.');
+            return;
+        }
+        if (!coupon.isActive) {
+            setCouponError('This coupon is not active.');
+            return;
+        }
+        if (coupon.oneTimeUse && coupon.usedBy.includes(user!.uid)) {
+            setCouponError('You have already used this coupon.');
+            return;
+        }
+        setAppliedCoupon(coupon);
+        toast({ title: "Coupon Applied!", description: `You've received a discount.` });
+    } catch (err) {
+        setCouponError('Failed to apply coupon.');
+    } finally {
+        setIsApplyingCoupon(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponError('');
+  };
+
   const handleCheckout = async () => {
     if (!user) {
         router.push('/login?redirect=/checkout');
@@ -209,6 +268,7 @@ export default function CheckoutPage() {
       const conversionRate = currency === 'TND' ? CONVERSION_RATE_USD_TO_TND : 1;
       const finalTotalInUSD = finalTotal / conversionRate;
       const taxInUSD = taxAmount / conversionRate;
+      const couponDiscountInUSD = couponDiscountAmount / conversionRate;
 
       await addOrder({
         userId: user.uid,
@@ -217,6 +277,8 @@ export default function CheckoutPage() {
         subtotal: cartTotal, // cartTotal is always in USD
         tax: taxInUSD,
         walletDeduction: walletDeductionInUSD,
+        couponDiscount: couponDiscountInUSD,
+        couponCode: appliedCoupon?.code,
         total: finalTotalInUSD,
         currency: currency,
         paymentMethod: paymentMethodDetails,
@@ -393,11 +455,49 @@ export default function CheckoutPage() {
                   </div>
                 ))}
                 <div className="animated-separator" />
+                <div className="space-y-4">
+                    {!appliedCoupon ? (
+                        <div className="flex items-end gap-2">
+                            <div className="flex-grow">
+                                <Label htmlFor="coupon">Coupon Code</Label>
+                                <Input 
+                                    id="coupon" 
+                                    placeholder="Enter code" 
+                                    value={couponCode}
+                                    onChange={(e) => setCouponCode(e.target.value)}
+                                    disabled={isApplyingCoupon}
+                                />
+                            </div>
+                            <Button onClick={handleApplyCoupon} disabled={!couponCode || isApplyingCoupon}>
+                                {isApplyingCoupon ? 'Applying...' : 'Apply'}
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-green-950 border border-green-700">
+                             <div className="flex items-center gap-2">
+                                <CheckCircle className="h-5 w-5 text-green-500" />
+                                <div className="text-sm">
+                                    <p className="font-semibold text-green-400">Coupon Applied</p>
+                                    <p className="font-mono text-xs">{appliedCoupon.code}</p>
+                                </div>
+                             </div>
+                             <Button variant="ghost" size="sm" onClick={removeCoupon}>Remove</Button>
+                        </div>
+                    )}
+                    {couponError && <p className="text-sm text-destructive">{couponError}</p>}
+                </div>
+                 <div className="animated-separator" />
                 <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                         <span>Subtotal</span>
                         <span>{formatPrice(cartTotal, undefined, false)}</span>
                     </div>
+                    {couponDiscountAmount > 0 && (
+                       <div className="flex justify-between text-primary">
+                            <span>Coupon Discount</span>
+                            <span>-{formatPrice(couponDiscountAmount, undefined, true)}</span>
+                        </div>
+                    )}
                      {walletCredit > 0 && (
                        <div className="flex justify-between text-primary">
                             <span>Wallet Credit</span>

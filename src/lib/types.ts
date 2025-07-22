@@ -65,6 +65,17 @@ export interface DeliveredAssetInfo {
   extraInfo?: string;
 }
 
+export interface Coupon {
+  id: string;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  isActive: boolean;
+  oneTimeUse: boolean;
+  usedBy: string[]; // Array of user IDs
+  createdAt: Timestamp;
+}
+
 export interface Order {
   id: string;
   userId: string;
@@ -73,6 +84,8 @@ export interface Order {
   subtotal: number;
   tax: number;
   walletDeduction: number;
+  couponDiscount?: number;
+  couponCode?: string;
   total: number;
   currency: 'TND' | 'USD';
   status: 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid';
