@@ -41,29 +41,26 @@ function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md
   );
 }
 
-function CustomFieldInput({ field, value, onChange }: { field: CustomField; value: string; onChange: (fieldLabel: string, value: string) => void; }) {
-  const [error, setError] = useState('');
+function CustomFieldInput({ field, value, onChange, showError }: { field: CustomField; value: string; onChange: (fieldLabel: string, value: string) => void; showError: boolean; }) {
+  const getError = () => {
+    if (!showError) return '';
 
-  const validate = useCallback((val: string) => {
-    if (!val) {
-      setError('This field is required.');
-      return false;
+    if (!value) {
+        return 'This field is required.';
     }
-    if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
-      setError('Please enter a valid email.');
-      return false;
+    if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        return 'Please enter a valid email.';
     }
-    if (field.type === 'number' && !/^\d+$/.test(val)) {
-      setError('Please enter a valid number.');
-      return false;
+    if (field.type === 'number' && !/^\d+$/.test(value)) {
+        return 'Please enter a valid number.';
     }
-    setError('');
-    return true;
-  }, [field.type]);
+    return '';
+  }
+
+  const error = getError();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    validate(newValue);
     onChange(field.label, newValue);
   };
   
@@ -75,7 +72,6 @@ function CustomFieldInput({ field, value, onChange }: { field: CustomField; valu
         type={field.type}
         value={value}
         onChange={handleChange}
-        onBlur={() => validate(value)}
         placeholder={`Enter ${field.label.toLowerCase()}`}
         className={error ? 'border-destructive' : ''}
       />
@@ -84,7 +80,7 @@ function CustomFieldInput({ field, value, onChange }: { field: CustomField; valu
   );
 }
 
-const RequiredInformationFields = ({ product, customFieldData, onCustomFieldChange }: { product: Product; customFieldData: Record<string, string>; onCustomFieldChange: (fieldLabel: string, value: string) => void;}) => {
+const RequiredInformationFields = ({ product, customFieldData, onCustomFieldChange, showErrors }: { product: Product; customFieldData: Record<string, string>; onCustomFieldChange: (fieldLabel: string, value: string) => void; showErrors: boolean;}) => {
   if (!product.customFields || product.customFields.length === 0) {
     return null;
   }
@@ -102,6 +98,7 @@ const RequiredInformationFields = ({ product, customFieldData, onCustomFieldChan
                 field={field}
                 value={customFieldData[field.label] || ''}
                 onChange={onCustomFieldChange}
+                showError={showErrors}
             />
             ))}
         </div>
@@ -123,6 +120,7 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
   const [customFieldData, setCustomFieldData] = useState<Record<string, string>>({});
+  const [showCustomFieldErrors, setShowCustomFieldErrors] = useState(false);
 
   const sortedVariants = useMemo(() => {
     if (!product || !product.variants) return [];
@@ -185,6 +183,7 @@ export default function ProductDetailPage() {
     if (!product || product.stock === 0) return;
     
     if (!areAllCustomFieldsValid) {
+      setShowCustomFieldErrors(true);
       toast({
         title: 'Information Required',
         description: 'Please fill out all required fields correctly.',
@@ -193,6 +192,7 @@ export default function ProductDetailPage() {
       return;
     }
 
+    setShowCustomFieldErrors(false);
     const itemToAdd = {
         ...product,
         name: selectedVariant ? `${product.name} - ${selectedVariant.name}` : product.name,
@@ -321,7 +321,7 @@ export default function ProductDetailPage() {
                     />
                 </div>
                 <div className="hidden md:block">
-                  <RequiredInformationFields product={product} customFieldData={customFieldData} onCustomFieldChange={handleCustomFieldChange} />
+                  <RequiredInformationFields product={product} customFieldData={customFieldData} onCustomFieldChange={handleCustomFieldChange} showErrors={showCustomFieldErrors} />
                 </div>
             </div>
 
@@ -415,7 +415,7 @@ export default function ProductDetailPage() {
                     </Button>
                 </div>
                  <div className="block md:hidden">
-                  <RequiredInformationFields product={product} customFieldData={customFieldData} onCustomFieldChange={handleCustomFieldChange} />
+                  <RequiredInformationFields product={product} customFieldData={customFieldData} onCustomFieldChange={handleCustomFieldChange} showErrors={showCustomFieldErrors} />
                 </div>
             </div>
         </div>
