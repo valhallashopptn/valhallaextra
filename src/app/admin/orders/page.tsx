@@ -176,7 +176,7 @@ export default function OrdersPage() {
   }
 
   const isOrderDeliverable = (order: Order): boolean => {
-    return order.status === 'paid';
+    return order.status === 'paid' || order.status === 'pending';
   };
   
   const getStatusBadgeClass = (status: OrderStatus) => {
