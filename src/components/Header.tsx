@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, ShieldCheck, Search, Menu, Wallet } from 'lucide-react';
+import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, ShieldCheck, Search, Menu, Wallet, Star } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -20,7 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Input } from './ui/input';
 import { useEffect, useState, useRef } from 'react';
 import { getProducts } from '@/services/productService';
-import type { Product } from '@/lib/types';
+import type { Product, UserProfile } from '@/lib/types';
 import Image from 'next/image';
 import { Logo } from './icons/Logo';
 import { cn } from '@/lib/utils';
@@ -28,7 +28,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { useTranslation } from '@/context/TranslationContext';
 import { CurrencySwitcher } from './CurrencySwitcher';
 import { CartPanel } from './CartPanel';
-import { getUserWalletBalance } from '@/services/walletService';
+import { getUserProfile } from '@/services/walletService';
 import { useCurrency } from '@/context/CurrencyContext';
 
 
@@ -39,12 +39,12 @@ interface HeaderProps {
 
 export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   const { cartCount, openCart } = useCart();
-  const { user, logOut } = useAuth();
+  const { user, loading } = useAuth();
   const { formatPrice } = useCurrency();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t } = useTranslation();
-  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,21 +53,20 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (user) {
-        const unsubscribe = () => {
-            getUserWalletBalance(user.uid).then(setWalletBalance);
+    if (user && !loading) {
+        const fetchProfile = async () => {
+            const profile = await getUserProfile(user.uid);
+            setUserProfile(profile);
         };
-        // Initial fetch
-        unsubscribe();
+        fetchProfile();
         
-        // This is a simple way to periodically refresh, or you can set up a listener
-        const interval = setInterval(unsubscribe, 30000); // Refresh every 30 seconds
+        const interval = setInterval(fetchProfile, 30000); // Refresh every 30 seconds
 
         return () => clearInterval(interval);
     } else {
-        setWalletBalance(null);
+        setUserProfile(null);
     }
-}, [user]);
+}, [user, loading]);
 
   useEffect(() => {
     const fetchAllProducts = async () => {
@@ -226,15 +225,26 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                     </Link>
                 </nav>
 
-                {user && walletBalance !== null && (
-                  <div className="mt-4 pt-4 border-t">
+                {user && userProfile && (
+                  <div className="mt-4 pt-4 border-t space-y-4">
                     <Link href="/account" onClick={() => setIsMobileMenuOpen(false)}>
                       <div className="flex items-center justify-between p-2 rounded-lg bg-card hover:bg-muted">
                           <div className="flex items-center gap-3">
                             <Wallet className="h-6 w-6 text-primary" />
                             <div>
                                 <p className="font-semibold">Wallet Balance</p>
-                                <p className="text-sm text-muted-foreground">{formatPrice(walletBalance)}</p>
+                                <p className="text-sm text-muted-foreground">{formatPrice(userProfile.walletBalance)}</p>
+                            </div>
+                          </div>
+                      </div>
+                    </Link>
+                     <Link href="/account" onClick={() => setIsMobileMenuOpen(false)}>
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-card hover:bg-muted">
+                          <div className="flex items-center gap-3">
+                            <Star className="h-6 w-6 text-accent" />
+                            <div>
+                                <p className="font-semibold">Valhalla Coins</p>
+                                <p className="text-sm text-muted-foreground">{userProfile.valhallaCoins.toLocaleString()}</p>
                             </div>
                           </div>
                       </div>
@@ -322,11 +332,17 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
           </div>
           
           <div className="flex items-center space-x-1 ml-2">
-            {user && walletBalance !== null && (
-              <Link href="/account" className="hidden md:flex items-center gap-2 border border-border rounded-md px-3 h-10 hover:bg-muted transition-colors">
-                  <Wallet className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-semibold">{formatPrice(walletBalance)}</span>
-              </Link>
+            {user && userProfile && (
+              <div className="hidden md:flex items-center gap-1 border border-border rounded-md px-3 h-10 transition-colors">
+                  <Link href="/account" className="flex items-center gap-2 pr-2 border-r border-border h-full hover:bg-muted -ml-3 px-3 rounded-l-md">
+                    <Wallet className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-semibold">{formatPrice(userProfile.walletBalance)}</span>
+                  </Link>
+                  <Link href="/account" className="flex items-center gap-2 pl-2 h-full hover:bg-muted -mr-3 px-3 rounded-r-md">
+                     <Star className="h-4 w-4 text-accent" />
+                     <span className="text-sm font-semibold">{userProfile.valhallaCoins.toLocaleString()}</span>
+                  </Link>
+              </div>
             )}
 
             <CurrencySwitcher />
@@ -364,11 +380,17 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                       <p className="text-xs leading-none text-muted-foreground">
                         {user.email}
                       </p>
-                      {walletBalance !== null && (
-                         <p className="text-xs leading-none text-muted-foreground pt-2 flex items-center">
-                            <Wallet className="mr-2 h-4 w-4 text-primary" />
-                            <span className='font-semibold'>{formatPrice(walletBalance)}</span>
-                         </p>
+                      {userProfile && (
+                         <div className="space-y-1 pt-2">
+                            <p className="text-xs leading-none text-muted-foreground flex items-center">
+                                <Wallet className="mr-2 h-4 w-4 text-primary" />
+                                <span className='font-semibold'>{formatPrice(userProfile.walletBalance)}</span>
+                            </p>
+                            <p className="text-xs leading-none text-muted-foreground flex items-center">
+                                <Star className="mr-2 h-4 w-4 text-accent" />
+                                <span className='font-semibold'>{userProfile.valhallaCoins.toLocaleString()} Coins</span>
+                            </p>
+                         </div>
                      )}
                     </div>
                   </DropdownMenuLabel>
@@ -402,5 +424,3 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
     </header>
   );
 }
-
-    
