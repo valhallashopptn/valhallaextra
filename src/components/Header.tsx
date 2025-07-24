@@ -226,27 +226,23 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                 </nav>
 
                 {user && userProfile && (
-                  <div className="mt-4 pt-4 border-t space-y-4">
-                    <Link href="/account" onClick={() => setIsMobileMenuOpen(false)}>
-                      <div className="flex items-center justify-between p-2 rounded-lg bg-card hover:bg-muted">
-                          <div className="flex items-center gap-3">
-                            <Wallet className="h-6 w-6 text-primary" />
-                            <div>
-                                <p className="font-semibold">Wallet Balance</p>
-                                <p className="text-sm text-muted-foreground">{formatPrice(userProfile.walletBalance)}</p>
-                            </div>
-                          </div>
+                  <div className="mt-4 pt-4 border-t space-y-2">
+                    <Link href="/account" onClick={() => setIsMobileMenuOpen(false)} className="block p-2 rounded-lg bg-card hover:bg-muted">
+                      <div className="flex items-center gap-3">
+                        <Wallet className="h-6 w-6 text-primary" />
+                        <div>
+                            <p className="font-semibold">Wallet Balance</p>
+                            <p className="text-sm text-muted-foreground">{formatPrice(userProfile.walletBalance)}</p>
+                        </div>
                       </div>
                     </Link>
-                     <Link href="/account" onClick={() => setIsMobileMenuOpen(false)}>
-                      <div className="flex items-center justify-between p-2 rounded-lg bg-card hover:bg-muted">
-                          <div className="flex items-center gap-3">
-                            <Star className="h-6 w-6 text-accent" />
-                            <div>
-                                <p className="font-semibold">Valhalla Coins</p>
-                                <p className="text-sm text-muted-foreground">{userProfile.valhallaCoins.toLocaleString()}</p>
-                            </div>
-                          </div>
+                     <Link href="/account" onClick={() => setIsMobileMenuOpen(false)} className="block p-2 rounded-lg bg-card hover:bg-muted">
+                      <div className="flex items-center gap-3">
+                        <Star className="h-6 w-6 text-accent" />
+                        <div>
+                            <p className="font-semibold">Valhalla Coins</p>
+                            <p className="text-sm text-muted-foreground">{userProfile.valhallaCoins.toLocaleString()}</p>
+                        </div>
                       </div>
                     </Link>
                   </div>
@@ -376,27 +372,29 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{t('Header.account')}</p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user.email}
-                      </p>
-                      {userProfile && (
-                         <div className="space-y-1 pt-2">
-                            <p className="text-xs leading-none text-muted-foreground flex items-center">
-                                <Wallet className="mr-2 h-4 w-4 text-primary" />
-                                <span className='font-semibold'>{formatPrice(userProfile.walletBalance)}</span>
-                            </p>
-                            <p className="text-xs leading-none text-muted-foreground flex items-center">
-                                <Star className="mr-2 h-4 w-4 text-accent" />
-                                <span className='font-semibold'>{userProfile.valhallaCoins.toLocaleString()} Coins</span>
-                            </p>
-                         </div>
-                     )}
+                      <p className="text-sm font-medium leading-none">{user.email}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  {userProfile && (
+                    <>
+                      <DropdownMenuItem onSelect={() => router.push('/account')} className="flex flex-col items-start gap-2 p-2">
+                        <div className="flex items-center gap-2 text-sm w-full">
+                            <Wallet className="h-4 w-4 text-primary" />
+                            <span className="text-muted-foreground">Wallet:</span>
+                            <span className="font-semibold ml-auto">{formatPrice(userProfile.walletBalance)}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm w-full">
+                            <Star className="h-4 w-4 text-accent" />
+                            <span className="text-muted-foreground">Coins:</span>
+                            <span className="font-semibold ml-auto">{userProfile.valhallaCoins.toLocaleString()}</span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
                     <DropdownMenuItem onSelect={() => router.push('/account')}>
-                      <LayoutDashboard className="mr-2 h-4 w-4 text-primary" />
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
                       <span>{t('Header.account')}</span>
                     </DropdownMenuItem>
                      {isAdmin && (
