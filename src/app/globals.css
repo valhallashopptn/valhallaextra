@@ -121,6 +121,7 @@ body {
   }
 
   .text-b-rank-pulse {
+    color: #a855f7;
     animation: pulse-violet 2.5s ease-in-out infinite;
   }
 
@@ -134,6 +135,7 @@ body {
   }
   
   .text-a-rank-pulse {
+    color: #ec4899;
     animation: pulse-pink 2s ease-in-out infinite;
   }
 
