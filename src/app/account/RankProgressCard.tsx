@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { cn } from '@/lib/utils';
 import { Info, Trophy, Shield, Gem, Swords, ShieldQuestion, ShieldCheck, Crown, Skull } from 'lucide-react';
 import React from 'react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const ranks = [
   { name: 'F-Rank', minXp: 0, color: 'text-gray-400', iconColor: 'border-gray-400', icon: <ShieldQuestion /> },
@@ -19,7 +20,7 @@ const ranks = [
   { name: 'S-Rank', minXp: 62914, color: 'text-red-400', iconColor: 'border-red-400', icon: <Gem /> },
   { name: 'SS-Rank', minXp: 100663, color: 'text-yellow-400', iconColor: 'border-yellow-400', icon: <Trophy /> },
   { name: 'Legend', minXp: 161061, color: 'text-violet-400', iconColor: 'border-violet-400', icon: <Crown /> },
-  { name: 'LORD', minXp: 257698, color: 'text-orange-400', iconColor: 'border-orange-400', icon: <Skull /> },
+  { name: 'LORD', minXp: 257698, color: 'text-orange-400', iconColor: 'border-orange-400', icon: <Skull />, isRgb: true },
 ];
 
 
@@ -48,7 +49,13 @@ const RankIcon = ({ rank, size = 'sm' }: { rank: typeof ranks[0], size?: 'sm' | 
     const borderClass = size === 'sm' ? "border-2" : "border-4";
 
     return (
-        <div className={cn(boxSizeClass, "flex items-center justify-center rounded-md", rank.iconColor, borderClass, rank.color)}>
+        <div className={cn(
+            boxSizeClass, 
+            "flex items-center justify-center rounded-md", 
+            borderClass, 
+            rank.isRgb ? 'border-primary' : rank.iconColor, 
+            rank.isRgb ? 'text-rgb-animate' : rank.color
+        )}>
             {React.cloneElement(rank.icon, { className: iconSizeClass })}
         </div>
     );
@@ -77,7 +84,7 @@ export function RankProgressCard({ xp, globalRank }: { xp: number; globalRank?: 
                             Rank up by making purchases. Higher ranks unlock greater prestige as a hunter!
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="max-h-[60vh] overflow-y-auto">
+                    <ScrollArea className="h-[60vh]">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -90,14 +97,14 @@ export function RankProgressCard({ xp, globalRank }: { xp: number; globalRank?: 
                                     <TableRow key={rank.name}>
                                         <TableCell className="flex items-center gap-4 font-medium">
                                             <RankIcon rank={rank} size="sm" />
-                                            <span className={cn(rank.color)}>{rank.name}</span>
+                                            <span className={cn(rank.isRgb ? 'text-rgb-animate font-bold' : rank.color)}>{rank.name}</span>
                                         </TableCell>
                                         <TableCell className="text-right font-mono">{rank.minXp.toLocaleString()} XP</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
-                    </div>
+                    </ScrollArea>
                 </DialogContent>
             </Dialog>
         </div>
@@ -107,7 +114,7 @@ export function RankProgressCard({ xp, globalRank }: { xp: number; globalRank?: 
           <div className="flex items-center gap-4">
             <RankIcon rank={currentRank} size="lg" />
             <div>
-              <h3 className={cn("text-2xl font-bold font-headline", currentRank.color)}>{currentRank.name}</h3>
+              <h3 className={cn("text-2xl font-bold font-headline", currentRank.isRgb ? 'text-rgb-animate' : currentRank.color)}>{currentRank.name}</h3>
               <p className="text-sm text-muted-foreground">Total XP: {xp.toLocaleString()}</p>
             </div>
           </div>

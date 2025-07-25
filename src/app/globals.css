@@ -96,6 +96,21 @@ body {
       background-position: -200% 0;
     }
   }
+
+  .text-rgb-animate {
+    background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+    animation: rgb-flow 3s ease infinite;
+  }
+
+  @keyframes rgb-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
 }
 
 @layer components {
