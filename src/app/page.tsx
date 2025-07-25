@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Search, Package, ShoppingCart, LifeBuoy, Star, MessageSquare, Trophy } from 'lucide-react';
+import { ArrowRight, Search, Package, ShoppingCart, LifeBuoy, Star, MessageSquare } from 'lucide-react';
 import { getProducts } from '@/services/productService';
 import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
@@ -380,7 +380,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }
