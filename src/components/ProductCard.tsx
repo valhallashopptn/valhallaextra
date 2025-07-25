@@ -106,9 +106,10 @@ export function ProductCard({ product }: ProductCardProps) {
               <p className="text-xl font-bold text-primary">{formatPrice(displayPrice)}</p>
             </div>
             <Button 
+              variant="outline"
               onClick={handleAddToCart} 
               disabled={isAdded || product.stock === 0 || isLoadingCategory} 
-              className={cn("w-36 transition-all", { 'bg-green-600': isAdded })}
+              className={cn("w-36 transition-all", { 'bg-green-600 text-white border-green-600': isAdded })}
             >
               {product.stock === 0 ? 'Out of Stock' : isLoadingCategory ? 'Loading...' : isAdded ? (
                 <>
