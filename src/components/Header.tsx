@@ -329,16 +329,10 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
           
           <div className="flex items-center space-x-1 ml-2">
             {user && userProfile && (
-              <div className="hidden md:flex items-center gap-1 border border-border rounded-md px-3 h-10 transition-colors">
-                  <Link href="/account" className="flex items-center gap-2 pr-2 border-r border-border h-full hover:bg-muted -ml-3 px-3 rounded-l-md">
+              <Link href="/account" className="hidden md:flex items-center gap-2 border border-border rounded-md px-3 h-10 transition-colors hover:bg-muted">
                     <Wallet className="h-4 w-4 text-primary" />
                     <span className="text-sm font-semibold">{formatPrice(userProfile.walletBalance)}</span>
-                  </Link>
-                  <Link href="/account" className="flex items-center gap-2 pl-2 h-full hover:bg-muted -mr-3 px-3 rounded-r-md">
-                     <Star className="h-4 w-4 text-accent" />
-                     <span className="text-sm font-semibold">{userProfile.valhallaCoins.toLocaleString()}</span>
-                  </Link>
-              </div>
+              </Link>
             )}
 
             <CurrencySwitcher />
