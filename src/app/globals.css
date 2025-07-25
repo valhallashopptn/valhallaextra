@@ -111,31 +111,19 @@ body {
     animation: rgb-keyboard-flow 1.5s linear infinite;
   }
 
-  @keyframes pulse-violet {
-    0%, 100% { text-shadow: 0 0 4px #a855f7; }
-    50% { text-shadow: 0 0 8px #a855f7, 0 0 12px #a855f7; }
-  }
-  .animate-b-rank {
+  .fixed-glow-b {
     color: #a855f7;
-    animation: pulse-violet 3s ease-in-out infinite;
+    text-shadow: 0 0 8px #a855f7;
   }
 
-  @keyframes pulse-pink {
-    0%, 100% { text-shadow: 0 0 5px #ec4899; }
-    50% { text-shadow: 0 0 10px #ec4899, 0 0 15px #ec4899; }
-  }
-  .animate-a-rank {
+  .fixed-glow-a {
     color: #ec4899;
-    animation: pulse-pink 2.5s ease-in-out infinite;
+    text-shadow: 0 0 8px #ec4899;
   }
-
-  @keyframes flicker-orange {
-    0%, 100% { text-shadow: 0 0 5px #fb923c, 0 0 10px #f97316; }
-    50% { text-shadow: 0 0 8px #fb923c, 0 0 15px #f97316; }
-  }
-  .animate-s-rank {
-    color: #fb923c;
-    animation: flicker-orange 2s linear infinite;
+  
+  .fixed-glow-s {
+    color: #f97316;
+    text-shadow: 0 0 8px #f97316;
   }
 
   @keyframes flicker-yellow {
