@@ -136,19 +136,26 @@ body {
     animation: flicker-yellow 1.5s linear infinite;
   }
 
-  @keyframes molten-flow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+  @keyframes flicker-red {
+    0%, 18%, 22%, 25%, 53%, 57%, 100% {
+      text-shadow:
+      0 0 4px #ef4444,
+      0 0 11px #ef4444,
+      0 0 19px #ef4444,
+      0 0 40px #b91c1c,
+      0 0 80px #b91c1c,
+      0 0 90px #b91c1c,
+      0 0 100px #b91c1c,
+      0 0 150px #b91c1c;
+    }
+    20%, 24%, 55% {       
+      text-shadow: none;
+    }
   }
 
   .animate-legend-rank {
-    background-image: linear-gradient(45deg, #ef4444, #f97316, #d946ef, #ef4444);
-    background-size: 400% 400%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: molten-flow 8s ease infinite;
+    color: #fca5a5;
+    animation: flicker-red 2s linear infinite;
   }
 }
 
