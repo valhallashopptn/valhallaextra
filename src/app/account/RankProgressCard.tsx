@@ -3,9 +3,11 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 import { Info, Trophy } from 'lucide-react';
+import React from 'react';
 
 const ranks = [
   { name: 'F-Rank', minXp: 0, color: 'text-gray-500', iconColor: 'border-gray-500' },
@@ -38,11 +40,19 @@ const getRankDetails = (xp: number) => {
   return { currentRank, nextRank, xp, xpInCurrentRank, xpForNextRank, progressPercentage };
 };
 
+const RankIcon = ({ rank }: { rank: typeof ranks[0]}) => (
+    <div className={cn("h-10 w-10 flex items-center justify-center border-2 rounded-md transform -rotate-45", rank.iconColor)}>
+        <span className={cn("font-black text-xl tracking-tighter transform rotate-45", rank.color)}>
+            {rank.name.charAt(0)}
+        </span>
+    </div>
+);
+
 export function RankProgressCard({ xp, globalRank }: { xp: number; globalRank?: number }) {
   const { currentRank, nextRank, progressPercentage } = getRankDetails(xp);
   const xpToNext = nextRank ? nextRank.minXp - xp : 0;
 
-  const RankIcon = () => (
+  const CurrentRankIcon = () => (
     <div className={cn("h-14 w-14 flex items-center justify-center border-4 rounded-lg transform -rotate-45", currentRank.iconColor)}>
         <span className={cn("font-black text-2xl tracking-tighter transform rotate-45", currentRank.color)}>
             {currentRank.name.charAt(0)}
@@ -53,27 +63,51 @@ export function RankProgressCard({ xp, globalRank }: { xp: number; globalRank?: 
   return (
     <Card>
       <CardHeader>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-start">
           <div>
             <CardTitle>Your Rank & Progress</CardTitle>
             <CardDescription>Track your journey. Higher ranks may unlock future benefits!</CardDescription>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-                <TooltipTrigger asChild>
+           <Dialog>
+                <DialogTrigger asChild>
                     <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>Earn 10 XP for every $1 spent in the store.</p>
-                </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>All Available Ranks</DialogTitle>
+                        <DialogDescription>
+                            Earn 10 XP for every $1 spent to climb the ranks.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="max-h-[60vh] overflow-y-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Rank</TableHead>
+                                    <TableHead className="text-right">XP Required</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {ranks.map(rank => (
+                                    <TableRow key={rank.name}>
+                                        <TableCell className="flex items-center gap-4 font-medium">
+                                            <RankIcon rank={rank} />
+                                            <span className={cn(rank.color)}>{rank.name}</span>
+                                        </TableCell>
+                                        <TableCell className="text-right font-mono">{rank.minXp.toLocaleString()} XP</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
       </CardHeader>
       <CardContent className="space-y-6 pt-2">
         <div className="flex items-center justify-between bg-card/50 p-4 rounded-lg">
           <div className="flex items-center gap-4">
-            <RankIcon />
+            <CurrentRankIcon />
             <div>
               <h3 className={cn("text-2xl font-bold font-headline", currentRank.color)}>{currentRank.name}</h3>
               <p className="text-sm text-muted-foreground">Total XP: {xp.toLocaleString()}</p>
