@@ -134,3 +134,34 @@ export interface DigitalAsset {
   deliveredAt?: Timestamp;
   orderId?: string;
 }
+
+export interface SocialLink {
+  id: string;
+  name: string;
+  url: string;
+  iconUrl: string;
+}
+
+export interface AboutPageContent {
+  mainTitle: string;
+  subtitle: string;
+  storyTitle: string;
+  storyParagraph1: string;
+  storyParagraph2: string;
+  missionTitle: string;
+  missionText: string;
+  valuesTitle: string;
+  valuesSubtitle: string;
+  chooseUsTitle: string;
+  chooseUsSubtitle: string;
+}
+
+export interface ContactPageContent {
+  mainTitle: string;
+  subtitle: string;
+  infoTitle: string;
+  infoSubtitle: string;
+  email: string;
+  phone: string;
+  address: string;
+}

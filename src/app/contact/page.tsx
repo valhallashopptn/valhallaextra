@@ -1,12 +1,17 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { getSetting } from '@/services/settingsService';
+import { Skeleton } from '@/components/ui/skeleton';
+import type { ContactPageContent } from '@/lib/types';
+
 
 function InfoCard({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) {
     return (
@@ -16,23 +21,64 @@ function InfoCard({ icon, title, children }: { icon: React.ReactNode, title: str
             </div>
             <div>
                 <h3 className="font-semibold text-lg">{title}</h3>
-                <div className="text-muted-foreground">{children}</div>
+                <div className="text-muted-foreground whitespace-pre-wrap">{children}</div>
             </div>
         </div>
     );
 }
 
 export default function ContactPage() {
+  const [content, setContent] = useState<ContactPageContent | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getSetting('contactPageContent').then(data => {
+      if (data) {
+        setContent(data);
+      } else {
+        // Fallback to default content
+        setContent({
+            mainTitle: 'Get In Touch',
+            subtitle: "We'd love to hear from you! Reach out with any questions, feedback, or inquiries.",
+            infoTitle: 'Contact Information',
+            infoSubtitle: 'Find us through any of the channels below. Our team is ready to assist you.',
+            email: 'support@example.com',
+            phone: '+1 (555) 123-4567',
+            address: '123 Gaming Lane\nDigital City, 98765',
+        });
+      }
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) {
+    return (
+        <PageWrapper>
+            <div className="space-y-12">
+                <Skeleton className="h-32 w-full" />
+                <div className="grid md:grid-cols-2 gap-12">
+                    <Skeleton className="h-64 w-full" />
+                    <Skeleton className="h-96 w-full" />
+                </div>
+            </div>
+        </PageWrapper>
+    )
+  }
+
+  if (!content) {
+    return <PageWrapper><p>Page content could not be loaded.</p></PageWrapper>;
+  }
+
   return (
     <div className="space-y-12 pb-12">
       <div className="bg-card py-12">
         <PageWrapper>
           <div className="space-y-4 text-center">
             <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
-              Get In Touch
+              {content.mainTitle}
             </h1>
             <p className="mt-3 max-w-3xl mx-auto text-lg text-muted-foreground sm:text-xl">
-              We'd love to hear from you! Reach out with any questions, feedback, or inquiries.
+              {content.subtitle}
             </p>
           </div>
         </PageWrapper>
@@ -42,20 +88,20 @@ export default function ContactPage() {
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-start">
           <div className="space-y-8">
             <div className="space-y-4">
-                <h2 className="text-3xl font-bold font-headline">Contact Information</h2>
+                <h2 className="text-3xl font-bold font-headline">{content.infoTitle}</h2>
                 <p className="text-muted-foreground">
-                    Find us through any of the channels below. Our team is ready to assist you.
+                    {content.infoSubtitle}
                 </p>
             </div>
             <div className="space-y-4">
                 <InfoCard icon={<Mail className="h-6 w-6" />} title="Email Us">
-                    <p>support@example.com</p>
+                    <p>{content.email}</p>
                 </InfoCard>
                  <InfoCard icon={<Phone className="h-6 w-6" />} title="Call Us">
-                    <p>+1 (555) 123-4567</p>
+                    <p>{content.phone}</p>
                 </InfoCard>
                  <InfoCard icon={<MapPin className="h-6 w-6" />} title="Our Office">
-                    <p>123 Gaming Lane<br/>Digital City, 98765</p>
+                    <p>{content.address}</p>
                 </InfoCard>
             </div>
           </div>

@@ -4,40 +4,51 @@
 import Link from 'next/link';
 import { Logo } from './icons/Logo';
 import { Button } from './ui/button';
-import { Github, Twitter, Facebook } from 'lucide-react';
+import { Link as LinkIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { getSettings } from '@/services/settingsService';
 import Image from 'next/image';
 import { useTranslation } from '@/context/TranslationContext';
 import { useEffect, useState } from 'react';
 import { useCart } from '@/context/CartContext';
+import type { SocialLink as SocialLinkType } from '@/lib/types';
 
-function SocialLink({ icon: Icon, ...props }: { icon: React.ElementType } & ComponentProps<typeof Link>) {
+
+function SocialLink({ link }: { link: SocialLinkType }) {
     return (
-        <Link {...props}>
+        <a href={link.url} target="_blank" rel="noopener noreferrer">
             <Button variant="ghost" size="icon">
-                <Icon className="h-5 w-5" />
-                <span className="sr-only">{props['aria-label']}</span>
+                {link.iconUrl ? (
+                    <Image src={link.iconUrl} alt={link.name} width={20} height={20} className="h-5 w-5" />
+                ) : (
+                    <LinkIcon className="h-5 w-5" />
+                )}
+                <span className="sr-only">{link.name}</span>
             </Button>
-        </Link>
+        </a>
     );
 }
 
 export function Footer() {
   const { t } = useTranslation();
   const { openCart } = useCart();
-  const [settings, setSettings] = useState({ siteTitle: 'TopUp Hub', logoUrl: '' });
+  const [settings, setSettings] = useState({ 
+    siteTitle: 'TopUp Hub', 
+    logoUrl: '',
+    socialLinks: [] as SocialLinkType[]
+  });
 
   useEffect(() => {
-    getSettings(['siteTitle', 'logoUrl']).then(s => {
+    getSettings(['siteTitle', 'logoUrl', 'socialLinks']).then(s => {
       setSettings({
         siteTitle: s.siteTitle || 'TopUp Hub',
-        logoUrl: s.logoUrl || ''
+        logoUrl: s.logoUrl || '',
+        socialLinks: s.socialLinks || []
       });
     });
   }, []);
 
-  const { siteTitle, logoUrl } = settings;
+  const { siteTitle, logoUrl, socialLinks } = settings;
 
   return (
     <footer className="bg-card border-t border-border mt-auto">
@@ -79,9 +90,9 @@ export function Footer() {
          <div className="mt-8 pt-8 border-t border-border/50 flex flex-col sm:flex-row justify-between items-center text-sm text-muted-foreground">
             <p className='mb-4 sm:mb-0'>&copy; {new Date().getFullYear()} {siteTitle}. {t('Footer.copyright')}</p>
              <div className="flex space-x-2">
-                <SocialLink href="#" icon={Twitter} aria-label="Twitter" />
-                <SocialLink href="#" icon={Facebook} aria-label="Facebook" />
-                <SocialLink href="#" icon={Github} aria-label="Github" />
+                {socialLinks.map(link => (
+                    <SocialLink key={link.id} link={link} />
+                ))}
              </div>
         </div>
       </div>
