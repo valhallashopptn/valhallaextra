@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Search, Package, ShoppingCart, LifeBuoy, Star, MessageSquare } from 'lucide-react';
+import { ArrowRight, Search, Package, ShoppingCart, LifeBuoy, Star, MessageSquare, Trophy } from 'lucide-react';
 import { getProducts } from '@/services/productService';
 import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
@@ -238,6 +238,33 @@ export default function Home() {
                       {t('HomePage.viewAllCategories')} <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
               </Button>
+          </div>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="animated-separator"></div>
+      </div>
+      
+      {/* Leaderboard Event Section */}
+      <section className="bg-card py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="text-center md:text-left">
+              <Badge>New Event</Badge>
+              <h2 className="text-3xl font-bold font-headline mt-2 text-primary">Join the Leaderboard!</h2>
+              <p className="text-muted-foreground mt-4 max-w-lg mx-auto md:mx-0">
+                Compete with other players and climb to the top! Earn XP with every purchase you make on our platform. The more you buy, the higher you rank. See where you stand among the best.
+              </p>
+              <Button asChild size="lg" className="mt-6">
+                <Link href="/leaderboard">
+                  <Trophy className="mr-2 h-5 w-5" /> View Leaderboard
+                </Link>
+              </Button>
+            </div>
+            <div className="relative h-64 md:h-80">
+                <Image src="https://placehold.co/600x400.png" alt="Leaderboard Event" fill className="object-cover rounded-lg shadow-lg" data-ai-hint="gaming trophy" />
+            </div>
           </div>
         </div>
       </section>

@@ -1,7 +1,7 @@
 
 
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, updateDoc, increment, runTransaction, serverTimestamp, type Transaction } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, increment, runTransaction, serverTimestamp, type Transaction, collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import { updateOrderStatus } from './orderService';
 import type { UserProfile } from '@/lib/types';
 
@@ -211,4 +211,14 @@ export const refundToWallet = async (userId: string, subtotal: number, orderId: 
         console.error("Refund transaction failed: ", e);
         throw new Error("Failed to process refund.");
     }
+};
+
+/**
+ * Gets the top users based on XP.
+ */
+export const getTopUsers = async (count: number): Promise<UserProfile[]> => {
+    const usersRef = collection(db, usersCollectionRef);
+    const q = query(usersRef, orderBy('xp', 'desc'), limit(count));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile));
 };
