@@ -108,17 +108,14 @@ body {
   }
   
   .text-rgb-animate {
-    animation: rgb-keyboard-flow 5s linear infinite;
+    animation: rgb-keyboard-flow 3s linear infinite;
   }
 
   .text-legend-glow {
     color: #ff3b3b;
     text-shadow:
       0 0 5px #ff3b3b,
-      0 0 10px #ff3b3b,
-      0 0 15px #ff3b3b,
-      0 0 20px #c70000,
-      0 0 25px #c70000;
+      0 0 10px #c70000;
   }
 }
 
