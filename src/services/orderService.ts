@@ -18,7 +18,7 @@ import {
   getDoc,
   arrayUnion
 } from 'firebase/firestore';
-import { debitFromWallet, addCoinsForPurchase, redeemCoins } from './walletService';
+import { debitFromWallet, addRewardsForPurchase, redeemCoins } from './walletService';
 import { getSetting } from './settingsService';
 
 const ordersCollectionRef = collection(db, 'orders');
@@ -145,10 +145,10 @@ export const updateOrderStatus = async (orderId: string, status: 'pending' | 'co
   }
   const orderData = orderSnap.data() as Order;
 
-  // Add Valhalla coins if order is being marked as completed
+  // Add Valhalla coins and XP if order is being marked as completed
   if (status === 'completed' && orderData.status !== 'completed') {
     // We only award points on the subtotal (pre-discounts, pre-tax)
-    await addCoinsForPurchase(orderData.userId, orderData.subtotal);
+    await addRewardsForPurchase(orderData.userId, orderData.subtotal);
   }
 
   return await updateDoc(orderDocRef, { status: status });
@@ -162,9 +162,9 @@ export const deliverOrderManually = async (orderId: string, deliveryData: Delive
         throw new Error("Order not found");
       }
     const orderData = orderSnap.data() as Order;
-    // Award coins on manual completion
+    // Award coins and XP on manual completion
      if (orderData.status !== 'completed') {
-        await addCoinsForPurchase(orderData.userId, orderData.subtotal);
+        await addRewardsForPurchase(orderData.userId, orderData.subtotal);
     }
 
     return await updateDoc(orderDocRef, {
@@ -222,7 +222,7 @@ export const attemptAutoDelivery = async (orderId: string): Promise<{ delivered:
         });
 
         // Award Valhalla coins
-        await addCoinsForPurchase(orderData.userId, orderData.subtotal);
+        await addRewardsForPurchase(orderData.userId, orderData.subtotal);
 
         transaction.update(orderDocRef, {
             deliveredAsset: deliveredAsset,

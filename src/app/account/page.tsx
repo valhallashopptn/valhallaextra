@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 import { Wallet, KeySquare, Copy, Check, Star } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { RankProgressCard } from './RankProgressCard';
 
 function DeliveredAssetDialog({ asset, isOpen, onOpenChange }: { asset: DeliveredAssetInfo | null, isOpen: boolean, onOpenChange: (open: boolean) => void }) {
     const [isCopied, setIsCopied] = useState(false);
@@ -307,7 +308,8 @@ export default function AccountPage() {
 
           </div>
 
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 space-y-8">
+            {userProfile && <RankProgressCard xp={userProfile.xp} globalRank={5} />}
             <Card>
               <CardHeader>
                 <CardTitle>Order History</CardTitle>

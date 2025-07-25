@@ -107,6 +107,7 @@ export interface UserProfile {
     email: string;
     walletBalance: number;
     valhallaCoins: number;
+    xp: number;
     createdAt: Timestamp;
 }
 

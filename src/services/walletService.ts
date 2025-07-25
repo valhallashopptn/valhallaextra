@@ -7,6 +7,7 @@ import type { UserProfile } from '@/lib/types';
 
 const usersCollectionRef = 'users';
 const COINS_EARNED_PER_DOLLAR = 10;
+const XP_EARNED_PER_DOLLAR = 10;
 
 /**
  * Creates a user profile document if it doesn't exist.
@@ -17,10 +18,11 @@ export const createUserProfile = async (userId: string, email: string): Promise<
   const createdAt = serverTimestamp();
 
   if (!docSnap.exists()) {
-    const newUserProfile: Omit<UserProfile, 'id'> = {
+    const newUserProfile: Omit<UserProfile, 'id' | 'createdAt'> = {
       email: email,
       walletBalance: 0,
       valhallaCoins: 0,
+      xp: 0,
       createdAt: createdAt as any, // Temporary cast
     }
     await setDoc(userDocRef, newUserProfile);
@@ -29,10 +31,17 @@ export const createUserProfile = async (userId: string, email: string): Promise<
   
   const profileData = { ...docSnap.data(), id: docSnap.id } as UserProfile;
 
-  // Backfill valhallaCoins if it's missing for an existing user
+  const updates: Partial<UserProfile> = {};
   if (profileData.valhallaCoins === undefined) {
-    await updateDoc(userDocRef, { valhallaCoins: 0 });
-    profileData.valhallaCoins = 0;
+    updates.valhallaCoins = 0;
+  }
+  if (profileData.xp === undefined) {
+    updates.xp = 0;
+  }
+
+  if (Object.keys(updates).length > 0) {
+    await updateDoc(userDocRef, updates);
+    return { ...profileData, ...updates };
   }
   
   return profileData;
@@ -48,16 +57,21 @@ export const getUserProfile = async (userId: string): Promise<UserProfile> => {
 
   if (docSnap.exists()) {
     const profileData = { ...docSnap.data(), id: docSnap.id } as UserProfile;
-    // Backfill valhallaCoins if it's missing for an existing user
+    const updates: Partial<UserProfile> = {};
     if (profileData.valhallaCoins === undefined) {
-      await updateDoc(userDocRef, { valhallaCoins: 0 });
-      profileData.valhallaCoins = 0;
+      updates.valhallaCoins = 0;
+    }
+    if (profileData.xp === undefined) {
+        updates.xp = 0;
+    }
+    if (Object.keys(updates).length > 0) {
+        await updateDoc(userDocRef, updates);
+        return { ...profileData, ...updates };
     }
     return profileData;
   }
   
   // If user profile doesn't exist, create it with zero balances
-  // This assumes we don't have the user's email at this point, which is okay.
   return await createUserProfile(userId, 'unknown@user.com');
 };
 
@@ -72,17 +86,26 @@ export const getUserWalletBalance = async (userId: string): Promise<number> => {
 };
 
 /**
- * Adds Valhalla Coins to a user's balance after a purchase.
+ * Adds Valhalla Coins and XP to a user's balance after a purchase.
  */
-export const addCoinsForPurchase = async (userId: string, purchaseAmountUSD: number) => {
+export const addRewardsForPurchase = async (userId: string, purchaseAmountUSD: number) => {
     if (purchaseAmountUSD <= 0) return;
-    const coinsToAdd = Math.floor(purchaseAmountUSD * COINS_EARNED_PER_DOLLAR);
-    if (coinsToAdd <= 0) return;
     
-    const userDocRef = doc(db, usersCollectionRef, userId);
-    await updateDoc(userDocRef, {
-        valhallaCoins: increment(coinsToAdd)
-    });
+    const coinsToAdd = Math.floor(purchaseAmountUSD * COINS_EARNED_PER_DOLLAR);
+    const xpToAdd = Math.floor(purchaseAmountUSD * XP_EARNED_PER_DOLLAR);
+
+    const rewards: { valhallaCoins?: any, xp?: any } = {};
+    if (coinsToAdd > 0) {
+        rewards.valhallaCoins = increment(coinsToAdd);
+    }
+    if (xpToAdd > 0) {
+        rewards.xp = increment(xpToAdd);
+    }
+
+    if (Object.keys(rewards).length > 0) {
+        const userDocRef = doc(db, usersCollectionRef, userId);
+        await updateDoc(userDocRef, rewards);
+    }
 };
 
 /**
@@ -172,7 +195,8 @@ export const refundToWallet = async (userId: string, subtotal: number, orderId: 
             if (!userDoc.exists()) {
                  transaction.set(userDocRef, {
                     walletBalance: subtotal,
-                    valhallaCoins: 0, // Don't give coins on a new profile from refund
+                    valhallaCoins: 0,
+                    xp: 0,
                     createdAt: serverTimestamp()
                  });
             } else {
