@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -135,13 +136,19 @@ body {
     animation: flicker-yellow 1.5s linear infinite;
   }
 
-  @keyframes breathe-red {
-    0%, 100% { text-shadow: 0 0 5px #ef4444, 0 0 10px #ef4444, 0 0 15px #dc2626; }
-    50% { text-shadow: 0 0 10px #ef4444, 0 0 20px #ef4444, 0 0 30px #dc2626; }
+  @keyframes molten-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
   }
+
   .animate-legend-rank {
-    color: #ef4444;
-    animation: breathe-red 4s ease-in-out infinite;
+    background-image: linear-gradient(45deg, #ef4444, #f97316, #d946ef, #ef4444);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: molten-flow 8s ease infinite;
   }
 }
 
