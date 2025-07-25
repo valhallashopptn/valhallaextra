@@ -6,27 +6,27 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
-import { Info, Trophy, Shield, Gem, Swords, ShieldQuestion, ShieldCheck, Crown, Skull } from 'lucide-react';
+import { Info, Trophy, Shield, Gem, Swords, ShieldCheck, Crown, Skull, ShieldOff, Sword, Diamond, Hexagon } from 'lucide-react';
 import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 export const ranks = [
-  { name: 'F-Rank', minXp: 0, color: 'text-gray-400', iconColor: 'border-gray-400', icon: <ShieldQuestion /> },
-  { name: 'E-Rank', minXp: 6000, color: 'text-green-400', iconColor: 'border-green-400', icon: <Shield /> },
-  { name: 'D-Rank', minXp: 9600, color: 'text-cyan-400', iconColor: 'border-cyan-400', icon: <ShieldCheck /> },
-  { name: 'C-Rank', minXp: 15360, color: 'text-blue-400', iconColor: 'border-blue-400', icon: <Swords /> },
-  { name: 'B-Rank', minXp: 24576, color: 'text-purple-400', iconColor: 'border-purple-400', icon: <Swords /> },
-  { name: 'A-Rank', minXp: 39321, color: 'text-pink-400', iconColor: 'border-pink-400', icon: <Gem /> },
-  { name: 'S-Rank', minXp: 62914, color: 'text-red-400', iconColor: 'border-red-400', icon: <Gem /> },
-  { name: 'SS-Rank', minXp: 100663, color: 'text-yellow-400', iconColor: 'border-yellow-400', icon: <Trophy /> },
-  { name: 'Legend', minXp: 161061, color: 'text-violet-400', iconColor: 'border-violet-400', icon: <Crown />, isLegend: true },
-  { name: 'LORD', minXp: 257698, color: 'text-orange-400', iconColor: 'border-orange-400', icon: <Skull />, isRgb: true },
+  { name: 'F-Rank', minXp: 0, color: 'text-gray-400', icon: <ShieldOff /> },
+  { name: 'E-Rank', minXp: 6000, color: 'text-green-400', icon: <Shield /> },
+  { name: 'D-Rank', minXp: 9600, color: 'text-cyan-400', icon: <ShieldCheck /> },
+  { name: 'C-Rank', minXp: 15360, color: 'text-blue-400', icon: <Sword /> },
+  { name: 'B-Rank', minXp: 24576, color: 'text-purple-400', icon: <Swords /> },
+  { name: 'A-Rank', minXp: 39321, color: 'text-pink-400', icon: <Gem /> },
+  { name: 'S-Rank', minXp: 62914, color: 'text-red-400', icon: <Diamond /> },
+  { name: 'SS-Rank', minXp: 100663, color: 'text-yellow-400', icon: <Trophy /> },
+  { name: 'Legend', minXp: 161061, color: 'text-violet-400', isLegend: true, icon: <Crown /> },
+  { name: 'LORD', minXp: 257698, color: 'text-orange-400', isRgb: true, icon: <Hexagon /> },
 ];
 
 
 export const getRankDetails = (xp: number) => {
   let currentRank = ranks[0];
-  let nextRank = ranks[1];
+  let nextRank = ranks[1] || null;
 
   for (let i = ranks.length - 1; i >= 0; i--) {
     if (xp >= ranks[i].minXp) {
@@ -43,23 +43,18 @@ export const getRankDetails = (xp: number) => {
   return { currentRank, nextRank, xp, xpInCurrentRank, xpForNextRank, progressPercentage };
 };
 
-export const RankIcon = ({ rank, size = 'sm' }: { rank: typeof ranks[0], size?: 'sm' | 'lg' }) => {
-    const iconSizeClass = size === 'sm' ? "h-6 w-6" : "h-10 w-10";
-    const boxSizeClass = size === 'sm' ? "h-10 w-10" : "h-16 w-16";
-    const borderClass = size === 'sm' ? "border-2" : "border-4";
+export const RankIcon = ({ rank, size = 'sm' }: { rank: typeof ranks[0], size?: 'sm' | 'lg' | 'xl' }) => {
+    let sizeClass = "h-6 w-6";
+    if (size === 'lg') sizeClass = 'h-10 w-10';
+    if (size === 'xl') sizeClass = 'h-14 w-14';
 
-    return (
-        <div className={cn(
-            boxSizeClass, 
-            "flex items-center justify-center rounded-md", 
-            borderClass, 
-            rank.isRgb ? 'border-rgb-animate' : rank.iconColor, 
+    return React.cloneElement(rank.icon, { 
+        className: cn(
+            sizeClass,
             rank.isRgb ? 'text-rgb-animate' : rank.color,
             rank.isLegend && 'text-legend-glow'
-        )}>
-            {React.cloneElement(rank.icon, { className: iconSizeClass })}
-        </div>
-    );
+        ) 
+    });
 }
 
 export function RankProgressCard({ xp, globalRank }: { xp: number; globalRank?: number }) {
@@ -113,7 +108,7 @@ export function RankProgressCard({ xp, globalRank }: { xp: number; globalRank?: 
       <CardContent className="space-y-6 pt-2">
         <div className="flex items-center justify-between bg-card/50 p-4 rounded-lg">
           <div className="flex items-center gap-4">
-            <RankIcon rank={currentRank} size="lg" />
+            <RankIcon rank={currentRank} size="xl" />
             <div>
               <h3 className={cn("text-2xl font-bold font-headline", currentRank.isRgb ? 'text-rgb-animate' : currentRank.color, currentRank.isLegend && 'text-legend-glow')}>{currentRank.name}</h3>
               <p className="text-sm text-muted-foreground">Total XP: {xp.toLocaleString()}</p>

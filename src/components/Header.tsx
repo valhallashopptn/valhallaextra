@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, ShieldCheck, Search, Menu, Wallet, Star, Trophy, Crown } from 'lucide-react';
+import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, ShieldCheck, Search, Menu, Wallet, Star, Trophy, Crown, ShieldOff, Shield, Sword, Swords, Gem, Diamond, Hexagon } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -30,9 +30,53 @@ import { CurrencySwitcher } from './CurrencySwitcher';
 import { CartPanel } from './CartPanel';
 import { getUserProfile } from '@/services/walletService';
 import { useCurrency } from '@/context/CurrencyContext';
-import { ranks, getRankDetails, RankIcon } from '@/app/account/RankProgressCard';
 import { Progress } from './ui/progress';
 
+export const ranks = [
+  { name: 'F-Rank', minXp: 0, color: 'text-gray-400', icon: <ShieldOff /> },
+  { name: 'E-Rank', minXp: 6000, color: 'text-green-400', icon: <Shield /> },
+  { name: 'D-Rank', minXp: 9600, color: 'text-cyan-400', icon: <ShieldCheck /> },
+  { name: 'C-Rank', minXp: 15360, color: 'text-blue-400', icon: <Sword /> },
+  { name: 'B-Rank', minXp: 24576, color: 'text-purple-400', icon: <Swords /> },
+  { name: 'A-Rank', minXp: 39321, color: 'text-pink-400', icon: <Gem /> },
+  { name: 'S-Rank', minXp: 62914, color: 'text-red-400', icon: <Diamond /> },
+  { name: 'SS-Rank', minXp: 100663, color: 'text-yellow-400', icon: <Trophy /> },
+  { name: 'Legend', minXp: 161061, color: 'text-violet-400', isLegend: true, icon: <Crown /> },
+  { name: 'LORD', minXp: 257698, color: 'text-orange-400', isRgb: true, icon: <Hexagon /> },
+];
+
+export const getRankDetails = (xp: number) => {
+  let currentRank = ranks[0];
+  let nextRank = ranks[1] || null;
+
+  for (let i = ranks.length - 1; i >= 0; i--) {
+    if (xp >= ranks[i].minXp) {
+      currentRank = ranks[i];
+      nextRank = ranks[i + 1] || null;
+      break;
+    }
+  }
+
+  const xpInCurrentRank = xp - currentRank.minXp;
+  const xpForNextRank = nextRank ? nextRank.minXp - currentRank.minXp : 0;
+  const progressPercentage = nextRank ? (xpInCurrentRank / xpForNextRank) * 100 : 100;
+
+  return { currentRank, nextRank, xp, xpInCurrentRank, xpForNextRank, progressPercentage };
+};
+
+
+export const RankIcon = ({ rank, size = 'sm' }: { rank: any, size?: 'sm' | 'lg' }) => {
+    let sizeClass = "h-4 w-4";
+    if (size === 'lg') sizeClass = 'h-10 w-10';
+    
+    return React.cloneElement(rank.icon, {
+      className: cn(
+        sizeClass,
+        rank.isRgb ? 'text-rgb-animate' : rank.color,
+        rank.isLegend && 'text-legend-glow'
+      )
+    });
+}
 
 interface HeaderProps {
     siteTitle?: string;
@@ -454,4 +498,3 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
     </header>
   );
 }
-
