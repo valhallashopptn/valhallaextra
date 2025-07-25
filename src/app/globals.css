@@ -111,6 +111,32 @@ body {
     animation: rgb-keyboard-flow 1.5s linear infinite;
   }
 
+  @keyframes pulse-violet {
+    0%, 100% {
+      text-shadow: 0 0 2px #a855f7, 0 0 4px #9333ea;
+    }
+    50% {
+      text-shadow: 0 0 4px #a855f7, 0 0 8px #9333ea;
+    }
+  }
+
+  .text-b-rank-pulse {
+    animation: pulse-violet 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse-pink {
+    0%, 100% {
+      text-shadow: 0 0 3px #ec4899, 0 0 6px #db2777;
+    }
+    50% {
+      text-shadow: 0 0 6px #ec4899, 0 0 12px #db2777;
+    }
+  }
+  
+  .text-a-rank-pulse {
+    animation: pulse-pink 2s ease-in-out infinite;
+  }
+
   .text-legend-glow {
     color: #ff3b3b;
     text-shadow:
