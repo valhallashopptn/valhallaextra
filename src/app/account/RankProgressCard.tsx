@@ -10,7 +10,7 @@ import { Info, Trophy, Shield, Gem, Swords, ShieldQuestion, ShieldCheck, Crown, 
 import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-const ranks = [
+export const ranks = [
   { name: 'F-Rank', minXp: 0, color: 'text-gray-400', iconColor: 'border-gray-400', icon: <ShieldQuestion /> },
   { name: 'E-Rank', minXp: 6000, color: 'text-green-400', iconColor: 'border-green-400', icon: <Shield /> },
   { name: 'D-Rank', minXp: 9600, color: 'text-cyan-400', iconColor: 'border-cyan-400', icon: <ShieldCheck /> },
@@ -24,7 +24,7 @@ const ranks = [
 ];
 
 
-const getRankDetails = (xp: number) => {
+export const getRankDetails = (xp: number) => {
   let currentRank = ranks[0];
   let nextRank = ranks[1];
 
@@ -43,7 +43,7 @@ const getRankDetails = (xp: number) => {
   return { currentRank, nextRank, xp, xpInCurrentRank, xpForNextRank, progressPercentage };
 };
 
-const RankIcon = ({ rank, size = 'sm' }: { rank: typeof ranks[0], size?: 'sm' | 'lg' }) => {
+export const RankIcon = ({ rank, size = 'sm' }: { rank: typeof ranks[0], size?: 'sm' | 'lg' }) => {
     const iconSizeClass = size === 'sm' ? "h-6 w-6" : "h-10 w-10";
     const boxSizeClass = size === 'sm' ? "h-10 w-10" : "h-16 w-16";
     const borderClass = size === 'sm' ? "border-2" : "border-4";

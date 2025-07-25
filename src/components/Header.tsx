@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, ShieldCheck, Search, Menu, Wallet, Star } from 'lucide-react';
+import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, ShieldCheck, Search, Menu, Wallet, Star, Trophy, Crown } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -18,7 +18,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Input } from './ui/input';
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { getProducts } from '@/services/productService';
 import type { Product, UserProfile } from '@/lib/types';
 import Image from 'next/image';
@@ -30,11 +30,47 @@ import { CurrencySwitcher } from './CurrencySwitcher';
 import { CartPanel } from './CartPanel';
 import { getUserProfile } from '@/services/walletService';
 import { useCurrency } from '@/context/CurrencyContext';
+import { ranks, getRankDetails, RankIcon } from '@/app/account/RankProgressCard';
+import { Progress } from './ui/progress';
 
 
 interface HeaderProps {
     siteTitle?: string;
     logoUrl?: string;
+}
+
+function RankDisplay({ xp }: { xp: number }) {
+  const { currentRank, nextRank, progressPercentage } = getRankDetails(xp);
+  const xpToNext = nextRank ? nextRank.minXp - xp : 0;
+  
+  return (
+    <div className="px-2 py-1.5 text-sm">
+      <div className="flex justify-between items-center mb-1">
+        <div className="flex items-center gap-1.5">
+          <RankIcon rank={currentRank} size="sm" />
+          <span className={cn("font-semibold", currentRank.isRgb ? 'text-rgb-animate' : currentRank.color, currentRank.isLegend && 'text-legend-glow')}>{currentRank.name}</span>
+        </div>
+        {nextRank && (
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+             <span className={cn("font-semibold", nextRank.isRgb ? 'text-rgb-animate' : nextRank.color, nextRank.isLegend && 'text-legend-glow')}>{nextRank.name}</span>
+            <RankIcon rank={nextRank} size="sm" />
+          </div>
+        )}
+      </div>
+      {nextRank ? (
+        <>
+          <Progress value={progressPercentage} className="h-1.5" />
+          <p className="text-xs text-muted-foreground mt-1.5 text-center">
+            Earn {xpToNext.toLocaleString()} XP more to rank up.
+          </p>
+        </>
+      ) : (
+        <p className="text-xs text-amber-400 font-semibold text-center mt-2">
+            Maximum Rank Achieved!
+        </p>
+      )}
+    </div>
+  )
 }
 
 export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
@@ -371,20 +407,24 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {userProfile && (
-                    <div className="px-2 py-1.5 space-y-2">
-                      <div className="flex items-center gap-2 text-sm w-full">
-                          <Wallet className="h-4 w-4 text-primary" />
-                          <span className="text-muted-foreground">Wallet:</span>
-                          <span className="font-semibold ml-auto">{formatPrice(userProfile.walletBalance)}</span>
+                    <>
+                      <div className="px-2 py-1.5 space-y-2">
+                        <div className="flex items-center gap-2 text-sm w-full">
+                            <Wallet className="h-4 w-4 text-primary" />
+                            <span className="text-muted-foreground">Wallet:</span>
+                            <span className="font-semibold ml-auto">{formatPrice(userProfile.walletBalance)}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm w-full">
+                            <Star className="h-4 w-4 text-accent" />
+                            <span className="text-muted-foreground">Coins:</span>
+                            <span className="font-semibold ml-auto">{userProfile.valhallaCoins.toLocaleString()}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm w-full">
-                          <Star className="h-4 w-4 text-accent" />
-                          <span className="text-muted-foreground">Coins:</span>
-                          <span className="font-semibold ml-auto">{userProfile.valhallaCoins.toLocaleString()}</span>
-                      </div>
-                    </div>
+                      <DropdownMenuSeparator />
+                      <RankDisplay xp={userProfile.xp} />
+                      <DropdownMenuSeparator />
+                    </>
                   )}
-                  <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={() => router.push('/account')}>
                       <LayoutDashboard className="mr-2 h-4 w-4" />
                       <span>{t('Header.account')}</span>
@@ -414,3 +454,4 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
     </header>
   );
 }
+
