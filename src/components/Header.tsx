@@ -39,7 +39,7 @@ interface HeaderProps {
 
 export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   const { cartCount, openCart } = useCart();
-  const { user, loading } = useAuth();
+  const { user, loading, logOut } = useAuth();
   const { formatPrice } = useCurrency();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -377,22 +377,20 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {userProfile && (
-                    <>
-                      <DropdownMenuItem onSelect={() => router.push('/account')} className="flex flex-col items-start gap-2 p-2">
-                        <div className="flex items-center gap-2 text-sm w-full">
-                            <Wallet className="h-4 w-4 text-primary" />
-                            <span className="text-muted-foreground">Wallet:</span>
-                            <span className="font-semibold ml-auto">{formatPrice(userProfile.walletBalance)}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm w-full">
-                            <Star className="h-4 w-4 text-accent" />
-                            <span className="text-muted-foreground">Coins:</span>
-                            <span className="font-semibold ml-auto">{userProfile.valhallaCoins.toLocaleString()}</span>
-                        </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </>
+                    <div className="px-2 py-1.5 space-y-2">
+                      <div className="flex items-center gap-2 text-sm w-full">
+                          <Wallet className="h-4 w-4 text-primary" />
+                          <span className="text-muted-foreground">Wallet:</span>
+                          <span className="font-semibold ml-auto">{formatPrice(userProfile.walletBalance)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm w-full">
+                          <Star className="h-4 w-4 text-accent" />
+                          <span className="text-muted-foreground">Coins:</span>
+                          <span className="font-semibold ml-auto">{userProfile.valhallaCoins.toLocaleString()}</span>
+                      </div>
+                    </div>
                   )}
+                  <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={() => router.push('/account')}>
                       <LayoutDashboard className="mr-2 h-4 w-4" />
                       <span>{t('Header.account')}</span>
