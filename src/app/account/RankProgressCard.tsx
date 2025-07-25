@@ -15,11 +15,11 @@ export const ranks = [
   { name: 'E-Rank', minXp: 6000, color: 'text-green-400', icon: <Shield /> },
   { name: 'D-Rank', minXp: 9600, color: 'text-cyan-400', icon: <ShieldCheck /> },
   { name: 'C-Rank', minXp: 15360, color: 'text-blue-400', icon: <Sword /> },
-  { name: 'B-Rank', minXp: 24576, color: 'text-violet-500', customClass: 'text-b-rank-shadow', icon: <Swords /> },
-  { name: 'A-Rank', minXp: 39321, color: 'text-pink-500', customClass: 'text-a-rank-shadow', icon: <Gem /> },
-  { name: 'S-Rank', minXp: 62914, color: 'text-orange-400', customClass: 'text-s-rank-glow', icon: <Diamond /> },
-  { name: 'SS-Rank', minXp: 100663, color: 'text-yellow-400', customClass: 'text-ss-rank-glow', icon: <Trophy /> },
-  { name: 'Legend', minXp: 161061, color: 'text-red-500', customClass: 'text-legend-glow', icon: <Crown /> },
+  { name: 'B-Rank', minXp: 24576, color: 'text-violet-500', customClass: 'animate-b-rank', icon: <Swords /> },
+  { name: 'A-Rank', minXp: 39321, color: 'text-pink-500', customClass: 'animate-a-rank', icon: <Gem /> },
+  { name: 'S-Rank', minXp: 62914, color: 'text-orange-400', customClass: 'animate-s-rank', icon: <Diamond /> },
+  { name: 'SS-Rank', minXp: 100663, color: 'text-yellow-400', customClass: 'animate-ss-rank', icon: <Trophy /> },
+  { name: 'Legend', minXp: 161061, color: 'text-red-500', customClass: 'animate-legend-rank', icon: <Crown /> },
   { name: 'LORD', minXp: 257698, color: 'text-orange-400', customClass: 'text-rgb-animate', icon: <Hexagon /> },
 ];
 
