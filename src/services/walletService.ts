@@ -222,3 +222,23 @@ export const getTopUsers = async (count: number): Promise<UserProfile[]> => {
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile));
 };
+
+
+/**
+ * Gets the global rank of a specific user.
+ */
+export const getUserRank = async (userId: string): Promise<number | null> => {
+    try {
+        const usersRef = collection(db, usersCollectionRef);
+        const q = query(usersRef, orderBy('xp', 'desc'));
+        const querySnapshot = await getDocs(q);
+        
+        const userRanking = querySnapshot.docs.map(doc => doc.id);
+        const rank = userRanking.indexOf(userId) + 1;
+
+        return rank > 0 ? rank : null;
+    } catch (error) {
+        console.error("Failed to get user rank:", error);
+        return null;
+    }
+};

@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getOrdersForUser } from '@/services/orderService';
-import { getUserProfile } from '@/services/walletService';
+import { getUserProfile, getUserRank } from '@/services/walletService';
 import type { Order, DeliveredAssetInfo, UserProfile } from '@/lib/types';
 import {
   Accordion,
@@ -180,6 +180,7 @@ export default function AccountPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [globalRank, setGlobalRank] = useState<number | null>(null);
   const [viewingAsset, setViewingAsset] = useState<DeliveredAssetInfo | null>(null);
 
   useEffect(() => {
@@ -192,12 +193,14 @@ export default function AccountPage() {
     const fetchAccountData = async () => {
       if (user) {
         setOrdersLoading(true);
-        const [userOrders, profile] = await Promise.all([
+        const [userOrders, profile, rank] = await Promise.all([
             getOrdersForUser(user.uid),
-            getUserProfile(user.uid)
+            getUserProfile(user.uid),
+            getUserRank(user.uid)
         ]);
         setOrders(userOrders);
         setUserProfile(profile);
+        setGlobalRank(rank);
         setOrdersLoading(false);
       }
     };
@@ -309,7 +312,7 @@ export default function AccountPage() {
           </div>
 
           <div className="md:col-span-2 space-y-8">
-            {userProfile && <RankProgressCard xp={userProfile.xp} globalRank={5} />}
+            {userProfile && <RankProgressCard xp={userProfile.xp} globalRank={globalRank ?? undefined} />}
             <Card>
               <CardHeader>
                 <CardTitle>Order History</CardTitle>
