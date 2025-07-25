@@ -111,46 +111,36 @@ body {
     animation: rgb-keyboard-flow 1.5s linear infinite;
   }
 
-  @keyframes pulse-violet {
-    0%, 100% {
-      text-shadow: 0 0 2px #a855f7, 0 0 4px #9333ea;
-    }
-    50% {
-      text-shadow: 0 0 4px #a855f7, 0 0 8px #9333ea;
-    }
-  }
-
-  .text-b-rank-pulse {
+  .text-b-rank-shadow {
     color: #a855f7;
-    animation: pulse-violet 2.5s ease-in-out infinite;
-  }
-
-  @keyframes pulse-pink {
-    0%, 100% {
-      text-shadow: 0 0 3px #ec4899, 0 0 6px #db2777;
-    }
-    50% {
-      text-shadow: 0 0 6px #ec4899, 0 0 12px #db2777;
-    }
+    text-shadow: 0 0 5px #a855f7;
   }
   
-  .text-a-rank-pulse {
+  .text-a-rank-shadow {
     color: #ec4899;
-    animation: pulse-pink 2s ease-in-out infinite;
+    text-shadow: 0 0 5px #ec4899;
   }
 
   .text-legend-glow {
-    color: #ff3b3b;
+    color: #ef4444; /* red-500 */
     text-shadow:
-      0 0 2px #ff3b3b,
-      0 0 5px #c70000;
+      0 0 5px #ef4444,
+      0 0 10px #ef4444,
+      0 0 15px #dc2626;
   }
 
   .text-s-rank-glow {
     color: #fb923c; /* orange-400 */
     text-shadow:
-      0 0 3px #fb923c,
-      0 0 6px #f97316;
+      0 0 5px #fb923c,
+      0 0 10px #f97316;
+  }
+
+  .text-ss-rank-glow {
+    color: #eab308; /* yellow-500 */
+    text-shadow:
+      0 0 5px #eab308,
+      0 0 10px #ca8a04;
   }
 }
 
