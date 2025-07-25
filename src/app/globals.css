@@ -97,25 +97,18 @@ body {
     }
   }
 
-  @keyframes rgb-flow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+  @keyframes rgb-keyboard-flow {
+    0%, 100% { color: #ff0000; }
+    14% { color: #ff7300; }
+    28% { color: #fffb00; }
+    42% { color: #48ff00; }
+    57% { color: #00ffd5; }
+    71% { color: #002bff; }
+    85% { color: #7a00ff; }
   }
   
   .text-rgb-animate {
-    background: linear-gradient(270deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-    background-size: 200% 200%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: rgb-flow 5s linear infinite;
-  }
-
-  .border-rgb-animate {
-    border-image-slice: 1;
-    border-image-source: linear-gradient(270deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-    animation: rgb-flow 5s linear infinite;
+    animation: rgb-keyboard-flow 5s linear infinite;
   }
 
   .text-legend-glow {
