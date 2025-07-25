@@ -5,8 +5,7 @@ import type { Product, Category } from '@/lib/types';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
-import { useCart } from '@/context/CartContext';
-import { ShoppingCart, CheckCircle } from 'lucide-react';
+import { ShoppingCart, CheckCircle, ArrowRight } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -20,8 +19,6 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { addToCart } = useCart();
-  const [isAdded, setIsAdded] = useState(false);
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
   const [isLoadingCategory, setIsLoadingCategory] = useState(true);
@@ -33,31 +30,6 @@ export function ProductCard({ product }: ProductCardProps) {
         setIsLoadingCategory(false);
     }
   }, [product.categoryId]);
-
-  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // Prevent link navigation when clicking the button
-    
-    // If there are variants, add the cheapest one by default
-    let itemToAdd: Product = { 
-        ...product, 
-        dataAiHint: product.dataAiHint || product.categoryName 
-    };
-
-    if (product.variants && product.variants.length > 0) {
-        const cheapestVariant = [...product.variants].sort((a,b) => a.price - b.price)[0];
-        itemToAdd = {
-            ...itemToAdd,
-            name: `${product.name} - ${cheapestVariant.name}`,
-            price: cheapestVariant.price,
-        }
-    }
-    
-    addToCart(itemToAdd, 1);
-    setIsAdded(true);
-    setTimeout(() => {
-      setIsAdded(false);
-    }, 2000);
-  };
 
   const shortDescription = product.description.length > 80 
     ? product.description.substring(0, 80) + '...'
@@ -107,19 +79,13 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
             <Button 
               variant="outline"
-              onClick={handleAddToCart} 
-              disabled={isAdded || product.stock === 0 || isLoadingCategory} 
-              className={cn("w-36 transition-all", { 'bg-green-600 text-white border-green-600': isAdded })}
+              disabled={product.stock === 0 || isLoadingCategory} 
+              className="w-36 transition-all"
             >
-              {product.stock === 0 ? 'Out of Stock' : isLoadingCategory ? 'Loading...' : isAdded ? (
+              {product.stock === 0 ? 'Out of Stock' : isLoadingCategory ? 'Loading...' : (
                 <>
-                  <CheckCircle className="mr-2 h-4 w-4 animate-in fade-in" />
-                  {t('ProductCard.added')}
-                </>
-              ) : (
-                <>
-                  <ShoppingCart className="mr-2 h-4 w-4" />
-                  {t('ProductCard.addToCart')}
+                  View Details
+                  <ArrowRight className="mr-2 h-4 w-4" />
                 </>
               )}
             </Button>
