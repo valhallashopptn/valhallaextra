@@ -6,9 +6,10 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
-import { Info, Trophy, Shield, Gem, Swords, ShieldCheck, Crown, Skull, ShieldOff, Sword, Diamond, Hexagon } from 'lucide-react';
+import { Info, Trophy, Shield, Gem, Swords, ShieldCheck, Crown, Skull, ShieldOff, Sword, Diamond, Hexagon, AlertTriangle } from 'lucide-react';
 import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export const ranks = [
   { name: 'F-Rank', minXp: 0, color: 'text-gray-400', icon: <ShieldOff /> },
@@ -79,7 +80,7 @@ export function RankProgressCard({ xp, globalRank }: { xp: number; globalRank?: 
                             Rank up by making purchases. Higher ranks unlock greater prestige as a hunter!
                         </DialogDescription>
                     </DialogHeader>
-                    <ScrollArea className="h-[60vh]">
+                    <ScrollArea className="h-[60vh] -mr-6 pr-6">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -100,6 +101,13 @@ export function RankProgressCard({ xp, globalRank }: { xp: number; globalRank?: 
                             </TableBody>
                         </Table>
                     </ScrollArea>
+                    <Alert variant="default" className="mt-4">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertTitle>Seasonal Resets</AlertTitle>
+                      <AlertDescription>
+                        To keep the competition fresh, all ranks and XP will be reset every 5 months.
+                      </AlertDescription>
+                    </Alert>
                 </DialogContent>
             </Dialog>
         </div>
