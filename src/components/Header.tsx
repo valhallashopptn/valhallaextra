@@ -28,7 +28,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { useTranslation } from '@/context/TranslationContext';
 import { CurrencySwitcher } from './CurrencySwitcher';
 import { CartPanel } from './CartPanel';
-import { getUserProfile } from '@/services/walletService';
+import { getUserProfile, getUserRank } from '@/services/walletService';
 import { useCurrency } from '@/context/CurrencyContext';
 import { Progress } from './ui/progress';
 
@@ -38,8 +38,8 @@ export const ranks = [
   { name: 'D-Rank', minXp: 9600, color: 'text-cyan-400', icon: <ShieldCheck /> },
   { name: 'C-Rank', minXp: 15360, color: 'text-blue-400', icon: <Sword /> },
   { name: 'B-Rank', minXp: 24576, color: 'text-violet-500', customClass: 'fixed-glow-b', icon: <Swords /> },
-  { name: 'A-Rank', minXp: 39321, color: 'text-pink-500', customClass: 'fixed-glow-a', icon: <Gem /> },
-  { name: 'S-Rank', minXp: 62914, color: 'text-orange-500', customClass: 'fixed-glow-s', icon: <Diamond /> },
+  { name: 'A-Rank', minXp: 39321, color: 'text-pink-500', customClass: 'animate-a-rank', icon: <Gem /> },
+  { name: 'S-Rank', minXp: 62914, color: 'text-orange-500', customClass: 'animate-s-rank', icon: <Diamond /> },
   { name: 'SS-Rank', minXp: 100663, color: 'text-yellow-400', customClass: 'animate-ss-rank', icon: <Trophy /> },
   { name: 'Legend', minXp: 161061, color: 'text-red-500', customClass: 'animate-legend-rank', icon: <Crown /> },
   { name: 'LORD', minXp: 257698, color: 'text-orange-400', customClass: 'text-rgb-animate', icon: <Hexagon /> },
@@ -124,6 +124,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t } = useTranslation();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [globalRank, setGlobalRank] = useState<number | null>(null);
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -134,8 +135,12 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   useEffect(() => {
     if (user && !loading) {
         const fetchProfile = async () => {
-            const profile = await getUserProfile(user.uid);
+            const [profile, rank] = await Promise.all([
+                getUserProfile(user.uid),
+                getUserRank(user.uid)
+            ]);
             setUserProfile(profile);
+            setGlobalRank(rank);
         };
         fetchProfile();
         
@@ -144,6 +149,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
         return () => clearInterval(interval);
     } else {
         setUserProfile(null);
+        setGlobalRank(null);
     }
 }, [user, loading]);
 
@@ -462,6 +468,13 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                             <span className="text-muted-foreground">Coins:</span>
                             <span className="font-semibold ml-auto">{userProfile.valhallaCoins.toLocaleString()}</span>
                         </div>
+                        {globalRank !== null && (
+                          <div className="flex items-center gap-2 text-sm w-full">
+                            <Trophy className="h-4 w-4 text-amber-400" />
+                            <span className="text-muted-foreground">Global Rank:</span>
+                            <span className="font-semibold ml-auto">#{globalRank}</span>
+                          </div>
+                        )}
                       </div>
                       <DropdownMenuSeparator />
                       <RankDisplay xp={userProfile.xp} />
