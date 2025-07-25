@@ -105,7 +105,7 @@ export function RankProgressCard({ xp, globalRank }: { xp: number; globalRank?: 
         </div>
       </CardHeader>
       <CardContent className="space-y-6 pt-2">
-        <div className="flex items-center justify-between bg-card/50 p-4 rounded-lg">
+        <div className="flex items-center justify-between bg-gradient-to-r from-primary/10 via-card/50 to-card/50 p-4 rounded-lg">
           <div className="flex items-center gap-4">
             <RankIcon rank={currentRank} size="xl" />
             <div>
