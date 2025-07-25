@@ -17,10 +17,10 @@ export const ranks = [
   { name: 'C-Rank', minXp: 15360, color: 'text-blue-400', icon: <Sword /> },
   { name: 'B-Rank', minXp: 24576, color: 'text-purple-400', icon: <Swords /> },
   { name: 'A-Rank', minXp: 39321, color: 'text-pink-400', icon: <Gem /> },
-  { name: 'S-Rank', minXp: 62914, color: 'text-red-400', icon: <Diamond /> },
+  { name: 'S-Rank', minXp: 62914, color: 'text-orange-400', customClass: 'text-s-rank-glow', icon: <Diamond /> },
   { name: 'SS-Rank', minXp: 100663, color: 'text-yellow-400', icon: <Trophy /> },
-  { name: 'Legend', minXp: 161061, color: 'text-violet-400', isLegend: true, icon: <Crown /> },
-  { name: 'LORD', minXp: 257698, color: 'text-orange-400', isRgb: true, icon: <Hexagon /> },
+  { name: 'Legend', minXp: 161061, color: 'text-violet-400', customClass: 'text-legend-glow', icon: <Crown /> },
+  { name: 'LORD', minXp: 257698, color: 'text-orange-400', customClass: 'text-rgb-animate', icon: <Hexagon /> },
 ];
 
 
@@ -51,8 +51,7 @@ export const RankIcon = ({ rank, size = 'sm' }: { rank: typeof ranks[0], size?: 
     return React.cloneElement(rank.icon, { 
         className: cn(
             sizeClass,
-            rank.isRgb ? 'text-rgb-animate' : rank.color,
-            rank.isLegend && 'text-legend-glow'
+            rank.customClass || rank.color,
         ) 
     });
 }
@@ -93,7 +92,7 @@ export function RankProgressCard({ xp, globalRank }: { xp: number; globalRank?: 
                                     <TableRow key={rank.name}>
                                         <TableCell className="flex items-center gap-4 font-medium">
                                             <RankIcon rank={rank} size="sm" />
-                                            <span className={cn(rank.isRgb ? 'text-rgb-animate font-bold' : rank.color, rank.isLegend && 'text-legend-glow')}>{rank.name}</span>
+                                            <span className={cn(rank.customClass || rank.color, "font-bold")}>{rank.name}</span>
                                         </TableCell>
                                         <TableCell className="text-right font-mono">{rank.minXp.toLocaleString()} XP</TableCell>
                                     </TableRow>
@@ -110,7 +109,7 @@ export function RankProgressCard({ xp, globalRank }: { xp: number; globalRank?: 
           <div className="flex items-center gap-4">
             <RankIcon rank={currentRank} size="xl" />
             <div>
-              <h3 className={cn("text-2xl font-bold font-headline", currentRank.isRgb ? 'text-rgb-animate' : currentRank.color, currentRank.isLegend && 'text-legend-glow')}>{currentRank.name}</h3>
+              <h3 className={cn("text-2xl font-bold font-headline", currentRank.customClass || currentRank.color)}>{currentRank.name}</h3>
               <p className="text-sm text-muted-foreground">Total XP: {xp.toLocaleString()}</p>
             </div>
           </div>

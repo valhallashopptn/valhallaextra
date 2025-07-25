@@ -39,10 +39,10 @@ export const ranks = [
   { name: 'C-Rank', minXp: 15360, color: 'text-blue-400', icon: <Sword /> },
   { name: 'B-Rank', minXp: 24576, color: 'text-purple-400', icon: <Swords /> },
   { name: 'A-Rank', minXp: 39321, color: 'text-pink-400', icon: <Gem /> },
-  { name: 'S-Rank', minXp: 62914, color: 'text-red-400', icon: <Diamond /> },
+  { name: 'S-Rank', minXp: 62914, color: 'text-orange-400', customClass: 'text-s-rank-glow', icon: <Diamond /> },
   { name: 'SS-Rank', minXp: 100663, color: 'text-yellow-400', icon: <Trophy /> },
-  { name: 'Legend', minXp: 161061, color: 'text-violet-400', isLegend: true, icon: <Crown /> },
-  { name: 'LORD', minXp: 257698, color: 'text-orange-400', isRgb: true, icon: <Hexagon /> },
+  { name: 'Legend', minXp: 161061, color: 'text-violet-400', customClass: 'text-legend-glow', icon: <Crown /> },
+  { name: 'LORD', minXp: 257698, color: 'text-orange-400', customClass: 'text-rgb-animate', icon: <Hexagon /> },
 ];
 
 export const getRankDetails = (xp: number) => {
@@ -72,8 +72,7 @@ export const RankIcon = ({ rank, size = 'sm' }: { rank: any, size?: 'sm' | 'lg' 
     return React.cloneElement(rank.icon, {
       className: cn(
         sizeClass,
-        rank.isRgb ? 'text-rgb-animate' : rank.color,
-        rank.isLegend && 'text-legend-glow'
+        rank.customClass || rank.color,
       )
     });
 }
@@ -92,11 +91,11 @@ function RankDisplay({ xp }: { xp: number }) {
       <div className="flex justify-between items-center mb-1">
         <div className="flex items-center gap-1.5">
           <RankIcon rank={currentRank} size="sm" />
-          <span className={cn("font-semibold", currentRank.isRgb ? 'text-rgb-animate' : currentRank.color, currentRank.isLegend && 'text-legend-glow')}>{currentRank.name}</span>
+          <span className={cn("font-semibold", currentRank.customClass || currentRank.color)}>{currentRank.name}</span>
         </div>
         {nextRank && (
           <div className="flex items-center gap-1.5 text-muted-foreground">
-             <span className={cn("font-semibold", nextRank.isRgb ? 'text-rgb-animate' : nextRank.color, nextRank.isLegend && 'text-legend-glow')}>{nextRank.name}</span>
+             <span className={cn("font-semibold", nextRank.customClass || nextRank.color)}>{nextRank.name}</span>
             <RankIcon rank={nextRank} size="sm" />
           </div>
         )}

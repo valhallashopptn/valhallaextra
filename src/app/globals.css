@@ -108,14 +108,21 @@ body {
   }
   
   .text-rgb-animate {
-    animation: rgb-keyboard-flow 3s linear infinite;
+    animation: rgb-keyboard-flow 1.5s linear infinite;
   }
 
   .text-legend-glow {
     color: #ff3b3b;
     text-shadow:
-      0 0 5px #ff3b3b,
-      0 0 10px #c70000;
+      0 0 2px #ff3b3b,
+      0 0 5px #c70000;
+  }
+
+  .text-s-rank-glow {
+    color: #fb923c; /* orange-400 */
+    text-shadow:
+      0 0 3px #fb923c,
+      0 0 6px #f97316;
   }
 }
 
