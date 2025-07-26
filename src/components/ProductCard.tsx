@@ -97,6 +97,9 @@ export function ProductCard({ product }: ProductCardProps) {
                     </p>
                 )}
             </div>
+             <Button variant="ghost" size="icon" className="h-8 w-8 bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+              <ArrowRight className="h-4 w-4" />
+            </Button>
           </div>
         </CardContent>
       </Card>
