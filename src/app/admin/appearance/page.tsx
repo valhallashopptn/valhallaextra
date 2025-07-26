@@ -19,7 +19,8 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { AboutPageContent, ContactPageContent, SocialLink } from '@/lib/types';
+import type { AboutPageContent, ContactPageContent, SocialLink, AnnouncementSettings } from '@/lib/types';
+import { Switch } from '@/components/ui/switch';
 
 
 const appearanceFormSchema = z.object({
@@ -42,6 +43,14 @@ const socialLinkSchema = z.object({
 
 const socialLinksFormSchema = z.object({
   socialLinks: z.array(socialLinkSchema).optional(),
+});
+
+const announcementFormSchema = z.object({
+    enabled: z.boolean().default(false),
+    text: z.string().max(200),
+    countdownDate: z.string().optional(),
+    linkText: z.string().max(30).optional(),
+    linkUrl: z.string().url().or(z.literal('')).optional(),
 });
 
 const aboutPageFormSchema = z.object({
@@ -74,6 +83,7 @@ type NotificationFormData = z.infer<typeof notificationFormSchema>;
 type SocialLinksFormData = z.infer<typeof socialLinksFormSchema>;
 type AboutPageFormData = z.infer<typeof aboutPageFormSchema>;
 type ContactPageFormData = z.infer<typeof contactPageFormSchema>;
+type AnnouncementFormData = z.infer<typeof announcementFormSchema>;
 
 export default function AppearancePage() {
   const { toast } = useToast();
@@ -88,6 +98,10 @@ export default function AppearancePage() {
   const identityForm = useForm<IdentityFormData>({
     resolver: zodResolver(identityFormSchema),
     defaultValues: { siteTitle: 'TopUp Hub', logoUrl: '' },
+  });
+  
+  const announcementForm = useForm<AnnouncementFormData>({
+    resolver: zodResolver(announcementFormSchema),
   });
 
   const notificationForm = useForm<NotificationFormData>({
@@ -119,7 +133,7 @@ export default function AppearancePage() {
       try {
         const settingKeys = [
             'heroImageUrl', 'theme', 'siteTitle', 'logoUrl', 'orderWebhookUrl',
-            'socialLinks', 'aboutPageContent', 'contactPageContent'
+            'socialLinks', 'aboutPageContent', 'contactPageContent', 'announcement'
         ];
         const settings = await getSettings(settingKeys);
         
@@ -129,6 +143,7 @@ export default function AppearancePage() {
         notificationForm.setValue('orderWebhookUrl', settings.orderWebhookUrl || '');
         setActiveTheme(settings.theme || 'Night Runner');
         socialLinksForm.reset({ socialLinks: settings.socialLinks || [] });
+        announcementForm.reset(settings.announcement || { enabled: false, text: '', countdownDate: '', linkText: '', linkUrl: '' });
         
         aboutPageForm.reset(settings.aboutPageContent || {
             mainTitle: 'About ApexTop',
@@ -161,7 +176,7 @@ export default function AppearancePage() {
       }
     };
     fetchSettings();
-  }, [appearanceForm, identityForm, notificationForm, socialLinksForm, aboutPageForm, contactPageForm, toast]);
+  }, [appearanceForm, identityForm, notificationForm, socialLinksForm, aboutPageForm, contactPageForm, announcementForm, toast]);
 
   const handleGenericSubmit = async (key: string, data: any, formName: string) => {
     try {
@@ -236,6 +251,84 @@ export default function AppearancePage() {
                     </Button>
                     </form>
                 </Form>
+                </CardContent>
+            </Card>
+            
+            <Card>
+                <CardHeader>
+                    <CardTitle>Announcement Bar</CardTitle>
+                    <CardDescription>Display a site-wide message for events, sales, or giveaways.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Form {...announcementForm}>
+                        <form onSubmit={announcementForm.handleSubmit((data) => handleGenericSubmit('announcement', data, 'Announcement Bar'))} className="space-y-4">
+                            <FormField
+                                control={announcementForm.control}
+                                name="enabled"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                    <div className="space-y-0.5">
+                                        <FormLabel>Enable Announcement Bar</FormLabel>
+                                        <FormDescription>Show the bar at the top of your site.</FormDescription>
+                                    </div>
+                                    <FormControl>
+                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={announcementForm.control}
+                                name="text"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Announcement Text</FormLabel>
+                                    <FormControl><Input placeholder="e.g., Summer Sale ends soon!" {...field} /></FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={announcementForm.control}
+                                name="countdownDate"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Countdown End Date (Optional)</FormLabel>
+                                    <FormControl><Input type="datetime-local" {...field} /></FormControl>
+                                    <FormDescription>Show a live countdown timer until this date.</FormDescription>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    control={announcementForm.control}
+                                    name="linkText"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Button Text (Optional)</FormLabel>
+                                        <FormControl><Input placeholder="e.g., Shop Now" {...field} /></FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={announcementForm.control}
+                                    name="linkUrl"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Button URL (Optional)</FormLabel>
+                                        <FormControl><Input placeholder="https://..." {...field} /></FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            <Button type="submit" disabled={announcementForm.formState.isSubmitting}>
+                                {announcementForm.formState.isSubmitting ? 'Saving...' : 'Save Announcement'}
+                            </Button>
+                        </form>
+                    </Form>
                 </CardContent>
             </Card>
 

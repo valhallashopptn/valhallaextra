@@ -1,4 +1,5 @@
 
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
@@ -9,6 +10,8 @@ import { getSettings } from '@/services/settingsService';
 import { themes } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { Footer } from '@/components/Footer';
+import { AnnouncementBar } from '@/components/AnnouncementBar';
+import type { AnnouncementSettings } from '@/lib/types';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -32,9 +35,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getSettings(['theme', 'siteTitle', 'logoUrl']);
+  const settings = await getSettings(['theme', 'siteTitle', 'logoUrl', 'announcement']);
   const themeName = settings.theme || 'Night Runner';
   const activeTheme = themes.find(t => t.name === themeName) || themes[0];
+  const announcementSettings = settings.announcement as AnnouncementSettings | null;
   
   const themeStyle = {
     '--background': activeTheme.colors.background,
@@ -64,6 +68,7 @@ export default async function RootLayout({
     <html lang="en" className={cn(inter.variable, 'dark')} style={themeStyle}>
       <body className="font-body antialiased min-h-screen flex flex-col bg-background">
         <Providers>
+          <AnnouncementBar settings={announcementSettings} />
           <Header siteTitle={settings.siteTitle} logoUrl={settings.logoUrl} />
           <main className="flex-grow">
             {children}

@@ -146,6 +146,14 @@ export interface SocialLink {
   iconUrl: string;
 }
 
+export interface AnnouncementSettings {
+    enabled: boolean;
+    text: string;
+    countdownDate: string;
+    linkUrl: string;
+    linkText: string;
+}
+
 export interface AboutPageContent {
   mainTitle: string;
   subtitle: string;
