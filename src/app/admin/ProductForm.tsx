@@ -15,6 +15,7 @@ import { PlusCircle, Trash2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCurrency } from '@/context/CurrencyContext';
+import { Switch } from '@/components/ui/switch';
 
 const productTabSchema = z.object({
   id: z.string().default(() => `tab_${crypto.randomUUID()}`),
@@ -48,6 +49,7 @@ const formSchema = z.object({
   tabs: z.array(productTabSchema).optional(),
   variants: z.array(productVariantSchema).optional(),
   customFields: z.array(customFieldSchema).optional(),
+  requirePurchaseAgreement: z.boolean().optional().default(false),
 });
 
 type ProductFormData = z.infer<typeof formSchema>;
@@ -74,6 +76,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
       tabs: [],
       variants: [],
       customFields: [],
+      requirePurchaseAgreement: false,
     },
   });
   
@@ -106,6 +109,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
             discountPrice: (v.discountPrice || 0) * CONVERSION_RATE_USD_TO_TND,
         })) || [],
         customFields: initialData.customFields || [],
+        requirePurchaseAgreement: initialData.requirePurchaseAgreement || false,
       });
     } else {
         form.reset({
@@ -119,6 +123,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
             tabs: [],
             variants: [],
             customFields: [],
+            requirePurchaseAgreement: false,
         });
     }
   }, [initialData, form, CONVERSION_RATE_USD_TO_TND]);
@@ -255,6 +260,29 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
 
             <Separator />
             
+            <FormField
+              control={form.control}
+              name="requirePurchaseAgreement"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Require Purchase Agreement</FormLabel>
+                    <FormDescription>
+                      If enabled, user must agree to terms in a pop-up before adding to cart.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            
+            <Separator />
+
             <div>
               <h3 className="text-lg font-medium mb-2">Product Variants</h3>
               <p className="text-sm text-muted-foreground mb-2">Add variants if this product comes in different options (e.g., sizes, amounts). Variants will override the default price and discount. This feature is not compatible with product-level discounts.</p>

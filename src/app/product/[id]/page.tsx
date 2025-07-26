@@ -26,6 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 
 function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md' }) {
@@ -122,6 +123,7 @@ export default function ProductDetailPage() {
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
   const [customFieldData, setCustomFieldData] = useState<Record<string, string>>({});
   const [showCustomFieldErrors, setShowCustomFieldErrors] = useState(false);
+  const [isAgreementDialogOpen, setIsAgreementDialogOpen] = useState(false);
 
   const sortedVariants = useMemo(() => {
     if (!product || !product.variants) return [];
@@ -180,21 +182,9 @@ export default function ProductDetailPage() {
     });
   }, [product, customFieldData]);
   
-  const handleAddToCart = () => {
+  const proceedToAddToCart = useCallback(() => {
     if (!product || product.stock === 0) return;
-    
-    if (!areAllCustomFieldsValid) {
-      setShowCustomFieldErrors(true);
-      toast({
-        title: 'Information Required',
-        description: 'Please fill out all required fields correctly.',
-        variant: 'destructive',
-      });
-      return;
-    }
 
-    setShowCustomFieldErrors(false);
-    
     let priceToUse: number;
     if (selectedVariant) {
         priceToUse = selectedVariant.discountPrice && selectedVariant.discountPrice > 0 ? selectedVariant.discountPrice : selectedVariant.price;
@@ -214,6 +204,28 @@ export default function ProductDetailPage() {
     setTimeout(() => {
       setIsAdded(false);
     }, 2000);
+  }, [product, selectedVariant, customFieldData, quantity, addToCart]);
+  
+  const handleAddToCartClick = () => {
+    if (!product) return;
+
+    if (!areAllCustomFieldsValid) {
+      setShowCustomFieldErrors(true);
+      toast({
+        title: 'Information Required',
+        description: 'Please fill out all required fields correctly.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setShowCustomFieldErrors(false);
+
+    if (product.requirePurchaseAgreement) {
+      setIsAgreementDialogOpen(true);
+    } else {
+      proceedToAddToCart();
+    }
   };
   
   const handleReviewSubmit = async (rating: number, comment: string) => {
@@ -339,6 +351,26 @@ export default function ProductDetailPage() {
   const hasVariantsAndDiscount = (product.variants && product.variants.length > 0) && (product.discountPrice && product.discountPrice > 0);
 
   return (
+    <>
+    <AlertDialog open={isAgreementDialogOpen} onOpenChange={setIsAgreementDialogOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Purchase Agreement</AlertDialogTitle>
+            <AlertDialogDescription>
+                By clicking "I Agree", you confirm that you have read and understood the product's full description, instructions, and any terms laid out in the product tabs. This action is final.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+                proceedToAddToCart();
+                setIsAgreementDialogOpen(false);
+            }}>
+                I Agree
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
     <PageWrapper>
       <div className="space-y-12">
         <div className="grid md:grid-cols-2 gap-12 items-start">
@@ -457,7 +489,7 @@ export default function ProductDetailPage() {
                     </div>
 
                     <Button
-                        onClick={handleAddToCart}
+                        onClick={handleAddToCartClick}
                         disabled={isAdded || product.stock === 0}
                         size="lg"
                         className={cn("flex-grow transition-all", { 'bg-green-600': isAdded })}
@@ -543,5 +575,6 @@ export default function ProductDetailPage() {
         </Card>
       </div>
     </PageWrapper>
+    </>
   );
 }

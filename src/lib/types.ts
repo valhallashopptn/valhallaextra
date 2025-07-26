@@ -46,6 +46,7 @@ export interface Product {
   variants?: ProductVariant[];
   customFields?: CustomField[];
   dataAiHint?: string;
+  requirePurchaseAgreement?: boolean;
 }
 
 export interface CartItem extends Product {
