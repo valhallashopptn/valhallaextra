@@ -77,6 +77,10 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
   if (docSnap.exists()) {
     const profileData = { ...docSnap.data(), id: docSnap.id } as UserProfile;
     const updates: Partial<UserProfile> = {};
+
+    if (!profileData.username && profileData.email) {
+        updates.username = profileData.email.split('@')[0];
+    }
     if (profileData.valhallaCoins === undefined) {
       updates.valhallaCoins = 0;
     }
@@ -86,6 +90,7 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
     if (profileData.status === undefined) {
         updates.status = 'active';
     }
+
     if (Object.keys(updates).length > 0) {
         await updateDoc(userDocRef, updates);
         return { ...profileData, ...updates };
