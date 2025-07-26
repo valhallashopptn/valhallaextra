@@ -244,11 +244,23 @@ export default function ProductDetailPage() {
   }, [reviews]);
 
   const displayPrice = useMemo(() => {
-    return selectedVariant ? selectedVariant.price : (product?.discountPrice && product.discountPrice > 0 ? product.discountPrice : product?.price ?? 0);
+    if (selectedVariant) {
+      return selectedVariant.price;
+    }
+    if (product?.discountPrice && product.discountPrice > 0) {
+      return product.discountPrice;
+    }
+    return product?.price ?? 0;
   }, [selectedVariant, product]);
 
   const originalPrice = useMemo(() => {
-    return selectedVariant ? null : (product?.discountPrice && product.discountPrice > 0 ? product.price : null);
+    if (selectedVariant) {
+      return null;
+    }
+    if (product?.discountPrice && product.discountPrice > 0) {
+      return product.price;
+    }
+    return null;
   }, [selectedVariant, product]);
   
   const StockDisplay = ({ stock }: { stock: number }) => {
