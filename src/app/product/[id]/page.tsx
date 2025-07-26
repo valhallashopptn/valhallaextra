@@ -13,7 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useCurrency } from '@/context/CurrencyContext';
-import { CheckCircle, ShoppingCart, Star, PackageCheck, Minus, Plus, Zap, Tag } from 'lucide-react';
+import { CheckCircle, ShoppingCart, Star, PackageCheck, Minus, Plus, Zap, Tag, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { ReviewForm } from './ReviewForm';
@@ -25,6 +25,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 
 function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md' }) {
@@ -254,10 +255,8 @@ export default function ProductDetailPage() {
   }, [selectedVariant, product]);
 
   const originalPrice = useMemo(() => {
-    if (selectedVariant) {
-      return null;
-    }
-    if (product?.discountPrice && product.discountPrice > 0) {
+    // Show original price if there's a discount, but no variants are selected
+    if (!selectedVariant && product?.discountPrice && product.discountPrice > 0) {
       return product.price;
     }
     return null;
@@ -327,6 +326,7 @@ export default function ProductDetailPage() {
   }
 
   const defaultTab = product.tabs && product.tabs.length > 0 ? product.tabs[0].id : "description";
+  const hasVariantsAndDiscount = (product.variants && product.variants.length > 0) && (product.discountPrice && product.discountPrice > 0);
 
   return (
     <PageWrapper>
@@ -374,6 +374,16 @@ export default function ProductDetailPage() {
 
                 <p className="text-muted-foreground">{product.description}</p>
                 
+                {hasVariantsAndDiscount && (
+                    <Alert variant="default">
+                        <Info className="h-4 w-4" />
+                        <AlertTitle>Note on Pricing</AlertTitle>
+                        <AlertDescription>
+                            This product's overall discount does not apply to variants. Please select a variant to see its specific price.
+                        </AlertDescription>
+                    </Alert>
+                )}
+
                 {sortedVariants && sortedVariants.length > 0 && (
                   <div className="space-y-2">
                       <Label>Select Version</Label>

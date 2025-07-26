@@ -157,6 +157,20 @@ body {
     color: #fca5a5;
     animation: flicker-red 2s linear infinite;
   }
+
+  @keyframes pulse-sale {
+    0%, 100% {
+      box-shadow: 0 0 0 0px hsl(var(--destructive) / 0.7);
+    }
+    50% {
+      box-shadow: 0 0 0 4px hsl(var(--destructive) / 0);
+    }
+  }
+
+  .animate-sale-border {
+    animation: pulse-sale 2s infinite;
+    border-color: hsl(var(--destructive) / 0.8);
+  }
 }
 
 @layer components {
