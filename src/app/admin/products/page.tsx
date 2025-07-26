@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { useCurrency } from '@/context/CurrencyContext';
 
 export default function ProductsPage() {
   const { toast } = useToast();
@@ -23,6 +24,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const { formatPrice } = useCurrency();
 
   useEffect(() => {
     fetchData();
@@ -123,7 +125,7 @@ export default function ProductsPage() {
                     <TableCell>
                       <Badge variant="secondary">{product.categoryName}</Badge>
                     </TableCell>
-                    <TableCell>${product.price.toFixed(2)}</TableCell>
+                    <TableCell>{formatPrice(product.price)}</TableCell>
                     <TableCell>{product.stock}</TableCell>
                     <TableCell className="text-right space-x-1">
                        <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}>

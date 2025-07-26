@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useCurrency } from '@/context/CurrencyContext';
 
 const productTabSchema = z.object({
   id: z.string().default(() => `tab_${crypto.randomUUID()}`),
@@ -59,6 +60,7 @@ interface ProductFormProps {
 }
 
 export function ProductForm({ onSubmit, initialData, onCancel, categories }: ProductFormProps) {
+  const { CONVERSION_RATE_USD_TO_TND } = useCurrency();
   const form = useForm<ProductFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -94,11 +96,15 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
     if (initialData) {
       form.reset({
         ...initialData,
-        price: Number(initialData.price),
-        discountPrice: initialData.discountPrice ? Number(initialData.discountPrice) : 0,
+        price: Number(initialData.price) * CONVERSION_RATE_USD_TO_TND,
+        discountPrice: initialData.discountPrice ? Number(initialData.discountPrice) * CONVERSION_RATE_USD_TO_TND : 0,
         stock: Number(initialData.stock),
         tabs: initialData.tabs || [],
-        variants: initialData.variants?.map(v => ({...v, discountPrice: v.discountPrice || 0 })) || [],
+        variants: initialData.variants?.map(v => ({
+            ...v, 
+            price: v.price * CONVERSION_RATE_USD_TO_TND,
+            discountPrice: (v.discountPrice || 0) * CONVERSION_RATE_USD_TO_TND,
+        })) || [],
         customFields: initialData.customFields || [],
       });
     } else {
@@ -115,14 +121,24 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
             customFields: [],
         });
     }
-  }, [initialData, form]);
+  }, [initialData, form, CONVERSION_RATE_USD_TO_TND]);
 
   const { formState } = form;
 
   const handleFormSubmit = (data: ProductFormData) => {
     const selectedCategory = categories.find(c => c.id === data.categoryId);
     if (selectedCategory) {
-      onSubmit({ ...data, categoryName: selectedCategory.name });
+      const dataInUSD: ProductFormData = {
+        ...data,
+        price: data.price / CONVERSION_RATE_USD_TO_TND,
+        discountPrice: (data.discountPrice || 0) / CONVERSION_RATE_USD_TO_TND,
+        variants: data.variants?.map(v => ({
+          ...v,
+          price: v.price / CONVERSION_RATE_USD_TO_TND,
+          discountPrice: (v.discountPrice || 0) / CONVERSION_RATE_USD_TO_TND,
+        }))
+      };
+      onSubmit({ ...dataInUSD, categoryName: selectedCategory.name });
     }
   };
 
@@ -187,9 +203,9 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                 name="price"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Default Price</FormLabel>
+                    <FormLabel>Default Price (TND)</FormLabel>
                     <FormControl>
-                        <Input type="number" step="0.01" placeholder="9.99" {...field} />
+                        <Input type="number" step="0.01" placeholder="29.99" {...field} />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -200,9 +216,9 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                 name="discountPrice"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Discount Price (Optional)</FormLabel>
+                    <FormLabel>Discount Price (TND, Optional)</FormLabel>
                     <FormControl>
-                        <Input type="number" step="0.01" placeholder="7.99" {...field} />
+                        <Input type="number" step="0.01" placeholder="24.99" {...field} />
                     </FormControl>
                      <FormDescription>Set to 0 to disable discount.</FormDescription>
                     <FormMessage />
@@ -263,9 +279,9 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                       name={`variants.${index}.price`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Price</FormLabel>
+                          <FormLabel>Price (TND)</FormLabel>
                           <FormControl>
-                            <Input type="number" step="0.01" placeholder="4.99" {...field} />
+                            <Input type="number" step="0.01" placeholder="14.99" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -276,9 +292,9 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                         name={`variants.${index}.discountPrice`}
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Discount Price</FormLabel>
+                            <FormLabel>Discount (TND)</FormLabel>
                             <FormControl>
-                                <Input type="number" step="0.01" placeholder="3.99" {...field} />
+                                <Input type="number" step="0.01" placeholder="12.99" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
