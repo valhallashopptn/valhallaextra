@@ -413,13 +413,6 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
           </div>
           
           <div className="flex items-center space-x-1 ml-2">
-            {user && userProfile && (
-              <Link href="/account" className="hidden md:flex items-center gap-2 border border-border rounded-md px-3 h-10 transition-colors hover:bg-muted">
-                    <Wallet className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-semibold">{formatPrice(userProfile.walletBalance)}</span>
-              </Link>
-            )}
-
             <CurrencySwitcher />
             <LanguageSwitcher />
             
@@ -438,6 +431,14 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
               )}
             </Button>
             <CartPanel />
+
+            {user && userProfile && (
+              <Link href="/account" className="hidden md:flex items-center gap-2 border border-border rounded-md px-3 h-10 transition-colors hover:bg-muted">
+                    <Wallet className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-semibold">{formatPrice(userProfile.walletBalance)}</span>
+              </Link>
+            )}
+            
             {user ? (
                <DropdownMenu>
                 <DropdownMenuTrigger asChild>
