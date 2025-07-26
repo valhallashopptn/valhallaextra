@@ -363,7 +363,7 @@ export default function ProductDetailPage() {
                     <a href="#reviews" className="text-muted-foreground hover:underline">{reviews.length} reviews</a>
                 </div>
 
-                <div className="flex items-end gap-3">
+                <div className="flex items-baseline gap-3">
                     <span
                         className="text-3xl font-bold text-primary"
                         style={{ textShadow: '0 0 15px hsl(var(--primary) / 0.5)' }}
@@ -371,9 +371,12 @@ export default function ProductDetailPage() {
                         {formatPrice(displayPrice)}
                     </span>
                     {originalPrice && (
-                        <span className="text-xl text-muted-foreground line-through">
-                            {formatPrice(originalPrice)}
-                        </span>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-xl text-muted-foreground line-through">
+                                {formatPrice(originalPrice)}
+                            </span>
+                            <Badge variant="destructive">SALE</Badge>
+                        </div>
                     )}
                 </div>
 
