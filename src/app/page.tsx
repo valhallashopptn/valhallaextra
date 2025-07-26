@@ -139,10 +139,11 @@ export default function Home() {
         <Button
           variant="default"
           size="lg"
-          className="fixed bottom-6 right-6 z-50 rounded-full h-16 w-16 shadow-lg shadow-primary/30 transform transition-all duration-300 hover:scale-110"
+          className="fixed bottom-6 right-6 z-50 rounded-full shadow-lg shadow-primary/30 transform transition-all duration-300 hover:scale-110"
           aria-label="View Leaderboard"
         >
-          <Trophy className="h-8 w-8" />
+          <Trophy className="h-6 w-6" />
+          <span>Leaderboard</span>
         </Button>
       </Link>
       <div className="space-y-16 pb-16">
