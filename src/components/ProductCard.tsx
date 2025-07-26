@@ -36,6 +36,7 @@ export function ProductCard({ product }: ProductCardProps) {
     : product.description;
 
   const hasDiscount = product.discountPrice && product.discountPrice > 0;
+  
   const displayPrice = useMemo(() => {
     if (product.variants && product.variants.length > 0) {
         const lowestPrice = Math.min(...product.variants.map(v => v.price));
@@ -45,6 +46,8 @@ export function ProductCard({ product }: ProductCardProps) {
   }, [product, hasDiscount]);
   
   const originalPrice = useMemo(() => {
+    // Show original price only if there is a discount and no variants.
+    // If there are variants, their pricing is shown on the product page.
     if (product.variants && product.variants.length > 0) return null;
     return hasDiscount ? product.price : null;
   }, [product, hasDiscount]);
@@ -71,7 +74,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   className="object-cover transition-transform duration-300 group-hover:scale-110"
                   data-ai-hint={product.dataAiHint || product.categoryName}
                 />
-                {hasDiscount && (
+                {hasDiscount && (!product.variants || product.variants.length === 0) && (
                     <div className="sale-ribbon-wrapper">
                         <div className="sale-ribbon">Sale</div>
                     </div>
