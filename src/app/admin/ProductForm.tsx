@@ -260,7 +260,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
               <p className="text-sm text-muted-foreground mb-2">Add variants if this product comes in different options (e.g., sizes, amounts). Variants will override the default price and discount. This feature is not compatible with product-level discounts.</p>
               <div className="space-y-4">
                 {variantFields.map((field, index) => (
-                  <div key={field.id} className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] items-end gap-2 p-3 border rounded-md relative">
+                  <div key={field.id} className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_auto] items-end gap-2 p-3 border rounded-md relative">
                     <FormField
                       control={form.control}
                       name={`variants.${index}.name`}
