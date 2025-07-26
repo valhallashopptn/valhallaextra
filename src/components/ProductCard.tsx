@@ -93,7 +93,10 @@ export function ProductCard({ product }: ProductCardProps) {
               <div className="flex items-baseline gap-2">
                 <p className="text-xl font-bold text-primary">{formatPrice(displayPrice)}</p>
                 {originalPrice && (
-                    <p className="text-base text-muted-foreground line-through">{formatPrice(originalPrice)}</p>
+                    <div className="flex items-center gap-2">
+                        <p className="text-base text-muted-foreground line-through">{formatPrice(originalPrice)}</p>
+                        <Badge variant="destructive">SALE</Badge>
+                    </div>
                 )}
               </div>
             </div>
