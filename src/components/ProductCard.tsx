@@ -37,9 +37,7 @@ export function ProductCard({ product }: ProductCardProps) {
   }, [product, hasDiscount]);
   
   const originalPrice = useMemo(() => {
-    // Only show original price for non-variant products with a discount
     if (product.variants && product.variants.length > 0) {
-        // Find the variant corresponding to the lowest price to show its original price
         const lowestVariant = product.variants.reduce((min, v) => (((v.discountPrice && v.discountPrice > 0 ? v.discountPrice : v.price) < ((min.discountPrice && min.discountPrice > 0 ? min.discountPrice : min.price))) ? v : min), product.variants[0]);
         if(lowestVariant.discountPrice && lowestVariant.discountPrice > 0) return lowestVariant.price;
         return null;
@@ -68,8 +66,8 @@ export function ProductCard({ product }: ProductCardProps) {
             <p className="text-sm text-muted-foreground mt-2 min-h-[40px]">{shortDescription}</p>
           </div>
 
-          <div className="relative">
-              <div className="aspect-video relative rounded-md overflow-hidden">
+          <div className="relative aspect-square">
+              <div className="aspect-square relative rounded-md overflow-hidden">
                 <Image
                   src={product.imageUrl}
                   alt={product.name}
@@ -88,7 +86,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="mt-auto flex justify-between items-end pt-4">
              <div className="flex items-baseline gap-2">
                 <p className="text-xl font-bold text-primary">
-                    <span className="text-sm text-muted-foreground font-normal">{priceLabel}</span>
+                    <span className="text-xl font-bold text-foreground">{priceLabel}</span>
                     {formatPrice(displayPrice)}
                 </p>
                 {originalPrice && (
