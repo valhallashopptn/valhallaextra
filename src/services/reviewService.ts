@@ -1,6 +1,6 @@
 
 import { db } from '@/lib/firebase';
-import type { Review } from '@/lib/types';
+import type { Review, UserProfile } from '@/lib/types';
 import {
   collection,
   query,
@@ -9,7 +9,10 @@ import {
   addDoc,
   serverTimestamp,
   orderBy,
+  doc,
+  getDoc,
 } from 'firebase/firestore';
+import { getUserProfile } from './walletService';
 
 const reviewsCollectionRef = collection(db, 'reviews');
 
@@ -33,10 +36,20 @@ export const getAllReviews = async (): Promise<Review[]> => {
 
 // Add a new review for a product
 export const addReview = async (
-  reviewData: Omit<Review, 'id' | 'createdAt'>
+  reviewData: Omit<Review, 'id' | 'createdAt' | 'username' | 'userEmail'>
 ) => {
-  return await addDoc(reviewsCollectionRef, {
+  const userProfile = await getUserProfile(reviewData.userId);
+  if (!userProfile) {
+      throw new Error("User profile not found. Cannot add review.");
+  }
+  const fullReviewData = {
     ...reviewData,
+    username: userProfile.username,
+    userEmail: userProfile.email,
+  }
+
+  return await addDoc(reviewsCollectionRef, {
+    ...fullReviewData,
     createdAt: serverTimestamp(),
   });
 };

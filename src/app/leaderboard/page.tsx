@@ -106,9 +106,9 @@ export default function LeaderboardPage() {
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Avatar>
-                              <AvatarFallback>{user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                              <AvatarFallback>{user.username ? user.username.charAt(0).toUpperCase() : '?'}</AvatarFallback>
                             </Avatar>
-                            <span className="font-medium">{user.email}</span>
+                            <span className="font-medium">{user.username || 'Anonymous'}</span>
                           </div>
                         </TableCell>
                          <TableCell className="text-center">

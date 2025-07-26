@@ -79,6 +79,7 @@ export interface Coupon {
 export interface Order {
   id: string;
   userId: string;
+  username: string;
   userEmail: string;
   items: CartItem[];
   subtotal: number;
@@ -104,6 +105,7 @@ export type User = FirebaseUser;
 
 export interface UserProfile {
     id: string;
+    username: string;
     email: string;
     walletBalance: number;
     valhallaCoins: number;
@@ -117,6 +119,7 @@ export interface Review {
     productName: string;
     productImage: string;
     userId: string;
+    username: string;
     userEmail: string;
     rating: number;
     comment: string;

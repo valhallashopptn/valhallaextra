@@ -277,7 +277,7 @@ export default function OrdersPage() {
                                 <div className="grid grid-cols-5 md:grid-cols-6 gap-4 items-center w-full text-sm px-4 text-left">
                                     <span className="font-medium truncate col-span-2 md:col-span-1">#{order.id.substring(0, 8)}</span>
                                     <span className="hidden md:block truncate">{new Date(order.createdAt.toDate()).toLocaleDateString()}</span>
-                                    <span className="truncate">{order.userEmail}</span>
+                                    <span className="truncate">{order.username}</span>
                                     <span>
                                         <Badge variant={'default'} className={cn('capitalize', getStatusBadgeClass(order.status))}>
                                             {order.status}
@@ -450,4 +450,3 @@ export default function OrdersPage() {
     </>
   );
 }
-

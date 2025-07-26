@@ -21,7 +21,7 @@ import { Separator } from '@/components/ui/separator';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Wallet, KeySquare, Copy, Check, Star } from 'lucide-react';
+import { Wallet, KeySquare, Copy, Check, Star, User } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { RankProgressCard } from './RankProgressCard';
@@ -224,7 +224,7 @@ export default function AccountPage() {
     return formatCurrency(displayPrice, currentDisplayCurrency, true);
   }
 
-  if (loading || !user) {
+  if (loading || !user || !userProfile) {
     return <div className="text-center container mx-auto px-4 py-8">Loading account details...</div>;
   }
 
@@ -260,7 +260,7 @@ export default function AccountPage() {
       <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold font-headline">My Account</h1>
-          <p className="text-muted-foreground">Manage your account and view your order history.</p>
+          <p className="text-muted-foreground">Welcome back, {userProfile.username}!</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -271,6 +271,10 @@ export default function AccountPage() {
                 <CardDescription>Your personal information</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                 <div>
+                  <p className="text-sm font-medium">Username</p>
+                  <p className="text-muted-foreground">{userProfile.username}</p>
+                </div>
                 <div>
                   <p className="text-sm font-medium">Email</p>
                   <p className="text-muted-foreground">{user.email}</p>

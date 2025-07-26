@@ -1,7 +1,7 @@
 
 
 import { db } from '@/lib/firebase';
-import type { Order, CartItem, PaymentMethod, DeliveredAssetInfo, Product, DigitalAsset } from '@/lib/types';
+import type { Order, CartItem, PaymentMethod, DeliveredAssetInfo, Product, DigitalAsset, UserProfile } from '@/lib/types';
 import {
   collection,
   addDoc,
@@ -18,7 +18,7 @@ import {
   getDoc,
   arrayUnion
 } from 'firebase/firestore';
-import { debitFromWallet, addRewardsForPurchase, redeemCoins } from './walletService';
+import { debitFromWallet, addRewardsForPurchase, redeemCoins, getUserProfile } from './walletService';
 import { getSetting } from './settingsService';
 
 const ordersCollectionRef = collection(db, 'orders');
@@ -44,6 +44,12 @@ export const addOrder = async (orderData: {
   status?: 'pending' | 'completed' | 'paid';
 }) => {
 
+  const userProfile = await getUserProfile(orderData.userId);
+  if (!userProfile) {
+    throw new Error("User profile not found. Cannot place order.");
+  }
+  const username = userProfile.username;
+
   // Sanitize items to remove potentially problematic fields for Firestore
   const sanitizedItems = orderData.items.map(item => {
     const { category, ...restOfItem } = item;
@@ -52,6 +58,7 @@ export const addOrder = async (orderData: {
 
   const finalOrderData = {
     ...orderData,
+    username: username,
     items: sanitizedItems,
   };
 

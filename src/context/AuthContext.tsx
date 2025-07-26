@@ -4,11 +4,12 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type Auth, type UserCredential } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import type { User } from '@/lib/types';
+import { createUserProfile } from '@/services/walletService';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signUp: (email: string, pass: string) => Promise<UserCredential>;
+  signUp: (email: string, pass: string, username: string) => Promise<UserCredential>;
   logIn: (email: string, pass: string) => Promise<UserCredential>;
   logOut: () => Promise<void>;
 }
@@ -28,8 +29,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const signUp = (email: string, pass: string) => {
-    return createUserWithEmailAndPassword(auth, email, pass);
+  const signUp = async (email: string, pass: string, username: string) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+    await createUserProfile(userCredential.user.uid, email, username);
+    return userCredential;
   };
   
   const logIn = (email: string, pass: string) => {

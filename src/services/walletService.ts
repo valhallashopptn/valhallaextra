@@ -1,7 +1,7 @@
 
 
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, updateDoc, increment, runTransaction, serverTimestamp, type Transaction, collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, increment, runTransaction, serverTimestamp, type Transaction, collection, query, orderBy, limit, getDocs, where } from 'firebase/firestore';
 import { updateOrderStatus } from './orderService';
 import type { UserProfile } from '@/lib/types';
 
@@ -10,15 +10,29 @@ const COINS_EARNED_PER_DOLLAR = 10;
 const XP_EARNED_PER_DOLLAR = 1000;
 
 /**
+ * Checks if a username is already taken.
+ */
+const isUsernameTaken = async (username: string): Promise<boolean> => {
+    const q = query(collection(db, usersCollectionRef), where("username", "==", username));
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+}
+
+/**
  * Creates a user profile document if it doesn't exist.
  */
-export const createUserProfile = async (userId: string, email: string): Promise<UserProfile> => {
+export const createUserProfile = async (userId: string, email: string, username: string): Promise<UserProfile> => {
   const userDocRef = doc(db, usersCollectionRef, userId);
   const docSnap = await getDoc(userDocRef);
   const createdAt = serverTimestamp();
 
+  if (await isUsernameTaken(username)) {
+      throw new Error("Username is already taken.");
+  }
+
   if (!docSnap.exists()) {
     const newUserProfile: Omit<UserProfile, 'id' | 'createdAt'> = {
+      username: username,
       email: email,
       walletBalance: 0,
       valhallaCoins: 0,
@@ -51,7 +65,7 @@ export const createUserProfile = async (userId: string, email: string): Promise<
  * Gets the user profile, including wallet and coin balance.
  * Creates a profile if one doesn't exist.
  */
-export const getUserProfile = async (userId: string): Promise<UserProfile> => {
+export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
   const userDocRef = doc(db, usersCollectionRef, userId);
   const docSnap = await getDoc(userDocRef);
 
@@ -71,8 +85,8 @@ export const getUserProfile = async (userId: string): Promise<UserProfile> => {
     return profileData;
   }
   
-  // If user profile doesn't exist, create it with zero balances
-  return await createUserProfile(userId, 'unknown@user.com');
+  // If user profile doesn't exist, return null. Creation happens on signup.
+  return null;
 };
 
 
@@ -82,7 +96,7 @@ export const getUserProfile = async (userId: string): Promise<UserProfile> => {
  */
 export const getUserWalletBalance = async (userId: string): Promise<number> => {
   const userProfile = await getUserProfile(userId);
-  return userProfile.walletBalance || 0;
+  return userProfile?.walletBalance || 0;
 };
 
 /**

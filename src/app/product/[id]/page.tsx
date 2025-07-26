@@ -216,7 +216,6 @@ export default function ProductDetailPage() {
     try {
         await addReview({
             userId: user.uid,
-            userEmail: user.email || 'Anonymous',
             rating,
             comment,
             productId: product.id,
@@ -459,11 +458,11 @@ export default function ProductDetailPage() {
                       {reviews.map(review => (
                           <div key={review.id} className="flex gap-4">
                             <Avatar>
-                                  <AvatarFallback>{review.userEmail.charAt(0).toUpperCase()}</AvatarFallback>
+                                  <AvatarFallback>{review.username ? review.username.charAt(0).toUpperCase() : '?'}</AvatarFallback>
                               </Avatar>
                               <div className="flex-1">
                                   <div className="flex items-center justify-between">
-                                      <p className="font-semibold">{review.userEmail}</p>
+                                      <p className="font-semibold">{review.username}</p>
                                       <span className="text-xs text-muted-foreground">{new Date(review.createdAt.toDate()).toLocaleDateString()}</span>
                                   </div>
                                   <StarRating rating={review.rating} size="sm" />
