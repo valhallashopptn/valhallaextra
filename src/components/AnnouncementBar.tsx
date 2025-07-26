@@ -64,8 +64,7 @@ export function AnnouncementBar({ settings }: AnnouncementBarProps) {
   const hasCountdown = settings.countdownDate && new Date(settings.countdownDate).getTime() > new Date().getTime();
 
   return (
-    <div className="relative overflow-hidden bg-primary text-primary-foreground py-2.5 px-4 text-center text-sm font-medium">
-       <div className="shimmer-gradient absolute inset-0"></div>
+    <div className="relative overflow-hidden bg-primary text-primary-foreground py-2.5 px-4 text-center text-sm font-medium animate-pulse-primary-bg">
       <div className="relative z-10 container mx-auto flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
         <Megaphone className="h-5 w-5 hidden sm:inline-block" />
         <p>{settings.text}</p>

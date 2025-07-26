@@ -166,6 +166,19 @@ body {
       box-shadow: 0 0 0 4px hsl(var(--destructive) / 0);
     }
   }
+  
+  @keyframes pulse-primary-bg {
+    0%, 100% {
+      background-color: hsl(var(--primary));
+    }
+    50% {
+      background-color: hsl(var(--primary) / 0.8);
+    }
+  }
+
+  .animate-pulse-primary-bg {
+      animation: pulse-primary-bg 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
 
   .animate-sale-border {
     animation: pulse-sale 2s infinite;
