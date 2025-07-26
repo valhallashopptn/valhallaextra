@@ -1,10 +1,12 @@
+
 'use client';
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type Auth, type UserCredential } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import type { User } from '@/lib/types';
-import { createUserProfile } from '@/services/walletService';
+import type { User, UserProfile } from '@/lib/types';
+import { createUserProfile, getUserProfile } from '@/services/walletService';
+import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: User | null;
@@ -19,15 +21,33 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Check user status from Firestore
+        const userProfile = await getUserProfile(user.uid);
+        if (userProfile && userProfile.status === 'banned') {
+          await signOut(auth); // Force sign out
+          setUser(null);
+          toast({
+              title: 'Access Denied',
+              description: 'Your account has been suspended. Please contact support.',
+              variant: 'destructive',
+              duration: 10000,
+          });
+        } else {
+          setUser(user);
+        }
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
 
   const signUp = async (email: string, pass: string, username: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);

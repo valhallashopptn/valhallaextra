@@ -115,7 +115,10 @@ export interface UserProfile {
     walletBalance: number;
     valhallaCoins: number;
     xp: number;
+    status: 'active' | 'banned' | 'suspended';
     createdAt: Timestamp;
+    bannedAt?: Timestamp;
+    suspendedUntil?: Timestamp;
 }
 
 export interface Review {

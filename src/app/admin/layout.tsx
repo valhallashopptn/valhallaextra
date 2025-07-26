@@ -16,7 +16,7 @@ import {
   SidebarTrigger,
   SidebarSeparator,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, ShoppingCart, Package, PanelLeft, Tag, Palette, CreditCard, Warehouse, Gift } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, PanelLeft, Tag, Palette, CreditCard, Warehouse, Gift, Users } from 'lucide-react';
 import Link from 'next/link';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 
@@ -120,6 +120,14 @@ export default function AdminLayout({
                       </Link>
                   </SidebarMenuButton>
                   </SidebarMenuItem>
+                  <SidebarMenuItem className="admin-sidebar-menu-item">
+                  <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/users')}>
+                      <Link href="/admin/users">
+                      <Users />
+                      Users
+                      </Link>
+                  </SidebarMenuButton>
+                  </SidebarMenuItem>
               </SidebarMenu>
               </SidebarContent>
           </Sidebar>
@@ -131,5 +139,3 @@ export default function AdminLayout({
     </>
   );
 }
-
-    

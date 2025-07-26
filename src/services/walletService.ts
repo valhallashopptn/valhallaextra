@@ -37,6 +37,7 @@ export const createUserProfile = async (userId: string, email: string, username:
       walletBalance: 0,
       valhallaCoins: 0,
       xp: 0,
+      status: 'active',
       createdAt: createdAt as any, // Temporary cast
     }
     await setDoc(userDocRef, newUserProfile);
@@ -52,6 +53,10 @@ export const createUserProfile = async (userId: string, email: string, username:
   if (profileData.xp === undefined) {
     updates.xp = 0;
   }
+  if (profileData.status === undefined) {
+    updates.status = 'active';
+  }
+
 
   if (Object.keys(updates).length > 0) {
     await updateDoc(userDocRef, updates);
@@ -78,6 +83,9 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
     if (profileData.xp === undefined) {
         updates.xp = 0;
     }
+    if (profileData.status === undefined) {
+        updates.status = 'active';
+    }
     if (Object.keys(updates).length > 0) {
         await updateDoc(userDocRef, updates);
         return { ...profileData, ...updates };
@@ -87,6 +95,35 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
   
   // If user profile doesn't exist, return null. Creation happens on signup.
   return null;
+};
+
+/**
+ * Gets all user profiles for the admin dashboard.
+ */
+export const getAllUserProfiles = async (): Promise<UserProfile[]> => {
+    const usersRef = collection(db, usersCollectionRef);
+    const q = query(usersRef, orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      // Ensure status defaults to active if it's missing
+      if (!data.status) {
+        data.status = 'active';
+      }
+      return { id: doc.id, ...data } as UserProfile;
+    });
+};
+
+/**
+ * Updates a user's status (e.g., to ban or unban them).
+ */
+export const updateUserStatus = async (userId: string, status: 'active' | 'banned' | 'suspended') => {
+    const userDocRef = doc(db, usersCollectionRef, userId);
+    const updateData: { status: string, bannedAt?: any } = { status };
+    if (status === 'banned') {
+        updateData.bannedAt = serverTimestamp();
+    }
+    return await updateDoc(userDocRef, updateData);
 };
 
 
