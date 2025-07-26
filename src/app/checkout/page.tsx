@@ -20,7 +20,7 @@ import { getUserProfile } from '@/services/walletService';
 import { getCouponByCode } from '@/services/couponService';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { PageWrapper } from '@/components/PageWrapper';
-import type { PaymentMethod, CartItem, Coupon, UserProfile } from '@/lib/types';
+import type { PaymentMethod, CartItem, Coupon, UserProfile, CustomField as CustomFieldType } from '@/lib/types';
 import { Lock, Info, Wallet, Tag, CheckCircle, Star } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -78,6 +78,53 @@ function CustomFieldInput({ item, field, value, onChange }: { item: CartItem; fi
   );
 }
 
+function PaymentCustomFieldInput({ field, value, onChange }: { field: CustomFieldType; value: string; onChange: (fieldLabel: string, value: string) => void; }) {
+  const [error, setError] = useState('');
+
+  const validate = useCallback((val: string) => {
+    if (!val) {
+      setError('This field is required.');
+      return false;
+    }
+    if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+      setError('Please enter a valid email.');
+      return false;
+    }
+    if (field.type === 'number' && !/^\d+$/.test(val)) {
+      setError('Please enter a valid number.');
+      return false;
+    }
+    setError('');
+    return true;
+  }, [field.type]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    validate(newValue);
+    onChange(field.label, newValue);
+  };
+  
+  // Initial validation
+  useEffect(() => {
+    validate(value);
+  }, [value, validate]);
+
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={`payment-${field.id}`}>{field.label}</Label>
+      <Input
+        id={`payment-${field.id}`}
+        type={field.type}
+        value={value}
+        onChange={handleChange}
+        placeholder={`Enter ${field.label.toLowerCase()}`}
+        className={error ? 'border-destructive' : ''}
+      />
+      {error && <p className="text-sm text-destructive">{error}</p>}
+    </div>
+  );
+}
+
 
 export default function CheckoutPage() {
   const { cartItems, cartTotal, clearCart, updateCartItemCustomData } = useCart();
@@ -101,6 +148,7 @@ export default function CheckoutPage() {
   const [customTip, setCustomTip] = useState('');
 
   const [coinsToRedeem, setCoinsToRedeem] = useState(0);
+  const [paymentCustomData, setPaymentCustomData] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -222,6 +270,11 @@ export default function CheckoutPage() {
       }
     }
   }, [isFullPaymentByWallet, paymentMethods, selectedMethodId]);
+  
+  useEffect(() => {
+    // Reset payment custom data when selected method changes
+    setPaymentCustomData({});
+  }, [selectedMethodId]);
 
   const itemsWithCustomFields = useMemo(() => {
     return cartItems.filter(item => item.customFields && item.customFields.length > 0);
@@ -238,10 +291,31 @@ export default function CheckoutPage() {
         })
     );
   }, [itemsWithCustomFields]);
+  
+  const arePaymentCustomFieldsValid = useMemo(() => {
+    if (!selectedMethod || !selectedMethod.customFields || selectedMethod.customFields.length === 0) {
+      return true;
+    }
+    return selectedMethod.customFields.every(field => {
+      const value = paymentCustomData[field.label];
+      if (!value) return false;
+      if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return false;
+      if (field.type === 'number' && !/^\d+$/.test(value)) return false;
+      return true;
+    });
+  }, [selectedMethod, paymentCustomData]);
+
 
   const handleCustomFieldChange = useCallback((itemId: string, fieldLabel: string, value: string) => {
     updateCartItemCustomData(itemId, fieldLabel, value);
   }, [updateCartItemCustomData]);
+
+  const handlePaymentCustomFieldChange = useCallback((fieldLabel: string, value: string) => {
+    setPaymentCustomData(prev => ({
+        ...prev,
+        [fieldLabel]: value
+    }));
+  }, []);
 
   const handleApplyCoupon = async () => {
     if (!couponCode) return;
@@ -291,6 +365,10 @@ export default function CheckoutPage() {
         toast({ title: 'Information Required', description: 'Please fill out all required fields for your items.', variant: 'destructive' });
         return;
     }
+     if (!arePaymentCustomFieldsValid) {
+        toast({ title: 'Payment Information Required', description: 'Please fill out all required fields for your chosen payment method.', variant: 'destructive' });
+        return;
+    }
     
     setIsPlacingOrder(true);
     try {
@@ -321,6 +399,7 @@ export default function CheckoutPage() {
         total: finalTotalInUSD,
         currency: currency,
         paymentMethod: paymentMethodDetails,
+        paymentCustomData: paymentCustomData,
         status: isFullPaymentByWallet ? 'paid' : 'pending'
       });
       
@@ -453,6 +532,20 @@ export default function CheckoutPage() {
               
               {paymentMethods.length === 0 && !isFullPaymentByWallet && (
                 <p className="text-muted-foreground text-center py-4">No other payment methods available. Please contact support.</p>
+              )}
+              
+              {selectedMethod && !isFullPaymentByWallet && selectedMethod.customFields && selectedMethod.customFields.length > 0 && (
+                <div className="p-4 border rounded-lg space-y-4 mt-4">
+                  <h3 className="font-semibold">{selectedMethod.name} Details</h3>
+                  {selectedMethod.customFields.map(field => (
+                    <PaymentCustomFieldInput
+                      key={field.id}
+                      field={field}
+                      value={paymentCustomData[field.label] || ''}
+                      onChange={handlePaymentCustomFieldChange}
+                    />
+                  ))}
+                </div>
               )}
 
               {selectedMethod && !isFullPaymentByWallet && (
@@ -624,7 +717,7 @@ export default function CheckoutPage() {
               </div>
             </CardContent>
              <CardFooter className='flex-col items-stretch gap-4'>
-                 <Button onClick={handleCheckout} className="w-full mt-2" size="lg" disabled={isPlacingOrder || (!selectedMethodId && !isFullPaymentByWallet) || !areAllCustomFieldsValid}>
+                 <Button onClick={handleCheckout} className="w-full mt-2" size="lg" disabled={isPlacingOrder || (!selectedMethodId && !isFullPaymentByWallet) || !areAllCustomFieldsValid || !arePaymentCustomFieldsValid}>
                      <Lock className="mr-2 h-4 w-4" />
                     {isPlacingOrder ? 'Processing...' : `Place Order for ${formatPrice(finalTotal, undefined, true)}`}
                   </Button>

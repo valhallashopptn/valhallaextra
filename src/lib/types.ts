@@ -60,6 +60,7 @@ export interface PaymentMethod {
   instructions: string;
   taxRate: number; // Stored as a percentage, e.g., 5 for 5%
   iconUrl?: string;
+  customFields?: CustomField[];
   createdAt: Timestamp;
 }
 
@@ -100,6 +101,7 @@ export interface Order {
     name: string;
     instructions: string;
   };
+  paymentCustomData?: Record<string, string>;
   createdAt: Timestamp;
   deliveredAsset?: DeliveredAssetInfo;
 }

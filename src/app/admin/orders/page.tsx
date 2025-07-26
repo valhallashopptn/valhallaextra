@@ -342,6 +342,15 @@ export default function OrdersPage() {
                                     <div className="grid md:grid-cols-2 gap-4 items-start">
                                         <div>
                                             <h4 className="font-semibold">Payment Method: {order.paymentMethod?.name || 'N/A'}</h4>
+                                            {order.paymentCustomData && Object.keys(order.paymentCustomData).length > 0 && (
+                                                <div className="text-sm text-muted-foreground mt-2 space-y-1 border-l-2 border-primary pl-2">
+                                                    {Object.entries(order.paymentCustomData).map(([key, value]) => (
+                                                        <div key={key}>
+                                                            <span className="font-semibold text-foreground">{key}:</span> {value}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                             <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{order.paymentMethod?.instructions}</p>
                                         </div>
                                         <div className="flex items-start justify-end gap-2">

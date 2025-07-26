@@ -41,6 +41,7 @@ export const addOrder = async (orderData: {
   total: number;
   currency: 'TND' | 'USD';
   paymentMethod: { name: string; instructions: string; };
+  paymentCustomData?: Record<string, string>;
   status?: 'pending' | 'completed' | 'paid';
 }) => {
 
