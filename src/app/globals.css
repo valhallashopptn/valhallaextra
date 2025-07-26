@@ -252,4 +252,18 @@ body {
   .animate-spin-slow {
     animation: spin-slow 3s linear infinite;
   }
+  
+  .sale-ribbon-wrapper {
+    @apply absolute top-0 right-0 h-24 w-24 overflow-hidden z-10;
+  }
+  .sale-ribbon {
+      @apply absolute top-0 right-0 text-center transform-gpu;
+      @apply text-white text-xs font-bold uppercase tracking-wider;
+      @apply bg-destructive shadow-md;
+      width: 150%;
+      right: -35px;
+      top: 25px;
+      transform: rotate(45deg);
+      padding: 4px 0;
+  }
 }

@@ -59,8 +59,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/product/${product.id}`} className="flex h-full">
       <Card className={cn(
-        "group flex flex-col overflow-hidden transition-all duration-300 hover:border-primary hover:-translate-y-1 w-full",
-        hasDiscount && "animate-sale-border border-2"
+        "group flex flex-col overflow-hidden transition-all duration-300 hover:border-primary hover:-translate-y-1 w-full"
         )}>
         <CardContent className="p-4 flex flex-col flex-grow">
           <div className="relative">
@@ -69,13 +68,15 @@ export function ProductCard({ product }: ProductCardProps) {
                   src={product.imageUrl}
                   alt={product.name}
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform duration-300 group-hover:scale-110"
                   data-ai-hint={product.dataAiHint || product.categoryName}
                 />
+                {hasDiscount && (
+                    <div className="sale-ribbon-wrapper">
+                        <div className="sale-ribbon">Sale</div>
+                    </div>
+                )}
               </div>
-               {hasDiscount && (
-                <Badge variant="destructive" className="absolute top-2 right-2">SALE</Badge>
-              )}
           </div>
           
           <div className="flex justify-between items-start mt-4 mb-2">
