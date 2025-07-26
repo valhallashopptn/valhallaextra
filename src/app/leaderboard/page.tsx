@@ -75,7 +75,7 @@ export default function LeaderboardPage() {
                 <TableRow>
                   <TableHead className="w-20 text-center">Rank</TableHead>
                   <TableHead>Player</TableHead>
-                  <TableHead className="text-center">Rank Icon</TableHead>
+                  <TableHead className="text-center">Title</TableHead>
                   <TableHead className="text-right">Total XP</TableHead>
                 </TableRow>
               </TableHeader>
@@ -111,9 +111,10 @@ export default function LeaderboardPage() {
                             <span className="font-medium">{user.username || 'Anonymous'}</span>
                           </div>
                         </TableCell>
-                         <TableCell className="text-center">
-                          <div className="flex justify-center">
+                         <TableCell>
+                          <div className="flex items-center justify-center gap-2">
                             <RankIcon rank={currentRank} size="sm" />
+                            <span className={cn("font-semibold", currentRank.customClass || currentRank.color)}>{currentRank.name}</span>
                           </div>
                         </TableCell>
                         <TableCell className="text-right font-mono font-semibold text-primary">{user.xp.toLocaleString()} XP</TableCell>
