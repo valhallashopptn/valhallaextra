@@ -63,6 +63,11 @@ export function ProductCard({ product }: ProductCardProps) {
         "group flex flex-col overflow-hidden transition-all duration-300 hover:border-primary hover:-translate-y-1 w-full"
         )}>
         <CardContent className="p-4 flex flex-col flex-grow">
+          <div className="mb-4">
+            <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors pr-2">{product.name}</h3>
+            <p className="text-sm text-muted-foreground min-h-[40px]">{shortDescription}</p>
+          </div>
+
           <div className="relative">
               <div className="aspect-video relative rounded-md overflow-hidden">
                 <Image
@@ -80,13 +85,6 @@ export function ProductCard({ product }: ProductCardProps) {
               </div>
           </div>
           
-          <div className="flex justify-between items-start mt-4 mb-2">
-            <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors pr-2">{product.name}</h3>
-          </div>
-          
-          <p className="text-sm text-muted-foreground mb-4 min-h-[40px]">{shortDescription}</p>
-
-
           <div className="mt-auto flex justify-between items-end pt-4">
             <div>
               <p className="text-sm text-muted-foreground">{priceLabel}</p>
@@ -95,7 +93,6 @@ export function ProductCard({ product }: ProductCardProps) {
                 {originalPrice && (
                     <div className="flex items-center gap-2">
                         <p className="text-base text-muted-foreground line-through">{formatPrice(originalPrice)}</p>
-                        <Badge variant="destructive">SALE</Badge>
                     </div>
                 )}
               </div>
