@@ -38,7 +38,12 @@ export function ProductCard({ product }: ProductCardProps) {
   
   const originalPrice = useMemo(() => {
     // Only show original price for non-variant products with a discount
-    if (product.variants && product.variants.length > 0) return null;
+    if (product.variants && product.variants.length > 0) {
+        // Find the variant corresponding to the lowest price to show its original price
+        const lowestVariant = product.variants.reduce((min, v) => (((v.discountPrice && v.discountPrice > 0 ? v.discountPrice : v.price) < ((min.discountPrice && min.discountPrice > 0 ? min.discountPrice : min.price))) ? v : min), product.variants[0]);
+        if(lowestVariant.discountPrice && lowestVariant.discountPrice > 0) return lowestVariant.price;
+        return null;
+    }
     return hasDiscount ? product.price : null;
   }, [product, hasDiscount]);
 
@@ -54,11 +59,13 @@ export function ProductCard({ product }: ProductCardProps) {
       <Card className={cn(
         "group flex flex-col overflow-hidden transition-all duration-300 hover:border-primary hover:-translate-y-1 w-full"
         )}>
-        <CardContent className="p-4 flex flex-col flex-grow">
+        <CardContent className="p-4 flex flex-col flex-grow min-h-[380px]">
           <div className="mb-4">
-             <Badge variant="secondary" className="mb-2">{product.categoryName}</Badge>
-            <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors pr-2">{product.name}</h3>
-            <p className="text-sm text-muted-foreground min-h-[40px]">{shortDescription}</p>
+             <div className="flex justify-between items-start gap-2">
+                <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors pr-2">{product.name}</h3>
+                <Badge variant="secondary" className="flex-shrink-0">{product.categoryName}</Badge>
+             </div>
+            <p className="text-sm text-muted-foreground mt-2 min-h-[40px]">{shortDescription}</p>
           </div>
 
           <div className="relative">
@@ -96,4 +103,3 @@ export function ProductCard({ product }: ProductCardProps) {
     </Link>
   );
 }
-
