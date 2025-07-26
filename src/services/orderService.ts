@@ -123,6 +123,17 @@ export const addOrder = async (orderData: {
     }
   }
 
+  // 6. Attempt auto-delivery if the order was paid for with wallet funds
+  if (finalOrderData.status === 'paid') {
+      try {
+        // We don't need to show a toast here, it will be shown in the admin panel if it fails.
+        // We don't await this so it doesn't block the user's checkout flow.
+        attemptAutoDelivery(orderRef.id);
+      } catch (error) {
+          console.error(`Auto-delivery attempt failed for wallet order ${orderRef.id}:`, error);
+      }
+  }
+
   return orderRef;
 };
 
