@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import type { Product, Category } from '@/lib/types';
 import { useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
@@ -39,6 +39,7 @@ const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
   price: z.coerce.number().min(0.01, { message: 'Price must be a positive number.' }),
+  discountPrice: z.coerce.number().optional(),
   stock: z.coerce.number().int().min(0, { message: 'Stock must be a non-negative integer.' }),
   categoryId: z.string().min(1, { message: 'Please select a category.' }),
   imageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/600x400.png'),
@@ -63,6 +64,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
       name: '',
       description: '',
       price: 0,
+      discountPrice: 0,
       stock: 100,
       categoryId: '',
       imageUrl: 'https://placehold.co/600x400.png',
@@ -92,6 +94,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
       form.reset({
         ...initialData,
         price: Number(initialData.price),
+        discountPrice: initialData.discountPrice ? Number(initialData.discountPrice) : 0,
         stock: Number(initialData.stock),
         tabs: initialData.tabs || [],
         variants: initialData.variants || [],
@@ -102,6 +105,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
             name: '',
             description: '',
             price: 0,
+            discountPrice: 0,
             stock: 100,
             categoryId: '',
             imageUrl: 'https://placehold.co/600x400.png',
@@ -192,6 +196,21 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                 />
                 <FormField
                 control={form.control}
+                name="discountPrice"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Discount Price (Optional)</FormLabel>
+                    <FormControl>
+                        <Input type="number" step="0.01" placeholder="7.99" {...field} />
+                    </FormControl>
+                     <FormDescription>Set to 0 to disable discount.</FormDescription>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            </div>
+             <FormField
+                control={form.control}
                 name="stock"
                 render={({ field }) => (
                     <FormItem>
@@ -203,7 +222,6 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                     </FormItem>
                 )}
                 />
-            </div>
             <FormField
               control={form.control}
               name="imageUrl"
@@ -222,7 +240,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
             
             <div>
               <h3 className="text-lg font-medium mb-2">Product Variants</h3>
-              <p className="text-sm text-muted-foreground mb-2">Add variants if this product comes in different options (e.g., sizes, amounts). Variants will override the default price.</p>
+              <p className="text-sm text-muted-foreground mb-2">Add variants if this product comes in different options (e.g., sizes, amounts). Variants will override the default price and discount. This feature is not compatible with product-level discounts.</p>
               <div className="space-y-4">
                 {variantFields.map((field, index) => (
                   <div key={field.id} className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] items-end gap-2 p-3 border rounded-md relative">
@@ -406,5 +424,3 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
     </Form>
   );
 }
-
-    

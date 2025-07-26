@@ -193,10 +193,15 @@ export default function ProductDetailPage() {
     }
 
     setShowCustomFieldErrors(false);
+    
+    const priceToUse = selectedVariant 
+        ? selectedVariant.price
+        : (product.discountPrice && product.discountPrice > 0 ? product.discountPrice : product.price);
+
     const itemToAdd = {
         ...product,
         name: selectedVariant ? `${product.name} - ${selectedVariant.name}` : product.name,
-        price: selectedVariant ? selectedVariant.price : product.price,
+        price: priceToUse,
         customFieldData: customFieldData,
     };
 
@@ -221,6 +226,8 @@ export default function ProductDetailPage() {
             productId: product.id,
             productName: product.name,
             productImage: product.imageUrl,
+            username: user.displayName || 'Anonymous',
+            userEmail: user.email || '',
         });
         const updatedReviews = await getReviewsForProduct(product.id);
         setReviews(updatedReviews);
@@ -237,7 +244,11 @@ export default function ProductDetailPage() {
   }, [reviews]);
 
   const displayPrice = useMemo(() => {
-    return selectedVariant ? selectedVariant.price : product?.price ?? 0;
+    return selectedVariant ? selectedVariant.price : (product?.discountPrice && product.discountPrice > 0 ? product.discountPrice : product?.price ?? 0);
+  }, [selectedVariant, product]);
+
+  const originalPrice = useMemo(() => {
+    return selectedVariant ? null : (product?.discountPrice && product.discountPrice > 0 ? product.price : null);
   }, [selectedVariant, product]);
   
   const StockDisplay = ({ stock }: { stock: number }) => {
@@ -335,13 +346,18 @@ export default function ProductDetailPage() {
                     <a href="#reviews" className="text-muted-foreground hover:underline">{reviews.length} reviews</a>
                 </div>
 
-                <div>
+                <div className="flex items-end gap-3">
                     <span
                         className="text-3xl font-bold text-primary"
                         style={{ textShadow: '0 0 15px hsl(var(--primary) / 0.5)' }}
                     >
                         {formatPrice(displayPrice)}
                     </span>
+                    {originalPrice && (
+                        <span className="text-xl text-muted-foreground line-through">
+                            {formatPrice(originalPrice)}
+                        </span>
+                    )}
                 </div>
 
                 <p className="text-muted-foreground">{product.description}</p>

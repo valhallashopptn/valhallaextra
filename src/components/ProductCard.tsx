@@ -5,7 +5,7 @@ import type { Product, Category } from '@/lib/types';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
-import { ShoppingCart, CheckCircle, ArrowRight } from 'lucide-react';
+import { ShoppingCart, CheckCircle, ArrowRight, Star } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -35,19 +35,25 @@ export function ProductCard({ product }: ProductCardProps) {
     ? product.description.substring(0, 80) + '...'
     : product.description;
 
+  const hasDiscount = product.discountPrice && product.discountPrice > 0;
   const displayPrice = useMemo(() => {
     if (product.variants && product.variants.length > 0) {
         const lowestPrice = Math.min(...product.variants.map(v => v.price));
         return lowestPrice;
     }
-    return product.price;
-  }, [product]);
+    return hasDiscount ? product.discountPrice! : product.price;
+  }, [product, hasDiscount]);
   
+  const originalPrice = useMemo(() => {
+    if (product.variants && product.variants.length > 0) return null;
+    return hasDiscount ? product.price : null;
+  }, [product, hasDiscount]);
+
   const priceLabel = useMemo(() => {
     if (product.variants && product.variants.length > 0) {
         return "From";
     }
-    return "Price";
+    return "";
   }, [product]);
 
   return (
@@ -55,9 +61,9 @@ export function ProductCard({ product }: ProductCardProps) {
       <Card className="group flex flex-col overflow-hidden transition-all duration-300 hover:border-primary hover:-translate-y-1 w-full">
         <CardContent className="p-4 flex flex-col flex-grow">
           
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors truncate">{product.name}</h3>
-            <Badge variant="outline">Digital</Badge>
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors pr-2">{product.name}</h3>
+            {hasDiscount && <Badge variant="destructive">SALE</Badge>}
           </div>
           
           <p className="text-sm text-muted-foreground mb-4 min-h-[40px]">{shortDescription}</p>
@@ -72,10 +78,15 @@ export function ProductCard({ product }: ProductCardProps) {
             />
           </div>
 
-          <div className="mt-auto flex justify-between items-center pt-4">
+          <div className="mt-auto flex justify-between items-end pt-4">
             <div>
               <p className="text-sm text-muted-foreground">{priceLabel}</p>
-              <p className="text-xl font-bold text-primary">{formatPrice(displayPrice)}</p>
+              <div className="flex items-baseline gap-2">
+                <p className="text-xl font-bold text-primary">{formatPrice(displayPrice)}</p>
+                {originalPrice && (
+                    <p className="text-base text-muted-foreground line-through">{formatPrice(originalPrice)}</p>
+                )}
+              </div>
             </div>
             <Button 
               variant="outline"
