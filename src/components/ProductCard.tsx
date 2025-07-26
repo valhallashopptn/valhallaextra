@@ -84,16 +84,18 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
           
           <div className="mt-auto flex justify-between items-end pt-4">
-             <div className="flex items-baseline gap-2">
-                <p className="text-xl font-bold text-primary">
-                    <span className="text-xl font-bold text-foreground">{priceLabel}</span>
-                    {formatPrice(displayPrice)}
-                </p>
-                {originalPrice && (
-                    <p className="text-base text-muted-foreground line-through">
-                        {formatPrice(originalPrice)}
+             <div className="flex flex-col items-start">
+                 <div className="flex items-baseline gap-2">
+                    <p className="text-xl font-bold text-primary">
+                        <span className="text-xl font-bold text-foreground">{priceLabel}</span>
+                        {formatPrice(displayPrice)}
                     </p>
-                )}
+                    {originalPrice && (
+                        <p className="text-base text-muted-foreground line-through">
+                            {formatPrice(originalPrice)}
+                        </p>
+                    )}
+                 </div>
             </div>
              <Button variant="ghost" size="icon" className="h-8 w-8 bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
               <ArrowRight className="h-4 w-4" />
