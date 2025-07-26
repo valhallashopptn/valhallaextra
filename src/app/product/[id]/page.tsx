@@ -266,6 +266,11 @@ export default function ProductDetailPage() {
     }
     return null;
   }, [selectedVariant, product]);
+
+  const hasDiscount = useMemo(() => {
+    if (!product) return false;
+    return (product.discountPrice && product.discountPrice > 0) || (product.variants && product.variants.some(v => v.discountPrice && v.discountPrice > 0));
+  }, [product]);
   
   const StockDisplay = ({ stock }: { stock: number }) => {
     let text = "In Stock";
@@ -346,6 +351,11 @@ export default function ProductDetailPage() {
                     className="object-cover"
                     data-ai-hint={product.categoryName}
                     />
+                    {hasDiscount && (
+                        <div className="sale-ribbon-wrapper">
+                            <div className="sale-ribbon">Sale</div>
+                        </div>
+                    )}
                 </div>
                 <div className="hidden md:block">
                   <RequiredInformationFields product={product} customFieldData={customFieldData} onCustomFieldChange={handleCustomFieldChange} showErrors={showCustomFieldErrors} />
@@ -375,9 +385,9 @@ export default function ProductDetailPage() {
                             <span className="text-xl text-muted-foreground line-through">
                                 {formatPrice(originalPrice)}
                             </span>
-                            <Badge variant="destructive">SALE</Badge>
                         </div>
                     )}
+                    {hasDiscount && <Badge variant="destructive">SALE</Badge>}
                 </div>
 
                 <p className="text-muted-foreground">{product.description}</p>
