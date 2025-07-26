@@ -66,8 +66,8 @@ export function ProductCard({ product }: ProductCardProps) {
             <p className="text-sm text-muted-foreground mt-2 min-h-[40px]">{shortDescription}</p>
           </div>
 
-          <div className="relative aspect-square">
-              <div className="aspect-square relative rounded-md overflow-hidden">
+          <div className="mt-auto flex-grow">
+              <div className="aspect-[3/2] relative rounded-md overflow-hidden">
                 <Image
                   src={product.imageUrl}
                   alt={product.name}
