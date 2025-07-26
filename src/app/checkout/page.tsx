@@ -534,6 +534,16 @@ export default function CheckoutPage() {
                 <p className="text-muted-foreground text-center py-4">No other payment methods available. Please contact support.</p>
               )}
               
+              {selectedMethod && !isFullPaymentByWallet && (
+                <Alert className="mt-6">
+                  <Info className="h-4 w-4" />
+                  <AlertTitle>{selectedMethod.name} Instructions</AlertTitle>
+                  <AlertDescription className="whitespace-pre-wrap">
+                    {selectedMethod.instructions}
+                  </AlertDescription>
+                </Alert>
+              )}
+
               {selectedMethod && !isFullPaymentByWallet && selectedMethod.customFields && selectedMethod.customFields.length > 0 && (
                 <div className="p-4 border rounded-lg space-y-4 mt-4">
                   <h3 className="font-semibold">{selectedMethod.name} Details</h3>
@@ -546,16 +556,6 @@ export default function CheckoutPage() {
                     />
                   ))}
                 </div>
-              )}
-
-              {selectedMethod && !isFullPaymentByWallet && (
-                <Alert className="mt-6">
-                  <Info className="h-4 w-4" />
-                  <AlertTitle>{selectedMethod.name} Instructions</AlertTitle>
-                  <AlertDescription className="whitespace-pre-wrap">
-                    {selectedMethod.instructions}
-                  </AlertDescription>
-                </Alert>
               )}
 
               {isFullPaymentByWallet && (
