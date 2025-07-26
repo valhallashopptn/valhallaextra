@@ -25,6 +25,7 @@ const productVariantSchema = z.object({
   id: z.string().default(() => `variant_${crypto.randomUUID()}`),
   name: z.string().min(1, { message: 'Variant name is required.' }),
   price: z.coerce.number().min(0.01, { message: 'Price must be a positive number.' }),
+  discountPrice: z.coerce.number().optional(),
 });
 
 const customFieldSchema = z.object({
@@ -97,7 +98,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
         discountPrice: initialData.discountPrice ? Number(initialData.discountPrice) : 0,
         stock: Number(initialData.stock),
         tabs: initialData.tabs || [],
-        variants: initialData.variants || [],
+        variants: initialData.variants?.map(v => ({...v, discountPrice: v.discountPrice || 0 })) || [],
         customFields: initialData.customFields || [],
       });
     } else {
@@ -243,7 +244,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
               <p className="text-sm text-muted-foreground mb-2">Add variants if this product comes in different options (e.g., sizes, amounts). Variants will override the default price and discount. This feature is not compatible with product-level discounts.</p>
               <div className="space-y-4">
                 {variantFields.map((field, index) => (
-                  <div key={field.id} className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] items-end gap-2 p-3 border rounded-md relative">
+                  <div key={field.id} className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] items-end gap-2 p-3 border rounded-md relative">
                     <FormField
                       control={form.control}
                       name={`variants.${index}.name`}
@@ -270,6 +271,19 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                         </FormItem>
                       )}
                     />
+                    <FormField
+                        control={form.control}
+                        name={`variants.${index}.discountPrice`}
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Discount Price</FormLabel>
+                            <FormControl>
+                                <Input type="number" step="0.01" placeholder="3.99" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                     <Button
                       type="button"
                       variant="destructive"
@@ -286,7 +300,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                 variant="outline"
                 size="sm"
                 className="mt-4"
-                onClick={() => appendVariant({ id: `variant_${crypto.randomUUID()}`, name: '', price: 0 })}
+                onClick={() => appendVariant({ id: `variant_${crypto.randomUUID()}`, name: '', price: 0, discountPrice: 0 })}
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add Variant

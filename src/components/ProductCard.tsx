@@ -35,19 +35,17 @@ export function ProductCard({ product }: ProductCardProps) {
     ? product.description.substring(0, 80) + '...'
     : product.description;
 
-  const hasDiscount = product.discountPrice && product.discountPrice > 0;
+  const hasDiscount = (product.discountPrice && product.discountPrice > 0) || (product.variants && product.variants.some(v => v.discountPrice && v.discountPrice > 0));
   
   const displayPrice = useMemo(() => {
     if (product.variants && product.variants.length > 0) {
-        const lowestPrice = Math.min(...product.variants.map(v => v.price));
+        const lowestPrice = Math.min(...product.variants.map(v => (v.discountPrice && v.discountPrice > 0) ? v.discountPrice : v.price));
         return lowestPrice;
     }
     return hasDiscount ? product.discountPrice! : product.price;
   }, [product, hasDiscount]);
   
   const originalPrice = useMemo(() => {
-    // Show original price only if there is a discount and no variants.
-    // If there are variants, their pricing is shown on the product page.
     if (product.variants && product.variants.length > 0) return null;
     return hasDiscount ? product.price : null;
   }, [product, hasDiscount]);
@@ -74,7 +72,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   className="object-cover transition-transform duration-300 group-hover:scale-110"
                   data-ai-hint={product.dataAiHint || product.categoryName}
                 />
-                {hasDiscount && (!product.variants || product.variants.length === 0) && (
+                {hasDiscount && (
                     <div className="sale-ribbon-wrapper">
                         <div className="sale-ribbon">Sale</div>
                     </div>

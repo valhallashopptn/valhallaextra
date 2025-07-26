@@ -195,10 +195,13 @@ export default function ProductDetailPage() {
 
     setShowCustomFieldErrors(false);
     
-    const priceToUse = selectedVariant 
-        ? selectedVariant.price
-        : (product.discountPrice && product.discountPrice > 0 ? product.discountPrice : product.price);
-
+    let priceToUse: number;
+    if (selectedVariant) {
+        priceToUse = selectedVariant.discountPrice && selectedVariant.discountPrice > 0 ? selectedVariant.discountPrice : selectedVariant.price;
+    } else {
+        priceToUse = (product.discountPrice && product.discountPrice > 0 ? product.discountPrice : product.price);
+    }
+    
     const itemToAdd = {
         ...product,
         name: selectedVariant ? `${product.name} - ${selectedVariant.name}` : product.name,
@@ -246,7 +249,7 @@ export default function ProductDetailPage() {
 
   const displayPrice = useMemo(() => {
     if (selectedVariant) {
-      return selectedVariant.price;
+      return selectedVariant.discountPrice && selectedVariant.discountPrice > 0 ? selectedVariant.discountPrice : selectedVariant.price;
     }
     if (product?.discountPrice && product.discountPrice > 0) {
       return product.discountPrice;
@@ -255,8 +258,10 @@ export default function ProductDetailPage() {
   }, [selectedVariant, product]);
 
   const originalPrice = useMemo(() => {
-    // Show original price if there's a discount, but no variants are selected
-    if (!selectedVariant && product?.discountPrice && product.discountPrice > 0) {
+    if (selectedVariant) {
+        return selectedVariant.discountPrice && selectedVariant.discountPrice > 0 ? selectedVariant.price : null;
+    }
+    if (product?.discountPrice && product.discountPrice > 0) {
       return product.price;
     }
     return null;
@@ -398,7 +403,13 @@ export default function ProductDetailPage() {
                                   )}
                               >
                                   <span className="font-semibold">{variant.name}</span>
-                                  <span className="text-sm text-muted-foreground">{formatPrice(variant.price)}</span>
+                                  <div className="flex items-baseline gap-2">
+                                    <span className={cn("text-sm", variant.discountPrice && variant.discountPrice > 0 ? "text-primary" : "text-muted-foreground")}>{formatPrice(variant.discountPrice && variant.discountPrice > 0 ? variant.discountPrice : variant.price)}</span>
+                                    {variant.discountPrice && variant.discountPrice > 0 && (
+                                        <span className="text-xs text-muted-foreground line-through">{formatPrice(variant.price)}</span>
+                                    )}
+                                  </div>
+
                                   {selectedVariantId === variant.id && (
                                       <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
                                           <CheckCircle className="h-3 w-3" />

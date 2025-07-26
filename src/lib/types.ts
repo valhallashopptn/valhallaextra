@@ -22,6 +22,7 @@ export interface ProductVariant {
   id: string;
   name: string;
   price: number;
+  discountPrice?: number;
 }
 
 export interface CustomField {
