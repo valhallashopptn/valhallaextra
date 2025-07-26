@@ -102,6 +102,13 @@ export default function AppearancePage() {
   
   const announcementForm = useForm<AnnouncementFormData>({
     resolver: zodResolver(announcementFormSchema),
+    defaultValues: {
+      enabled: false,
+      text: '',
+      countdownDate: '',
+      linkText: '',
+      linkUrl: '',
+    },
   });
 
   const notificationForm = useForm<NotificationFormData>({
