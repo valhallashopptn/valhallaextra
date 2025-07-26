@@ -21,15 +21,6 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
-  const [isLoadingCategory, setIsLoadingCategory] = useState(true);
-
-  useEffect(() => {
-    if (product.categoryId) {
-      setIsLoadingCategory(false);
-    } else {
-        setIsLoadingCategory(false);
-    }
-  }, [product.categoryId]);
 
   const shortDescription = product.description.length > 80 
     ? product.description.substring(0, 80) + '...'
@@ -46,13 +37,14 @@ export function ProductCard({ product }: ProductCardProps) {
   }, [product, hasDiscount]);
   
   const originalPrice = useMemo(() => {
+    // Only show original price for non-variant products with a discount
     if (product.variants && product.variants.length > 0) return null;
     return hasDiscount ? product.price : null;
   }, [product, hasDiscount]);
 
   const priceLabel = useMemo(() => {
     if (product.variants && product.variants.length > 0) {
-        return "From";
+        return "From ";
     }
     return "";
   }, [product]);
@@ -64,6 +56,7 @@ export function ProductCard({ product }: ProductCardProps) {
         )}>
         <CardContent className="p-4 flex flex-col flex-grow">
           <div className="mb-4">
+             <Badge variant="secondary" className="mb-2">{product.categoryName}</Badge>
             <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors pr-2">{product.name}</h3>
             <p className="text-sm text-muted-foreground min-h-[40px]">{shortDescription}</p>
           </div>
@@ -86,32 +79,21 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
           
           <div className="mt-auto flex justify-between items-end pt-4">
-            <div>
-              <p className="text-sm text-muted-foreground">{priceLabel}</p>
-              <div className="flex items-baseline gap-2">
-                <p className="text-xl font-bold text-primary">{formatPrice(displayPrice)}</p>
+             <div className="flex items-baseline gap-2">
+                <p className="text-xl font-bold text-primary">
+                    <span className="text-sm text-muted-foreground font-normal">{priceLabel}</span>
+                    {formatPrice(displayPrice)}
+                </p>
                 {originalPrice && (
-                    <div className="flex items-center gap-2">
-                        <p className="text-base text-muted-foreground line-through">{formatPrice(originalPrice)}</p>
-                    </div>
+                    <p className="text-base text-muted-foreground line-through">
+                        {formatPrice(originalPrice)}
+                    </p>
                 )}
-              </div>
             </div>
-            <Button 
-              variant="outline"
-              disabled={product.stock === 0 || isLoadingCategory} 
-              className="w-36 transition-all"
-            >
-              {product.stock === 0 ? 'Out of Stock' : isLoadingCategory ? 'Loading...' : (
-                <>
-                  View Details
-                  <ArrowRight className="mr-2 h-4 w-4" />
-                </>
-              )}
-            </Button>
           </div>
         </CardContent>
       </Card>
     </Link>
   );
 }
+
