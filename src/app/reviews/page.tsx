@@ -62,7 +62,7 @@ export default function ReviewsPage() {
 
   useEffect(() => {
     fetchReviews();
-  }, [toast]);
+  }, []);
 
   const onReviewSubmitted = () => {
     fetchReviews();
@@ -116,14 +116,14 @@ export default function ReviewsPage() {
           ) : (
               reviews.map(review => (
               <Card key={review.id} className="flex flex-col">
-                  <CardContent className="p-6 flex flex-col flex-grow">
-                    <div className="flex items-center gap-4">
-                        <Avatar className="h-12 w-12">
+                  <CardContent className="p-6 flex flex-col flex-grow text-center">
+                    <div className="flex flex-col items-center">
+                        <Avatar className="h-16 w-16">
                              <AvatarImage src={`https://i.pravatar.cc/150?u=${review.userId}`} />
                             <AvatarFallback>{review.username ? review.username.charAt(0).toUpperCase() : '?'}</AvatarFallback>
                         </Avatar>
-                        <div>
-                            <p className="font-semibold text-lg">{review.username}</p>
+                        <p className="font-semibold text-lg mt-3">{review.username}</p>
+                        <div className="my-2">
                             <StarRating rating={review.rating} size="sm" />
                         </div>
                     </div>
