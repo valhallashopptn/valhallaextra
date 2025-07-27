@@ -52,7 +52,7 @@ export default function SignUpPage() {
       router.push('/account');
       toast({
         title: 'Account Created',
-        description: 'Welcome to ApexTop!',
+        description: `Welcome to ${siteTitle}!`,
       });
     } catch (error: any) {
        console.error('Sign up failed:', error);
@@ -77,7 +77,7 @@ export default function SignUpPage() {
               )}
             </div>
             <CardTitle className="text-2xl font-headline">Create an Account</CardTitle>
-            <CardDescription>Join ApexTop to manage your orders</CardDescription>
+            <CardDescription>Join {siteTitle} to manage your orders</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
