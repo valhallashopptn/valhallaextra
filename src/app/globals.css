@@ -276,4 +276,21 @@ body {
       transform: rotate(45deg);
       padding: 4px 0;
   }
+
+  .slide-out-widget {
+    @apply fixed top-1/2 right-0 -translate-y-1/2 z-50 flex items-center cursor-pointer;
+  }
+  .slide-out-widget-icon {
+    @apply bg-primary text-primary-foreground p-3 rounded-l-full shadow-lg transition-transform duration-300 ease-in-out;
+    @apply group-hover:bg-accent group-hover:text-accent-foreground;
+  }
+  .slide-out-widget-text {
+    @apply bg-primary text-primary-foreground font-bold pr-4 pl-3 py-3 whitespace-nowrap transition-all duration-300 ease-in-out origin-right;
+    @apply rounded-r-full shadow-lg;
+    @apply transform scale-x-0 -translate-x-full;
+    @apply group-hover:scale-x-100 group-hover:translate-x-0;
+  }
+  .slide-out-widget-text > span {
+    @apply transition-opacity duration-150 ease-in-out opacity-0 group-hover:opacity-100;
+  }
 }

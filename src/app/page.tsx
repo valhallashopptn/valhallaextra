@@ -135,16 +135,13 @@ export default function Home() {
 
   return (
     <>
-      <Link href="/leaderboard" passHref>
-        <Button
-          variant="default"
-          size="lg"
-          className="fixed bottom-6 right-6 z-50 rounded-full shadow-lg shadow-primary/30 transform transition-all duration-300 hover:scale-110"
-          aria-label="View Leaderboard"
-        >
+      <Link href="/leaderboard" className="slide-out-widget group" aria-label="View Leaderboard">
+        <div className="slide-out-widget-icon">
           <Trophy className="h-6 w-6" />
+        </div>
+        <div className="slide-out-widget-text">
           <span>Leaderboard</span>
-        </Button>
+        </div>
       </Link>
       <div className="space-y-16 pb-16">
         {/* Hero Section */}
