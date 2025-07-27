@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Shield, ShieldOff } from 'lucide-react';
 import { getAllUserProfiles, updateUserStatus } from '@/services/walletService';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, DialogTrigger } from '@/components/ui/dialog';
 import { getRankDetails } from '@/app/account/RankProgressCard';
 import { RankIcon } from '@/app/account/RankProgressCard';
 import { cn } from '@/lib/utils';
