@@ -5,7 +5,7 @@ import type { Product, Review } from '@/lib/types';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
-import { ShoppingCart, CheckCircle, ArrowRight, Star } from 'lucide-react';
+import { ShoppingCart, CheckCircle, ArrowRight, Star, Heart } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -139,10 +139,15 @@ export function ProductCard({ product }: ProductCardProps) {
                     </>
                 )}
             </div>
-             <Button variant="default" size="sm" className="w-full bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              Buy Now
-            </Button>
+            <div className="flex items-center gap-2">
+                <Button variant="default" size="sm" className="w-full bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  Buy Now
+                </Button>
+                <Button variant="outline" size="icon" className="flex-shrink-0">
+                    <Heart className="h-4 w-4" />
+                </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
