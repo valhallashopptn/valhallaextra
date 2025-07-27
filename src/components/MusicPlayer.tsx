@@ -16,6 +16,14 @@ export function MusicPlayer({ src }: MusicPlayerProps) {
   useEffect(() => {
     if (audioRef.current) {
         audioRef.current.loop = true;
+        // Attempt to autoplay
+        audioRef.current.play().then(() => {
+            setIsPlaying(true);
+        }).catch(error => {
+            // Autoplay was prevented.
+            console.log("Autoplay was prevented by the browser.");
+            setIsPlaying(false);
+        });
     }
   }, [])
   
