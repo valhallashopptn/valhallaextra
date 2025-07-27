@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -13,10 +14,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AdminForm } from './AdminForm';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useAuth } from '@/context/AuthContext';
 
 
 export default function AdminsPage() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
   const [admins, setAdmins] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,6 +70,10 @@ export default function AdminsPage() {
   const formatPermissionName = (permission: string) => {
     return permission.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
+  
+  const isSuperAdmin = (email?: string) => {
+    return email === 'admin@example.com';
+  }
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
@@ -119,16 +126,17 @@ export default function AdminsPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
-                        {admin.permissions && admin.permissions.length > 0 ? (
+                        {isSuperAdmin(admin.email) ? (
+                            <Badge variant="default"><ShieldCheck className="h-3 w-3 mr-1" /> Super Admin</Badge>
+                        ) : admin.permissions && admin.permissions.length > 0 ? (
                            admin.permissions.map(p => <Badge key={p} variant="secondary">{formatPermissionName(p)}</Badge>)
                         ) : (
                           <Badge variant="outline">No Permissions</Badge>
                         )}
-                        {admin.email === 'admin@example.com' && <Badge variant="default"><ShieldCheck className="h-3 w-3 mr-1" /> Super Admin</Badge>}
                       </div>
                     </TableCell>
                     <TableCell className="text-right space-x-1">
-                       <Button variant="ghost" size="icon" onClick={() => handleEdit(admin)}>
+                       <Button variant="ghost" size="icon" onClick={() => handleEdit(admin)} disabled={isSuperAdmin(admin.email) && user?.email !== admin.email}>
                           <Edit className="h-4 w-4" />
                        </Button>
                     </TableCell>

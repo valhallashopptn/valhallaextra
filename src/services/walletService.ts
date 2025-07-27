@@ -124,7 +124,7 @@ export const getAllUserProfiles = async (): Promise<UserProfile[]> => {
         data.status = 'active';
       }
       if (!data.role) {
-        data.role = 'user';
+        data.role = data.email === 'admin@example.com' ? 'admin' : 'user';
       }
       return { id: doc.id, ...data } as UserProfile;
     });
@@ -326,3 +326,4 @@ export const getUserRank = async (userId: string): Promise<number | null> => {
         return null;
     }
 };
+
