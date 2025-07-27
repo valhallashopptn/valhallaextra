@@ -61,6 +61,8 @@ export interface Product {
   customFields?: CustomField[];
   dataAiHint?: string;
   requirePurchaseAgreement?: boolean;
+  reviewCount?: number;
+  averageRating?: number;
 }
 
 export interface CartItem extends Product {

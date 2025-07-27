@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { Product, Category } from '@/lib/types';
+import type { Product, Review } from '@/lib/types';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
@@ -11,16 +11,47 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useTranslation } from '@/context/TranslationContext';
 import { useCurrency } from '@/context/CurrencyContext';
-import { getCategoryById } from '@/services/categoryService';
+import { getReviewsForProduct } from '@/services/reviewService';
 import { Badge } from './ui/badge';
+import { Separator } from './ui/separator';
 
 interface ProductCardProps {
   product: Product;
 }
 
+function StarRating({ rating, size = 'sm' }: { rating: number, size?: 'sm' | 'md' }) {
+  const starClasses = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
+  return (
+    <div className="flex items-center gap-1">
+      {[...Array(5)].map((_, i) => (
+        <Star
+          key={i}
+          className={cn(starClasses, i < Math.round(rating) ? 'text-accent fill-current' : 'text-muted-foreground/30')}
+        />
+      ))}
+    </div>
+  );
+}
+
 export function ProductCard({ product }: ProductCardProps) {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+        try {
+            const productReviews = await getReviewsForProduct(product.id);
+            setReviews(productReviews);
+        } catch (error) {
+            console.error("Failed to fetch reviews for product card", error);
+        } finally {
+            setLoadingReviews(false);
+        }
+    };
+    fetchReviews();
+  }, [product.id]);
 
   const shortDescription = product.description.length > 80 
     ? product.description.substring(0, 80) + '...'
@@ -44,6 +75,11 @@ export function ProductCard({ product }: ProductCardProps) {
     }
     return hasDiscount ? product.price : null;
   }, [product, hasDiscount]);
+
+  const averageRating = useMemo(() => {
+    if (reviews.length === 0) return 0;
+    return reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
+  }, [reviews]);
 
   return (
     <Link href={`/product/${product.id}`} className="flex h-full">
@@ -76,18 +112,34 @@ export function ProductCard({ product }: ProductCardProps) {
               </div>
           </div>
           
-          <div className="mt-auto pt-4">
+          <div className="mt-auto pt-4 space-y-3">
+             {loadingReviews ? (
+                <div className="h-5 w-24 bg-muted rounded-md animate-pulse" />
+             ) : reviews.length > 0 ? (
+                <div className="flex items-center gap-2">
+                    <StarRating rating={averageRating} />
+                    <span className="text-xs text-muted-foreground">({reviews.length})</span>
+                </div>
+             ) : (
+                <div className="flex items-center gap-2">
+                    <StarRating rating={0} />
+                    <span className="text-xs text-muted-foreground">(0)</span>
+                </div>
+             )}
              <div className="flex items-baseline gap-2">
                 <p className="text-xl font-bold text-primary">
                     {formatPrice(displayPrice)}
                 </p>
                 {originalPrice && (
-                    <p className="text-base text-muted-foreground line-through">
-                        {formatPrice(originalPrice)}
-                    </p>
+                    <>
+                      <Separator orientation="vertical" className="h-4" />
+                      <p className="text-base text-muted-foreground line-through">
+                          {formatPrice(originalPrice)}
+                      </p>
+                    </>
                 )}
             </div>
-             <Button variant="default" size="sm" className="w-full mt-2 bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+             <Button variant="default" size="sm" className="w-full bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
               <ShoppingCart className="mr-2 h-4 w-4" />
               Buy Now
             </Button>
