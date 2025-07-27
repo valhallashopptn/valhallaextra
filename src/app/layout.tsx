@@ -13,6 +13,7 @@ import { Footer } from '@/components/Footer';
 import { AnnouncementBar } from '@/components/AnnouncementBar';
 import type { AnnouncementSettings } from '@/lib/types';
 import { MusicPlayer } from '@/components/MusicPlayer';
+import Script from 'next/script';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -80,6 +81,19 @@ export default async function RootLayout({
             <MusicPlayer src={settings.backgroundMusicUrl} />
           )}
         </Providers>
+        <Script id="tawk-to-script" strategy="lazyOnload">
+        {`
+            var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+            (function(){
+            var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+            s1.async=true;
+            s1.src='https://embed.tawk.to/6885851b9462141926a5e799/default';
+            s1.charset='UTF-8';
+            s1.setAttribute('crossorigin','*');
+            s0.parentNode.insertBefore(s1,s0);
+            })();
+        `}
+        </Script>
       </body>
     </html>
   );
