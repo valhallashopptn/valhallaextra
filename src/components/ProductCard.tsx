@@ -86,30 +86,29 @@ export function ProductCard({ product }: ProductCardProps) {
       <Card className={cn(
         "group flex flex-col overflow-hidden transition-all duration-300 hover:border-primary hover:-translate-y-1 w-full"
         )}>
-        <CardContent className="p-4 flex flex-col flex-grow min-h-[380px]">
-          <div className="mb-4">
-             <div className="flex justify-between items-start gap-2">
+        <CardContent className="p-4 flex flex-col flex-grow">
+
+          <div className="aspect-[3/2] relative rounded-md overflow-hidden">
+            <Image
+              src={product.imageUrl}
+              alt={product.name}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-110"
+              data-ai-hint={product.dataAiHint || product.categoryName}
+            />
+            {hasDiscount && (
+                <div className="sale-ribbon-wrapper">
+                    <div className="sale-ribbon">Sale</div>
+                </div>
+            )}
+          </div>
+          
+          <div className="mt-4 flex flex-col flex-grow">
+            <div className="flex justify-between items-start gap-2">
                 <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors pr-2">{product.name}</h3>
                 <Badge variant="secondary" className="flex-shrink-0">{product.categoryName}</Badge>
-             </div>
-            <p className="text-sm text-muted-foreground mt-2 min-h-[40px]">{shortDescription}</p>
-          </div>
-
-          <div className="mt-auto flex-grow">
-              <div className="aspect-[3/2] relative rounded-md overflow-hidden">
-                <Image
-                  src={product.imageUrl}
-                  alt={product.name}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-110"
-                  data-ai-hint={product.dataAiHint || product.categoryName}
-                />
-                {hasDiscount && (
-                    <div className="sale-ribbon-wrapper">
-                        <div className="sale-ribbon">Sale</div>
-                    </div>
-                )}
-              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mt-2 flex-grow">{shortDescription}</p>
           </div>
           
           <div className="mt-auto pt-4 space-y-3">
@@ -126,27 +125,29 @@ export function ProductCard({ product }: ProductCardProps) {
                     <span className="text-xs text-muted-foreground">(0)</span>
                 </div>
              )}
-             <div className="flex items-baseline gap-2">
-                <p className="text-xl font-bold text-primary">
-                    {formatPrice(displayPrice)}
-                </p>
-                {originalPrice && (
-                    <>
-                      <Separator orientation="vertical" className="h-4" />
-                      <p className="text-base text-muted-foreground line-through">
-                          {formatPrice(originalPrice)}
-                      </p>
-                    </>
-                )}
-            </div>
-            <div className="flex items-center gap-2">
-                <Button variant="default" size="sm" className="w-full bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  <ShoppingCart className="mr-2 h-4 w-4" />
-                  Buy Now
-                </Button>
-                <Button variant="outline" size="icon" className="flex-shrink-0">
-                    <Heart className="h-4 w-4" />
-                </Button>
+             <div className="space-y-2">
+                <div className="flex items-baseline gap-2">
+                    <p className="text-xl font-bold text-primary">
+                        {product.variants && product.variants.length > 0 ? "From " : ""}{formatPrice(displayPrice)}
+                    </p>
+                    {originalPrice && (
+                        <>
+                        <Separator orientation="vertical" className="h-4" />
+                        <p className="text-base text-muted-foreground line-through">
+                            {formatPrice(originalPrice)}
+                        </p>
+                        </>
+                    )}
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button variant="default" size="sm" className="w-full bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    Buy Now
+                    </Button>
+                    <Button variant="outline" size="icon" className="flex-shrink-0">
+                        <Heart className="h-4 w-4" />
+                    </Button>
+                </div>
             </div>
           </div>
         </CardContent>
