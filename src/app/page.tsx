@@ -64,14 +64,15 @@ function StarRating({ rating, size = 'sm' }: { rating: number, size?: 'sm' | 'md
 
 
 function ReviewCard({ review }: { review: Review }) {
+    const username = review.username || 'Anonymous';
     return (
         <Card className="flex flex-col text-center h-full">
             <CardContent className="p-8 flex flex-col flex-grow items-center">
                 <Avatar className="h-24 w-24 mb-4">
                     <AvatarImage src={`https://i.pravatar.cc/150?u=${review.userId}`} />
-                    <AvatarFallback>{review.username.charAt(0).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
-                <h4 className="text-xl font-bold font-headline">{review.username}</h4>
+                <h4 className="text-xl font-bold font-headline">{username}</h4>
                 <div className="my-2">
                     <StarRating rating={review.rating} size="md" />
                 </div>
