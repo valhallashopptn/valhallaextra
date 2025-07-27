@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -14,6 +13,9 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Logo } from '@/components/icons/Logo';
+import { useState, useEffect } from 'react';
+import { getSettings } from '@/services/settingsService';
+import Image from 'next/image';
 
 const formSchema = z.object({
   username: z.string().min(3, { message: 'Username must be at least 3 characters.' }).max(20, { message: 'Username must be 20 characters or less.' }).regex(/^[a-zA-Z0-9_]+$/, { message: 'Username can only contain letters, numbers, and underscores.' }),
@@ -25,6 +27,15 @@ export default function SignUpPage() {
   const { signUp } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const [logoUrl, setLogoUrl] = useState('');
+  const [siteTitle, setSiteTitle] = useState('ApexTop');
+
+  useEffect(() => {
+    getSettings(['logoUrl', 'siteTitle']).then(settings => {
+      if (settings.logoUrl) setLogoUrl(settings.logoUrl);
+      if (settings.siteTitle) setSiteTitle(settings.siteTitle);
+    });
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -59,7 +70,11 @@ export default function SignUpPage() {
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
+              {logoUrl ? (
+                <Image src={logoUrl} alt={`${siteTitle} Logo`} width={48} height={48} className="h-12 w-12 text-primary" />
+              ) : (
                 <Logo className="h-12 w-12 text-primary" />
+              )}
             </div>
             <CardTitle className="text-2xl font-headline">Create an Account</CardTitle>
             <CardDescription>Join ApexTop to manage your orders</CardDescription>
