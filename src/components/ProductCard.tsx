@@ -80,78 +80,88 @@ export function ProductCard({ product }: ProductCardProps) {
     if (reviews.length === 0) return 0;
     return reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
   }, [reviews]);
+  
+  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    // In a real app, you'd handle add to cart or wishlist here.
+    console.log(`${e.currentTarget.name} button clicked`);
+  };
 
   return (
-    <Link href={`/product/${product.id}`} className="flex h-full">
-      <Card className={cn(
-        "group flex flex-col overflow-hidden transition-all duration-300 hover:border-primary hover:-translate-y-1 w-full"
-        )}>
-        <CardContent className="p-4 flex flex-col flex-grow">
-
-          <div className="aspect-[3/2] relative rounded-md overflow-hidden">
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-110"
-              data-ai-hint={product.dataAiHint || product.categoryName}
-            />
-            {hasDiscount && (
-                <div className="sale-ribbon-wrapper">
-                    <div className="sale-ribbon">Sale</div>
-                </div>
-            )}
-          </div>
-          
-          <div className="mt-4 flex flex-col flex-grow">
-            <div className="flex justify-between items-start gap-2">
-                <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors pr-2">{product.name}</h3>
-                <Badge variant="secondary" className="flex-shrink-0">{product.categoryName}</Badge>
+    <Card className={cn(
+      "group flex flex-col overflow-hidden transition-all duration-300 hover:border-primary hover:-translate-y-1 w-full"
+      )}>
+      <CardContent className="p-4 flex flex-col flex-grow">
+        <Link href={`/product/${product.id}`} className="block">
+            <div className="aspect-[3/2] relative rounded-md overflow-hidden">
+                <Image
+                src={product.imageUrl}
+                alt={product.name}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-110"
+                data-ai-hint={product.dataAiHint || product.categoryName}
+                />
+                {hasDiscount && (
+                    <div className="sale-ribbon-wrapper">
+                        <div className="sale-ribbon">Sale</div>
+                    </div>
+                )}
             </div>
-            <p className="text-sm text-muted-foreground mt-2 flex-grow">{shortDescription}</p>
+        </Link>
+        
+        <div className="mt-4 flex flex-col flex-grow">
+          <Link href={`/product/${product.id}`} className="block">
+              <div className="flex justify-between items-start gap-2">
+                  <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors pr-2">{product.name}</h3>
+                  <Badge variant="secondary" className="flex-shrink-0">{product.categoryName}</Badge>
+              </div>
+              <p className="text-sm text-muted-foreground mt-2 flex-grow">{shortDescription}</p>
+          </Link>
+        </div>
+        
+        <div className="mt-auto pt-4 space-y-3">
+           {loadingReviews ? (
+              <div className="h-5 w-24 bg-muted rounded-md animate-pulse" />
+           ) : reviews.length > 0 ? (
+              <div className="flex items-center gap-2">
+                  <StarRating rating={averageRating} />
+                  <span className="text-xs text-muted-foreground">({reviews.length})</span>
+              </div>
+           ) : (
+              <div className="flex items-center gap-2">
+                  <StarRating rating={0} />
+                  <span className="text-xs text-muted-foreground">(0)</span>
+              </div>
+           )}
+           <div className="space-y-2">
+              <div className="flex items-baseline gap-2">
+                  <p className="text-xl font-bold text-primary">
+                      {product.variants && product.variants.length > 0 ? "From " : ""}{formatPrice(displayPrice)}
+                  </p>
+                  {originalPrice && (
+                      <>
+                      <Separator orientation="vertical" className="h-4" />
+                      <p className="text-base text-muted-foreground line-through">
+                          {formatPrice(originalPrice)}
+                      </p>
+                      </>
+                  )}
+              </div>
+              <div className="flex items-center gap-2">
+                  <Button asChild variant="default" size="sm" className="w-full bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                      <Link href={`/product/${product.id}`} onClick={(e) => e.stopPropagation()}>
+                          <ShoppingCart className="mr-2 h-4 w-4" />
+                          Buy Now
+                      </Link>
+                  </Button>
+                  <Button name="wishlist" onClick={handleButtonClick} variant="outline" size="icon" className="flex-shrink-0">
+                      <Heart className="h-4 w-4" />
+                  </Button>
+              </div>
           </div>
-          
-          <div className="mt-auto pt-4 space-y-3">
-             {loadingReviews ? (
-                <div className="h-5 w-24 bg-muted rounded-md animate-pulse" />
-             ) : reviews.length > 0 ? (
-                <div className="flex items-center gap-2">
-                    <StarRating rating={averageRating} />
-                    <span className="text-xs text-muted-foreground">({reviews.length})</span>
-                </div>
-             ) : (
-                <div className="flex items-center gap-2">
-                    <StarRating rating={0} />
-                    <span className="text-xs text-muted-foreground">(0)</span>
-                </div>
-             )}
-             <div className="space-y-2">
-                <div className="flex items-baseline gap-2">
-                    <p className="text-xl font-bold text-primary">
-                        {product.variants && product.variants.length > 0 ? "From " : ""}{formatPrice(displayPrice)}
-                    </p>
-                    {originalPrice && (
-                        <>
-                        <Separator orientation="vertical" className="h-4" />
-                        <p className="text-base text-muted-foreground line-through">
-                            {formatPrice(originalPrice)}
-                        </p>
-                        </>
-                    )}
-                </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="default" size="sm" className="w-full bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <ShoppingCart className="mr-2 h-4 w-4" />
-                    Buy Now
-                    </Button>
-                    <Button variant="outline" size="icon" className="flex-shrink-0">
-                        <Heart className="h-4 w-4" />
-                    </Button>
-                </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
