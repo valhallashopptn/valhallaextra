@@ -310,8 +310,20 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                     </Link>
                 </nav>
 
+                 {!user && (
+                    <div className="mt-4 pt-4 border-t space-y-2">
+                         <Button className="w-full" onClick={() => { router.push('/login'); setIsMobileMenuOpen(false); }}>
+                            <UserIcon className="mr-2 h-4 w-4" />
+                            {t('Header.login')}
+                        </Button>
+                        <Button variant="outline" className="w-full" onClick={() => { router.push('/signup'); setIsMobileMenuOpen(false); }}>
+                            {t('Header.register')}
+                        </Button>
+                    </div>
+                )}
+
                 {user && userProfile && (
-                  <div className="mt-4 pt-4 border-t space-y-2">
+                  <div className="mt-auto pt-4 border-t space-y-2">
                     <Link href="/account" onClick={() => setIsMobileMenuOpen(false)} className="block p-2 rounded-lg bg-card hover:bg-muted">
                       <div className="flex items-center gap-3">
                         <Wallet className="h-6 w-6 text-primary" />
@@ -331,18 +343,6 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                       </div>
                     </Link>
                   </div>
-                )}
-                
-                {!user && (
-                    <div className="mt-auto pt-4 border-t space-y-2">
-                         <Button className="w-full" onClick={() => { router.push('/login'); setIsMobileMenuOpen(false); }}>
-                            <UserIcon className="mr-2 h-4 w-4" />
-                            {t('Header.login')}
-                        </Button>
-                        <Button variant="outline" className="w-full" onClick={() => { router.push('/signup'); setIsMobileMenuOpen(false); }}>
-                            {t('Header.register')}
-                        </Button>
-                    </div>
                 )}
             </div>
           </SheetContent>
