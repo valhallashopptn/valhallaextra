@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { Footer } from '@/components/Footer';
 import { AnnouncementBar } from '@/components/AnnouncementBar';
 import type { AnnouncementSettings } from '@/lib/types';
+import { MusicPlayer } from '@/components/MusicPlayer';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -35,7 +36,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getSettings(['theme', 'siteTitle', 'logoUrl', 'announcement']);
+  const settings = await getSettings(['theme', 'siteTitle', 'logoUrl', 'announcement', 'enableBackgroundMusic', 'backgroundMusicUrl']);
   const themeName = settings.theme || 'Night Runner';
   const activeTheme = themes.find(t => t.name === themeName) || themes[0];
   const announcementSettings = settings.announcement as AnnouncementSettings | null;
@@ -75,6 +76,9 @@ export default async function RootLayout({
           </main>
           <Toaster />
           <Footer />
+          {settings.enableBackgroundMusic && settings.backgroundMusicUrl && (
+            <MusicPlayer src={settings.backgroundMusicUrl} />
+          )}
         </Providers>
       </body>
     </html>

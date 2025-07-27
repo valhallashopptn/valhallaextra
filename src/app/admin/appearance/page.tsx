@@ -34,6 +34,11 @@ const notificationFormSchema = z.object({
   orderWebhookUrl: z.string().url({ message: 'Please enter a valid webhook URL.' }).or(z.literal('')),
 });
 
+const musicFormSchema = z.object({
+    enableBackgroundMusic: z.boolean().default(false),
+    backgroundMusicUrl: z.string().url({ message: 'Please enter a valid URL.' }).or(z.literal('')),
+});
+
 const socialLinkSchema = z.object({
   id: z.string().default(() => `social_${crypto.randomUUID()}`),
   name: z.string().min(1, 'Name is required'),
@@ -80,6 +85,7 @@ const contactPageFormSchema = z.object({
 type AppearanceFormData = z.infer<typeof appearanceFormSchema>;
 type IdentityFormData = z.infer<typeof identityFormSchema>;
 type NotificationFormData = z.infer<typeof notificationFormSchema>;
+type MusicFormData = z.infer<typeof musicFormSchema>;
 type SocialLinksFormData = z.infer<typeof socialLinksFormSchema>;
 type AboutPageFormData = z.infer<typeof aboutPageFormSchema>;
 type ContactPageFormData = z.infer<typeof contactPageFormSchema>;
@@ -116,6 +122,11 @@ export default function AppearancePage() {
     defaultValues: { orderWebhookUrl: '' },
   });
   
+  const musicForm = useForm<MusicFormData>({
+      resolver: zodResolver(musicFormSchema),
+      defaultValues: { enableBackgroundMusic: false, backgroundMusicUrl: '' },
+  });
+  
   const socialLinksForm = useForm<SocialLinksFormData>({
     resolver: zodResolver(socialLinksFormSchema),
     defaultValues: { socialLinks: [] },
@@ -140,7 +151,8 @@ export default function AppearancePage() {
       try {
         const settingKeys = [
             'heroImageUrl', 'theme', 'siteTitle', 'logoUrl', 'orderWebhookUrl',
-            'socialLinks', 'aboutPageContent', 'contactPageContent', 'announcement'
+            'socialLinks', 'aboutPageContent', 'contactPageContent', 'announcement',
+            'enableBackgroundMusic', 'backgroundMusicUrl'
         ];
         const settings = await getSettings(settingKeys);
         
@@ -148,6 +160,8 @@ export default function AppearancePage() {
         identityForm.setValue('siteTitle', settings.siteTitle || 'TopUp Hub');
         identityForm.setValue('logoUrl', settings.logoUrl || '');
         notificationForm.setValue('orderWebhookUrl', settings.orderWebhookUrl || '');
+        musicForm.setValue('enableBackgroundMusic', settings.enableBackgroundMusic || false);
+        musicForm.setValue('backgroundMusicUrl', settings.backgroundMusicUrl || '');
         setActiveTheme(settings.theme || 'Night Runner');
         socialLinksForm.reset({ socialLinks: settings.socialLinks || [] });
         announcementForm.reset(settings.announcement || { enabled: false, text: '', countdownDate: '', linkText: '', linkUrl: '' });
@@ -183,7 +197,7 @@ export default function AppearancePage() {
       }
     };
     fetchSettings();
-  }, [appearanceForm, identityForm, notificationForm, socialLinksForm, aboutPageForm, contactPageForm, announcementForm, toast]);
+  }, [appearanceForm, identityForm, notificationForm, musicForm, socialLinksForm, aboutPageForm, contactPageForm, announcementForm, toast]);
 
   const handleGenericSubmit = async (key: string, data: any, formName: string) => {
     try {
@@ -482,6 +496,48 @@ export default function AppearancePage() {
                             <Button type="submit" disabled={socialLinksForm.formState.isSubmitting}>{socialLinksForm.formState.isSubmitting ? 'Saving...' : 'Save Social Links'}</Button>
                         </div>
                     </form>
+                    </Form>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Background Music</CardTitle>
+                    <CardDescription>Add ambient background music to your site.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Form {...musicForm}>
+                        <form onSubmit={musicForm.handleSubmit((data) => handleGenericSubmit('enableBackgroundMusic', data.enableBackgroundMusic, 'Music Setting').then(() => handleGenericSubmit('backgroundMusicUrl', data.backgroundMusicUrl, 'Music URL')))} className="space-y-4">
+                             <FormField
+                                control={musicForm.control}
+                                name="enableBackgroundMusic"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                    <div className="space-y-0.5">
+                                        <FormLabel>Enable Background Music</FormLabel>
+                                        <FormDescription>Play music on your site. A controller will appear in the corner.</FormDescription>
+                                    </div>
+                                    <FormControl>
+                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={musicForm.control}
+                                name="backgroundMusicUrl"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Music File URL (.mp3)</FormLabel>
+                                    <FormControl><Input placeholder="https://example.com/music.mp3" {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <Button type="submit" disabled={musicForm.formState.isSubmitting}>
+                                {musicForm.formState.isSubmitting ? 'Saving...' : 'Save Music Settings'}
+                            </Button>
+                        </form>
                     </Form>
                 </CardContent>
             </Card>
