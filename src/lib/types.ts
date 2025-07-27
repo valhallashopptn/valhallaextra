@@ -3,6 +3,20 @@
 import type { User as FirebaseUser } from 'firebase/auth';
 import type { Timestamp } from 'firebase/firestore';
 
+export const ALL_ADMIN_PERMISSIONS = [
+    'manage_products',
+    'manage_categories',
+    'manage_orders',
+    'manage_users',
+    'manage_stock',
+    'manage_coupons',
+    'manage_payments',
+    'manage_appearance',
+    'manage_admins'
+] as const;
+
+export type AdminPermission = typeof ALL_ADMIN_PERMISSIONS[number];
+
 export interface Category {
   id: string;
   name: string;
@@ -116,6 +130,8 @@ export interface UserProfile {
     valhallaCoins: number;
     xp: number;
     status: 'active' | 'banned' | 'suspended';
+    role: 'user' | 'admin';
+    permissions?: AdminPermission[];
     createdAt: Timestamp;
     bannedAt?: Timestamp;
     suspendedUntil?: Timestamp;

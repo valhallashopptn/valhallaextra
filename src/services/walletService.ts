@@ -3,7 +3,7 @@
 import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, updateDoc, increment, runTransaction, serverTimestamp, type Transaction, collection, query, orderBy, limit, getDocs, where, Timestamp } from 'firebase/firestore';
 import { updateOrderStatus } from './orderService';
-import type { UserProfile } from '@/lib/types';
+import type { UserProfile, AdminPermission } from '@/lib/types';
 
 const usersCollectionRef = 'users';
 const COINS_EARNED_PER_DOLLAR = 10;
@@ -38,6 +38,8 @@ export const createUserProfile = async (userId: string, email: string, username:
       valhallaCoins: 0,
       xp: 0,
       status: 'active',
+      role: 'user',
+      permissions: [],
       createdAt: createdAt as any, // Temporary cast
     }
     await setDoc(userDocRef, newUserProfile);
@@ -90,6 +92,12 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
     if (profileData.status === undefined) {
         updates.status = 'active';
     }
+    if (profileData.role === undefined) {
+        updates.role = profileData.email === 'admin@example.com' ? 'admin' : 'user';
+    }
+     if (profileData.permissions === undefined) {
+        updates.permissions = [];
+    }
 
     if (Object.keys(updates).length > 0) {
         await updateDoc(userDocRef, updates);
@@ -115,6 +123,9 @@ export const getAllUserProfiles = async (): Promise<UserProfile[]> => {
       if (!data.status) {
         data.status = 'active';
       }
+      if (!data.role) {
+        data.role = 'user';
+      }
       return { id: doc.id, ...data } as UserProfile;
     });
 };
@@ -139,6 +150,12 @@ export const updateUserStatus = async (userId: string, status: 'active' | 'banne
         updateData.suspendedUntil = undefined;
     }
     
+    return await updateDoc(userDocRef, updateData);
+};
+
+export const updateUserPermissions = async (userId: string, role: 'user' | 'admin', permissions: AdminPermission[]) => {
+    const userDocRef = doc(db, usersCollectionRef, userId);
+    const updateData: Partial<UserProfile> = { role, permissions };
     return await updateDoc(userDocRef, updateData);
 };
 
