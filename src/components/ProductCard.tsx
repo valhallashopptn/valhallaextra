@@ -38,6 +38,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const { formatPrice } = useCurrency();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -81,12 +82,16 @@ export function ProductCard({ product }: ProductCardProps) {
     return reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
   }, [reviews]);
   
-  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleWishlistClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
-    // In a real app, you'd handle add to cart or wishlist here.
-    console.log(`${e.currentTarget.name} button clicked`);
+    setIsWishlisted(!isWishlisted);
   };
+  
+  const handleBuyNowClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.stopPropagation();
+  };
+
 
   return (
     <Card className={cn(
@@ -111,7 +116,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </Link>
         
         <div className="mt-4 flex flex-col flex-grow">
-          <Link href={`/product/${product.id}`} className="block">
+          <Link href={`/product/${product.id}`} className="block flex-grow">
               <div className="flex justify-between items-start gap-2">
                   <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors pr-2">{product.name}</h3>
                   <Badge variant="secondary" className="flex-shrink-0">{product.categoryName}</Badge>
@@ -135,28 +140,28 @@ export function ProductCard({ product }: ProductCardProps) {
               </div>
            )}
            <div className="space-y-2">
-              <div className="flex items-baseline gap-2">
-                  <p className="text-xl font-bold text-primary">
-                      {product.variants && product.variants.length > 0 ? "From " : ""}{formatPrice(displayPrice)}
-                  </p>
-                  {originalPrice && (
-                      <>
-                      <Separator orientation="vertical" className="h-4" />
-                      <p className="text-base text-muted-foreground line-through">
-                          {formatPrice(originalPrice)}
-                      </p>
-                      </>
-                  )}
-              </div>
+                <div className="flex items-baseline gap-2">
+                    <p className="text-xl font-bold text-primary">
+                        {product.variants && product.variants.length > 0 ? "From " : ""}{formatPrice(displayPrice)}
+                    </p>
+                    {originalPrice && (
+                        <>
+                        <Separator orientation="vertical" className="h-4" />
+                        <p className="text-base text-muted-foreground line-through">
+                            {formatPrice(originalPrice)}
+                        </p>
+                        </>
+                    )}
+                </div>
               <div className="flex items-center gap-2">
                   <Button asChild variant="default" size="sm" className="w-full bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                      <Link href={`/product/${product.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link href={`/product/${product.id}`} onClick={handleBuyNowClick}>
                           <ShoppingCart className="mr-2 h-4 w-4" />
                           Buy Now
                       </Link>
                   </Button>
-                  <Button name="wishlist" onClick={handleButtonClick} variant="outline" size="icon" className="flex-shrink-0">
-                      <Heart className="h-4 w-4" />
+                  <Button name="wishlist" onClick={handleWishlistClick} variant="outline" size="icon" className="flex-shrink-0">
+                      <Heart className={cn("h-4 w-4", isWishlisted && "text-primary fill-current")} />
                   </Button>
               </div>
           </div>
