@@ -3,7 +3,7 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -15,10 +15,13 @@ import {
   SidebarInset,
   SidebarTrigger,
   SidebarSeparator,
+  SidebarMenuBadge,
 } from '@/components/ui/sidebar';
 import { LayoutDashboard, ShoppingCart, Package, PanelLeft, Tag, Palette, CreditCard, Warehouse, Gift, Users, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { getAllOrders } from '@/services/orderService';
+import type { Order } from '@/lib/types';
 
 const ADMIN_EMAIL = 'admin@example.com';
 
@@ -30,6 +33,7 @@ export default function AdminLayout({
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [uncompletedOrdersCount, setUncompletedOrdersCount] = useState(0);
 
   useEffect(() => {
     if (!loading) {
@@ -38,6 +42,23 @@ export default function AdminLayout({
       }
     }
   }, [user, loading, router]);
+  
+  useEffect(() => {
+    const fetchOrderCount = async () => {
+        try {
+            const orders = await getAllOrders();
+            const pendingAndPaidOrders = orders.filter(order => order.status === 'pending' || order.status === 'paid');
+            setUncompletedOrdersCount(pendingAndPaidOrders.length);
+        } catch (error) {
+            console.error("Failed to fetch order count:", error);
+        }
+    };
+    
+    fetchOrderCount();
+    const interval = setInterval(fetchOrderCount, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   if (loading || !user || user.email !== ADMIN_EMAIL) {
     return <div className="text-center container mx-auto px-4 py-8">Loading and verifying admin access...</div>;
@@ -119,6 +140,9 @@ export default function AdminLayout({
                       Orders
                       </Link>
                   </SidebarMenuButton>
+                  {uncompletedOrdersCount > 0 && (
+                    <SidebarMenuBadge className="bg-primary text-primary-foreground">{uncompletedOrdersCount}</SidebarMenuBadge>
+                  )}
                   </SidebarMenuItem>
                   <SidebarMenuItem className="admin-sidebar-menu-item">
                   <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/users')}>
