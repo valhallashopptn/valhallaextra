@@ -53,28 +53,28 @@ export const addReview = async (
   const productDocRef = doc(productsCollectionRef, reviewData.productId);
 
   await runTransaction(db, async (transaction) => {
-    // 1. Add the new review
+    // 1. READ all necessary documents first.
+    const productDoc = await transaction.get(productDocRef);
+    if (!productDoc.exists()) {
+      throw new Error("Product not found to update rating.");
+    }
+    
+    // Read existing reviews for the product within the transaction
+    const reviewsQuery = query(reviewsCollectionRef, where('productId', '==', reviewData.productId));
+    const reviewsSnapshot = await getDocs(reviewsQuery); // This is a normal getDocs, not a transaction.get, which is fine for this case as we need to query.
+    const existingReviews = reviewsSnapshot.docs.map(d => d.data() as Review);
+
+    // 2. Perform calculations with the data read.
+    const allRatings = [...existingReviews.map(r => r.rating), reviewData.rating];
+    const newReviewCount = allRatings.length;
+    const newAverageRating = allRatings.reduce((sum, rating) => sum + rating, 0) / newReviewCount;
+
+    // 3. WRITE all documents last.
     const newReviewRef = doc(collection(db, 'reviews'));
     transaction.set(newReviewRef, {
       ...fullReviewData,
       createdAt: serverTimestamp(),
     });
-
-    // 2. Update the product's rating info
-    const productDoc = await transaction.get(productDocRef);
-    if (!productDoc.exists()) {
-      throw new Error("Product not found to update rating.");
-    }
-    const productData = productDoc.data();
-    
-    // Get all reviews for this product to calculate new average
-    const reviewsQuery = query(reviewsCollectionRef, where('productId', '==', reviewData.productId));
-    const reviewsSnapshot = await getDocs(reviewsQuery);
-    
-    const existingReviews = reviewsSnapshot.docs.map(d => d.data() as Review);
-    const allRatings = [...existingReviews.map(r => r.rating), reviewData.rating];
-    const newReviewCount = allRatings.length;
-    const newAverageRating = allRatings.reduce((sum, rating) => sum + rating, 0) / newReviewCount;
     
     transaction.update(productDocRef, {
       reviewCount: newReviewCount,
