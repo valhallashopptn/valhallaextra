@@ -76,7 +76,7 @@ export function ProductCard({ product }: ProductCardProps) {
               </div>
           </div>
           
-          <div className="mt-auto flex justify-between items-end pt-4">
+          <div className="mt-auto pt-4">
              <div className="flex items-baseline gap-2">
                 <p className="text-xl font-bold text-primary">
                     {formatPrice(displayPrice)}
@@ -87,7 +87,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     </p>
                 )}
             </div>
-             <Button variant="default" size="sm" className="bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+             <Button variant="default" size="sm" className="w-full mt-2 bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
               <ShoppingCart className="mr-2 h-4 w-4" />
               Buy Now
             </Button>
