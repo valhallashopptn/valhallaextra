@@ -334,10 +334,13 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                 )}
                 
                 {!user && (
-                    <div className="mt-auto pt-4 border-t">
-                        <Button className="w-full" onClick={() => { router.push('/login'); setIsMobileMenuOpen(false); }}>
+                    <div className="mt-auto pt-4 border-t space-y-2">
+                         <Button className="w-full" onClick={() => { router.push('/login'); setIsMobileMenuOpen(false); }}>
                             <UserIcon className="mr-2 h-4 w-4" />
                             {t('Header.login')}
+                        </Button>
+                        <Button variant="outline" className="w-full" onClick={() => { router.push('/signup'); setIsMobileMenuOpen(false); }}>
+                            {t('Header.register')}
                         </Button>
                     </div>
                 )}
@@ -507,10 +510,15 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button onClick={() => router.push('/login')} className="hidden md:inline-flex">
-                <UserIcon className="mr-2 h-4 w-4" />
-                {t('Header.login')}
-              </Button>
+              <div className="hidden md:flex items-center gap-2">
+                 <Button onClick={() => router.push('/login')} variant="outline">
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    {t('Header.login')}
+                </Button>
+                <Button onClick={() => router.push('/signup')}>
+                    {t('Header.register')}
+                </Button>
+              </div>
             )}
           </div>
         </div>
