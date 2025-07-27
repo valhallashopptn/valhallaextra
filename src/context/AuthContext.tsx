@@ -29,14 +29,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Check user status from Firestore
         const userProfile = await getUserProfile(user.uid);
         if (userProfile && userProfile.status === 'banned') {
-          await signOut(auth); // Force sign out
+          await signOut(auth);
           setUser(null);
           toast({
               title: 'Access Denied',
-              description: 'Your account has been suspended. Please contact support.',
+              description: 'Your account has been permanently banned. Please contact support.',
               variant: 'destructive',
               duration: 10000,
           });
+        } else if (userProfile && userProfile.status === 'suspended') {
+            const now = new Date();
+            const suspendedUntil = userProfile.suspendedUntil?.toDate();
+            if (suspendedUntil && suspendedUntil > now) {
+                 await signOut(auth);
+                 setUser(null);
+                 toast({
+                    title: 'Account Suspended',
+                    description: `Your account is suspended until ${suspendedUntil.toLocaleString()}. Please contact support for assistance.`,
+                    variant: 'destructive',
+                    duration: 10000,
+                 });
+            } else {
+                setUser(user);
+            }
         } else {
           setUser(user);
         }

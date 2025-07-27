@@ -7,16 +7,79 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Shield, ShieldOff, Star, Wallet } from 'lucide-react';
+import { Shield, ShieldOff } from 'lucide-react';
 import { getAllUserProfiles, updateUserStatus } from '@/services/walletService';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { getRankDetails } from '@/app/account/RankProgressCard';
 import { RankIcon } from '@/app/account/RankProgressCard';
 import { cn } from '@/lib/utils';
 import { useCurrency } from '@/context/CurrencyContext';
 
+
+function UserStatusBadge({ user }: { user: UserProfile }) {
+    if (user.status === 'banned') {
+        return <Badge variant="destructive">Banned</Badge>;
+    }
+    if (user.status === 'suspended') {
+        const now = new Date();
+        const suspendedUntil = user.suspendedUntil?.toDate();
+        if (suspendedUntil && suspendedUntil > now) {
+            return <Badge variant="destructive" className="bg-yellow-600">Suspended</Badge>;
+        }
+    }
+    return <Badge variant="secondary" className="bg-green-600">Active</Badge>;
+}
+
+function ManageUserStatusDialog({ user, onStatusChange, children }: { user: UserProfile, onStatusChange: (userId: string, status: 'active' | 'banned' | 'suspended', duration?: number) => void, children: React.ReactNode }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleAction = (status: 'active' | 'banned' | 'suspended', duration?: number) => {
+    onStatusChange(user.id, status, duration);
+    setIsOpen(false);
+  };
+  
+  const isSuspended = user.status === 'suspended' && user.suspendedUntil && user.suspendedUntil.toDate() > new Date();
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Manage User: {user.username}</DialogTitle>
+          <DialogDescription>
+            {user.status === 'active' ? 'Apply a restriction to this user.' : 'Remove restrictions for this user.'}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="py-4 space-y-4">
+          {user.status !== 'active' ? (
+            <div>
+              <p className="mb-4 text-center">This user is currently <span className="font-bold">{isSuspended ? 'suspended' : 'banned'}</span>.</p>
+              <Button onClick={() => handleAction('active')} className="w-full">
+                <Shield className="mr-2 h-4 w-4" /> Unban / Remove Suspension
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              <p className="text-sm text-muted-foreground">Choose a suspension duration or apply a permanent ban.</p>
+              <Button onClick={() => handleAction('suspended', 1)} variant="outline">Suspend for 1 Day</Button>
+              <Button onClick={() => handleAction('suspended', 7)} variant="outline">Suspend for 7 Days</Button>
+              <Button onClick={() => handleAction('suspended', 30)} variant="outline">Suspend for 30 Days</Button>
+              <Button onClick={() => handleAction('banned')} variant="destructive">
+                <ShieldOff className="mr-2 h-4 w-4" /> Ban Permanently
+              </Button>
+            </div>
+          )}
+        </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button type="button" variant="secondary">Cancel</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function UsersPage() {
   const { toast } = useToast();
@@ -41,16 +104,15 @@ export default function UsersPage() {
     }
   };
   
-  const toggleUserStatus = async (user: UserProfile) => {
-    const newStatus = user.status === 'banned' ? 'active' : 'banned';
+  const handleStatusChange = async (userId: string, status: 'active' | 'banned' | 'suspended', duration?: number) => {
     try {
-      await updateUserStatus(user.id, newStatus);
-      toast({ title: 'Success', description: `User ${user.username} has been ${newStatus === 'banned' ? 'banned' : 'unbanned'}.` });
+      await updateUserStatus(userId, status, duration);
+      toast({ title: 'Success', description: `User status updated successfully.` });
       fetchData();
     } catch (error) {
        toast({ title: 'Error', description: 'Failed to update user status.', variant: 'destructive' });
     }
-  }
+  };
 
   return (
       <div className="space-y-8">
@@ -76,13 +138,14 @@ export default function UsersPage() {
                   <TableHead>Wallet</TableHead>
                   <TableHead>Coins</TableHead>
                   <TableHead>XP</TableHead>
-                  <TableHead className="text-right">Status</TableHead>
+                  <TableHead className="text-center">Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center">Loading...</TableCell>
+                    <TableCell colSpan={8} className="text-center">Loading...</TableCell>
                   </TableRow>
                 ) : users.map(user => {
                   const { currentRank } = getRankDetails(user.xp);
@@ -99,30 +162,13 @@ export default function UsersPage() {
                         <TableCell>{formatPrice(user.walletBalance)}</TableCell>
                         <TableCell>{user.valhallaCoins.toLocaleString()}</TableCell>
                         <TableCell className="font-mono">{user.xp.toLocaleString()}</TableCell>
+                        <TableCell className="text-center">
+                            <UserStatusBadge user={user} />
+                        </TableCell>
                         <TableCell className="text-right">
-                           <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                 <Button variant={user.status === 'banned' ? 'destructive' : 'outline'} size="sm">
-                                    {user.status === 'banned' ? <ShieldOff className="mr-2 h-4 w-4" /> : <Shield className="mr-2 h-4 w-4" />}
-                                    {user.status === 'banned' ? 'Banned' : 'Active'}
-                                 </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This will {user.status === 'banned' ? 'unban' : 'ban'} the user <span className="font-bold">{user.username}</span>. 
-                                    {user.status !== 'banned' && ' They will not be able to log in.'}
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => toggleUserStatus(user)} className={cn(user.status === 'banned' && 'bg-primary hover:bg-primary/90')}>
-                                    Yes, {user.status === 'banned' ? 'unban' : 'ban'} user
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
+                            <ManageUserStatusDialog user={user} onStatusChange={handleStatusChange}>
+                                <Button variant="outline" size="sm">Manage</Button>
+                           </ManageUserStatusDialog>
                         </TableCell>
                       </TableRow>
                    )

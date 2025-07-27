@@ -1,7 +1,7 @@
 
 
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, updateDoc, increment, runTransaction, serverTimestamp, type Transaction, collection, query, orderBy, limit, getDocs, where } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, increment, runTransaction, serverTimestamp, type Transaction, collection, query, orderBy, limit, getDocs, where, Timestamp } from 'firebase/firestore';
 import { updateOrderStatus } from './orderService';
 import type { UserProfile } from '@/lib/types';
 
@@ -122,12 +122,23 @@ export const getAllUserProfiles = async (): Promise<UserProfile[]> => {
 /**
  * Updates a user's status (e.g., to ban or unban them).
  */
-export const updateUserStatus = async (userId: string, status: 'active' | 'banned' | 'suspended') => {
+export const updateUserStatus = async (userId: string, status: 'active' | 'banned' | 'suspended', durationDays?: number) => {
     const userDocRef = doc(db, usersCollectionRef, userId);
-    const updateData: { status: string, bannedAt?: any } = { status };
+    const updateData: Partial<UserProfile> = { status };
+    
     if (status === 'banned') {
-        updateData.bannedAt = serverTimestamp();
+        updateData.bannedAt = serverTimestamp() as Timestamp;
+        updateData.suspendedUntil = undefined;
+    } else if (status === 'suspended' && durationDays) {
+        const suspendedUntil = new Date();
+        suspendedUntil.setDate(suspendedUntil.getDate() + durationDays);
+        updateData.suspendedUntil = Timestamp.fromDate(suspendedUntil);
+        updateData.bannedAt = undefined;
+    } else if (status === 'active') {
+        updateData.bannedAt = undefined;
+        updateData.suspendedUntil = undefined;
     }
+    
     return await updateDoc(userDocRef, updateData);
 };
 
