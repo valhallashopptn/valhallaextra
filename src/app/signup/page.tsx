@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { PageWrapper } from '@/components/PageWrapper';
+import { Logo } from '@/components/icons/Logo';
 
 const formSchema = z.object({
   username: z.string().min(3, { message: 'Username must be at least 3 characters.' }).max(20, { message: 'Username must be 20 characters or less.' }).regex(/^[a-zA-Z0-9_]+$/, { message: 'Username can only contain letters, numbers, and underscores.' }),
@@ -57,6 +58,9 @@ export default function SignUpPage() {
       <div className="flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+                <Logo className="h-12 w-12 text-primary" />
+            </div>
             <CardTitle className="text-2xl font-headline">Create an Account</CardTitle>
             <CardDescription>Join ApexTop to manage your orders</CardDescription>
           </CardHeader>
