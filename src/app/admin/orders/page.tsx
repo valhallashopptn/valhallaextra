@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getAllOrders, updateOrderStatus, deliverOrderManually, attemptAutoDelivery } from '@/services/orderService';
+import { getAllOrders, updateOrderStatus, deliverOrderManually, attemptAutoDelivery, deleteOrder } from '@/services/orderService';
 import { refundToWallet } from '@/services/walletService';
 import type { Order, CartItem } from '@/lib/types';
 import {
@@ -28,7 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useCurrency } from '@/context/CurrencyContext';
-import { KeySquare, Truck, Bot, ChevronDown, Info } from 'lucide-react';
+import { KeySquare, Truck, Bot, ChevronDown, Info, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -189,6 +189,17 @@ export default function OrdersPage() {
     } catch (error: any) {
       console.error("Failed to update order status:", error);
       toast({ title: 'Error', description: error.message || 'Failed to update order status.', variant: 'destructive' });
+    }
+  };
+
+  const handleDeleteOrder = async (orderId: string) => {
+    try {
+        await deleteOrder(orderId);
+        toast({ title: 'Success', description: 'Order deleted successfully.' });
+        fetchOrders();
+    } catch (error) {
+        toast({ title: 'Error', description: 'Failed to delete order.', variant: 'destructive' });
+        console.error("Failed to delete order:", error);
     }
   };
 
@@ -411,6 +422,27 @@ export default function OrdersPage() {
                                                     </AlertDialog>
                                                 </SelectContent>
                                             </Select>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="destructive" size="icon" className="h-9 w-9">
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This action cannot be undone. This will permanently delete the order #{order.id.substring(0,8)}.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDeleteOrder(order.id)} className="bg-destructive hover:bg-destructive/90">
+                                                        Yes, delete it
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </div>
                                     </div>
                                 </div>

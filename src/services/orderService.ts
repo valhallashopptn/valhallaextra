@@ -16,7 +16,8 @@ import {
   increment,
   limit,
   getDoc,
-  arrayUnion
+  arrayUnion,
+  deleteDoc
 } from 'firebase/firestore';
 import { debitFromWallet, addRewardsForPurchase, redeemCoins, getUserProfile } from './walletService';
 import { getSetting } from './settingsService';
@@ -172,6 +173,13 @@ export const updateOrderStatus = async (orderId: string, status: 'pending' | 'co
 
   return await updateDoc(orderDocRef, { status: status });
 };
+
+// Delete an order
+export const deleteOrder = async (orderId: string) => {
+    const orderDocRef = doc(db, 'orders', orderId);
+    return await deleteDoc(orderDocRef);
+};
+
 
 // Deliver an order manually
 export const deliverOrderManually = async (orderId: string, deliveryData: DeliveredAssetInfo) => {
