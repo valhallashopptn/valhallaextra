@@ -88,6 +88,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 )}
             </div>
              <Button variant="default" size="sm" className="bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+              <ShoppingCart className="mr-2 h-4 w-4" />
               Buy Now
             </Button>
           </div>
