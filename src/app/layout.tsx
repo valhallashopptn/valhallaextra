@@ -31,9 +31,6 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${siteTitle || 'ApexTop'}`,
     },
     description: 'Top up your favorite games.',
-    icons: {
-      icon: '/icon.png',
-    },
   };
 }
 
