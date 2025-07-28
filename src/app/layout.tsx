@@ -23,7 +23,7 @@ const inter = Inter({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { siteTitle } = await getSettings(['siteTitle']);
+  const { siteTitle, logoUrl } = await getSettings(['siteTitle', 'logoUrl']);
   
   return {
     title: {
@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     description: 'Top up your favorite games.',
     icons: {
-      icon: '/icon.png',
+      icon: '/favicon.png',
     },
   };
 }
