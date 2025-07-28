@@ -31,7 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${siteTitle || 'ApexTop'}`,
     },
     icons: {
-      icon: faviconUrl || '/favicon.png',
+      icon: faviconUrl || '/favicon.ico',
     },
   };
 }
