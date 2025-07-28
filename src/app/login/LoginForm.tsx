@@ -43,11 +43,11 @@ export function LoginForm({ siteTitle = 'ApexTop', logoUrl }: LoginFormProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       await logIn(values.email, values.password);
-      const redirect = searchParams.get('redirect') || '/account';
+      const redirect = searchParams.get('redirect') || '/';
       router.push(redirect);
       toast({
-        title: 'Login Successful',
-        description: 'Welcome back!',
+        title: 'Welcome Back!',
+        description: "You've successfully signed in.",
       });
     } catch (error: any) {
       console.error('Login failed:', error);
