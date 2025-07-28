@@ -68,6 +68,9 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={cn(inter.variable, 'dark')} style={themeStyle}>
+      <head>
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+      </head>
       <body className="font-body antialiased min-h-screen flex flex-col bg-background">
         <Providers>
           <AnnouncementBar settings={announcementSettings} />
