@@ -46,7 +46,7 @@ export function LoginForm({ siteTitle = 'ApexTop', logoUrl }: LoginFormProps) {
       const redirect = searchParams.get('redirect') || '/';
       router.push(redirect);
       toast({
-        title: `Welcome to ${siteTitle}!`,
+        title: `Welcome back to ${siteTitle}!`,
         description: "You've successfully signed in.",
       });
     } catch (error: any) {
@@ -95,7 +95,12 @@ export function LoginForm({ siteTitle = 'ApexTop', logoUrl }: LoginFormProps) {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <div className="flex justify-between items-center">
+                        <FormLabel>Password</FormLabel>
+                         <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                            Forgot Password?
+                        </Link>
+                      </div>
                       <FormControl>
                         <Input type="password" placeholder="••••••••" {...field} />
                       </FormControl>
