@@ -1,4 +1,16 @@
-export function Logo(props: React.SVGProps<SVGSVGElement>) {
+
+import Image from 'next/image';
+
+interface LogoProps extends React.SVGProps<SVGSVGElement> {
+  imageUrl?: string | null;
+  altText?: string;
+}
+
+export function Logo({ imageUrl, altText, ...props }: LogoProps) {
+  if (imageUrl) {
+    return <Image src={imageUrl} alt={altText || 'Logo'} width={48} height={48} className="h-12 w-12" />;
+  }
+
   return (
     <svg
       {...props}
@@ -13,10 +25,8 @@ export function Logo(props: React.SVGProps<SVGSVGElement>) {
           <stop offset="100%" style={{stopColor:"#ec4899"}} />
         </linearGradient>
       </defs>
-      <g stroke="url(#logoGradient)" strokeWidth="1.5">
-        <rect x="1.5" y="1.5" width="21" height="21" rx="4" fill="none" />
-        <path d="M10.25 5.5 L7.5 12 L12.5 12 L9.5 18.5 L15.5 10 L11.5 10 L10.25 5.5" strokeLinejoin="round" strokeLinecap="round" fill="none"/>
-      </g>
+       <path d="M12 2C12 2 13 4 15 6C17 8 18 11 18 14C18 18.4183 14.4183 22 10 22C5.58172 22 2 18.4183 2 14C2 11.5 3.5 8.5 5 6C6.5 3.5 12 2 12 2Z" fill="url(#logoGradient)"/>
+        <path d="M12 4C12 4 11 6 9.5 7.5C8 9 7 11.5 7 14C7 16.7614 9.23858 19 12 19C14.7614 19 17 16.7614 17 14C17 12 16 9.5 14.5 7.5C13 5.5 12 4 12 4Z" fill="white" fillOpacity="0.5"/>
     </svg>
   );
 }
