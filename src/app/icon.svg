@@ -1,14 +1,11 @@
-<svg
-  role="img"
-  viewBox="0 0 24 24"
-  xmlns="http://www.w3.org/2000/svg"
->
-  <defs>
-    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style={{stopColor:"hsl(var(--primary))"}} />
-      <stop offset="100%" style={{stopColor:"hsl(var(--accent))"}} />
-    </linearGradient>
-  </defs>
-  <path d="M12 2C12 2 13 4 15 6C17 8 18 11 18 14C18 18.4183 14.4183 22 10 22C5.58172 22 2 18.4183 2 14C2 11.5 3.5 8.5 5 6C6.5 3.5 12 2 12 2Z" fill="url(#logoGradient)"/>
-  <path d="M12 4C12 4 11 6 9.5 7.5C8 9 7 11.5 7 14C7 16.7614 9.23858 19 12 19C14.7614 19 17 16.7614 17 14C17 12 16 9.5 14.5 7.5C13 5.5 12 4 12 4Z" fill="white" fillOpacity="0.5"/>
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+  <stop offset="0%" style="stop-color:hsl(var(--primary))" />
+  <stop offset="100%" style="stop-color:hsl(var(--secondary))" />
+</linearGradient>
+</defs>
+<path d="M15.381 42.9999C15.381 42.9999 4.85714 35.8094 4.85714 22.2856C4.85714 8.76176 15.381 3.42847 15.381 3.42847C15.381 3.42847 25.9048 8.76176 25.9048 22.2856C25.9048 35.8094 15.381 42.9999 15.381 42.9999Z" fill="url(#iconGradient)" stroke="hsl(var(--primary))" stroke-width="1.5" stroke-miterlimit="10"/>
+<path d="M21.2381 43C21.2381 43 15.4286 39.4523 15.4286 30.1428C15.4286 20.8332 21.2381 18.2856 21.2381 18.2856C21.2381 18.2856 27.0476 20.8332 27.0476 30.1428C27.0476 39.4523 21.2381 43 21.2381 43Z" fill="url(#iconGradient)" stroke="hsl(var(--primary))" stroke-width="1.5" stroke-miterlimit="10"/>
+<path d="M27.0952 43C27.0952 43 24.2381 41.2261 24.2381 37.5714C24.2381 33.9166 27.0952 32.8571 27.0952 32.8571C27.0952 32.8571 29.9524 33.9166 29.9524 37.5714C29.9524 41.2261 27.0952 43 27.0952 43Z" fill="url(#iconGradient)" stroke="hsl(var(--primary))" stroke-width="1.5" stroke-miterlimit="10"/>
 </svg>
