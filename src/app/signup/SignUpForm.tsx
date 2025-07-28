@@ -18,7 +18,16 @@ import { Logo } from '@/components/icons/Logo';
 const formSchema = z.object({
   username: z.string().min(3, { message: 'Username must be at least 3 characters.' }).max(20, { message: 'Username must be 20 characters or less.' }).regex(/^[a-zA-Z0-9_]+$/, { message: 'Username can only contain letters, numbers, and underscores.' }),
   email: z.string().email({ message: 'Invalid email address.' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+  password: z.string()
+    .min(8, { message: 'Password must be at least 8 characters.' })
+    .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter.' })
+    .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter.' })
+    .regex(/[0-9]/, { message: 'Password must contain at least one number.' })
+    .regex(/[^a-zA-Z0-9]/, { message: 'Password must contain at least one special character.' }),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
 });
 
 interface SignUpFormProps {
@@ -37,6 +46,7 @@ export function SignUpForm({ siteTitle = 'ApexTop', logoUrl }: SignUpFormProps) 
       username: '',
       email: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
@@ -104,6 +114,19 @@ export function SignUpForm({ siteTitle = 'ApexTop', logoUrl }: SignUpFormProps) 
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="••••••••" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
                         <Input type="password" placeholder="••••••••" {...field} />
                       </FormControl>
