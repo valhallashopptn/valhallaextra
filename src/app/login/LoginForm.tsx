@@ -46,7 +46,7 @@ export function LoginForm({ siteTitle = 'ApexTop', logoUrl }: LoginFormProps) {
       const redirect = searchParams.get('redirect') || '/';
       router.push(redirect);
       toast({
-        title: `Welcome back to ${siteTitle}!`,
+        title: `Welcome to ${siteTitle}!`,
         description: "You've successfully signed in.",
       });
     } catch (error: any) {
