@@ -27,11 +27,11 @@ export async function generateMetadata(): Promise<Metadata> {
   
   return {
     title: {
-      default: siteTitle || 'ApexTop',
-      template: `%s | ${siteTitle || 'ApexTop'}`,
+      default: siteTitle || 'Valhalla Shop',
+      template: `%s | ${siteTitle || 'Valhalla Shop'}`,
     },
     icons: {
-      icon: faviconUrl || '/favicon.ico',
+      icon: faviconUrl,
     },
   };
 }
