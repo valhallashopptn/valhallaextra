@@ -46,14 +46,18 @@ export function LoginForm({ siteTitle = 'ApexTop', logoUrl }: LoginFormProps) {
       const redirect = searchParams.get('redirect') || '/';
       router.push(redirect);
       toast({
-        title: 'Welcome Back!',
+        title: `Welcome back to ${siteTitle}!`,
         description: "You've successfully signed in.",
       });
     } catch (error: any) {
       console.error('Login failed:', error);
+      let errorMessage = 'An unexpected error occurred. Please try again.';
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        errorMessage = 'Invalid email or password. Please try again.';
+      }
       toast({
         title: 'Login Failed',
-        description: error.message || 'An unexpected error occurred.',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
