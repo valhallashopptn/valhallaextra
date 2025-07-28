@@ -27,15 +27,7 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const [logoUrl, setLogoUrl] = useState('');
-  const [siteTitle, setSiteTitle] = useState('ApexTop');
-
-  useEffect(() => {
-    getSettings(['logoUrl', 'siteTitle']).then(settings => {
-      if (settings.logoUrl) setLogoUrl(settings.logoUrl);
-      if (settings.siteTitle) setSiteTitle(settings.siteTitle);
-    });
-  }, []);
+  
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -70,11 +62,7 @@ export default function LoginPage() {
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
-              {logoUrl ? (
-                <Image src={logoUrl} alt={`${siteTitle} Logo`} width={48} height={48} className="h-12 w-12 text-primary" />
-              ) : (
-                <Logo className="h-12 w-12 text-primary" />
-              )}
+              <Logo className="h-12 w-12 text-primary" />
             </div>
             <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
             <CardDescription>Enter your credentials to access your account</CardDescription>

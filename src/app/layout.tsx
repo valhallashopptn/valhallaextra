@@ -23,7 +23,7 @@ const inter = Inter({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { siteTitle } = await getSettings(['siteTitle']);
+  const { siteTitle, faviconUrl } = await getSettings(['siteTitle', 'faviconUrl']);
   
   return {
     title: {
@@ -31,6 +31,9 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${siteTitle || 'ApexTop'}`,
     },
     description: 'Top up your favorite games.',
+    icons: {
+      icon: faviconUrl || '/icon.svg',
+    },
   };
 }
 

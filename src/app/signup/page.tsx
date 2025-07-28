@@ -27,12 +27,10 @@ export default function SignUpPage() {
   const { signUp } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const [logoUrl, setLogoUrl] = useState('');
   const [siteTitle, setSiteTitle] = useState('ApexTop');
 
   useEffect(() => {
-    getSettings(['logoUrl', 'siteTitle']).then(settings => {
-      if (settings.logoUrl) setLogoUrl(settings.logoUrl);
+    getSettings(['siteTitle']).then(settings => {
       if (settings.siteTitle) setSiteTitle(settings.siteTitle);
     });
   }, []);
@@ -70,11 +68,7 @@ export default function SignUpPage() {
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
-              {logoUrl ? (
-                <Image src={logoUrl} alt={`${siteTitle} Logo`} width={48} height={48} className="h-12 w-12 text-primary" />
-              ) : (
-                <Logo className="h-12 w-12 text-primary" />
-              )}
+              <Logo className="h-12 w-12 text-primary" />
             </div>
             <CardTitle className="text-2xl font-headline">Create an Account</CardTitle>
             <CardDescription>Join {siteTitle} to manage your orders</CardDescription>
