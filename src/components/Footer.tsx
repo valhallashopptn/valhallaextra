@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -6,10 +7,8 @@ import { Logo } from './icons/Logo';
 import { Button } from './ui/button';
 import { Link as LinkIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
-import { getSettings } from '@/services/settingsService';
 import Image from 'next/image';
 import { useTranslation } from '@/context/TranslationContext';
-import { useEffect, useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import type { SocialLink as SocialLinkType } from '@/lib/types';
 
@@ -29,26 +28,15 @@ function SocialLink({ link }: { link: SocialLinkType }) {
     );
 }
 
-export function Footer() {
+interface FooterProps {
+    siteTitle?: string;
+    logoUrl?: string;
+    socialLinks?: SocialLinkType[];
+}
+
+export function Footer({ siteTitle = 'Valhalla Shop', logoUrl, socialLinks = [] }: FooterProps) {
   const { t } = useTranslation();
   const { openCart } = useCart();
-  const [settings, setSettings] = useState({ 
-    siteTitle: 'TopUp Hub', 
-    logoUrl: '',
-    socialLinks: [] as SocialLinkType[]
-  });
-
-  useEffect(() => {
-    getSettings(['siteTitle', 'logoUrl', 'socialLinks']).then(s => {
-      setSettings({
-        siteTitle: s.siteTitle || 'TopUp Hub',
-        logoUrl: s.logoUrl || '',
-        socialLinks: s.socialLinks || []
-      });
-    });
-  }, []);
-
-  const { siteTitle, logoUrl, socialLinks } = settings;
 
   return (
     <footer className="bg-card border-t border-border mt-auto">

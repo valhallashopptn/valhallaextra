@@ -11,7 +11,7 @@ import { themes } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { Footer } from '@/components/Footer';
 import { AnnouncementBar } from '@/components/AnnouncementBar';
-import type { AnnouncementSettings } from '@/lib/types';
+import type { AnnouncementSettings, SocialLink } from '@/lib/types';
 import { MusicPlayer } from '@/components/MusicPlayer';
 import Script from 'next/script';
 import { Logo } from '@/components/icons/Logo';
@@ -41,10 +41,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getSettings(['theme', 'siteTitle', 'logoUrl', 'announcement', 'enableBackgroundMusic', 'backgroundMusicUrl']);
+  const settings = await getSettings(['theme', 'siteTitle', 'logoUrl', 'announcement', 'enableBackgroundMusic', 'backgroundMusicUrl', 'socialLinks']);
   const themeName = settings.theme || 'Night Runner';
   const activeTheme = themes.find(t => t.name === themeName) || themes[0];
   const announcementSettings = settings.announcement as AnnouncementSettings | null;
+  const socialLinks = settings.socialLinks as SocialLink[] | [];
   
   const themeStyle = {
     '--background': activeTheme.colors.background,
@@ -80,7 +81,7 @@ export default async function RootLayout({
             {children}
           </main>
           <Toaster />
-          <Footer />
+          <Footer siteTitle={settings.siteTitle} logoUrl={settings.logoUrl} socialLinks={socialLinks} />
           {settings.enableBackgroundMusic && settings.backgroundMusicUrl && (
             <MusicPlayer src={settings.backgroundMusicUrl} />
           )}
