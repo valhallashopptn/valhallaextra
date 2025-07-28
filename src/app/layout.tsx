@@ -22,13 +22,17 @@ const inter = Inter({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const siteTitle = await getSettings(['siteTitle']).then(s => s.siteTitle || 'ApexTop');
+  const { siteTitle, logoUrl } = await getSettings(['siteTitle', 'logoUrl']);
+  
   return {
     title: {
-      default: siteTitle,
-      template: `%s | ${siteTitle}`,
+      default: siteTitle || 'ApexTop',
+      template: `%s | ${siteTitle || 'ApexTop'}`,
     },
     description: 'Top up your favorite games.',
+    icons: {
+      icon: logoUrl || '/valhalla-logo.svg',
+    }
   };
 }
 
@@ -68,9 +72,6 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={cn(inter.variable, 'dark')} style={themeStyle}>
-      <head>
-        <link rel="icon" href="/valhalla-logo.svg" type="image/svg+xml" />
-      </head>
       <body className="font-body antialiased min-h-screen flex flex-col bg-background">
         <Providers>
           <AnnouncementBar settings={announcementSettings} />
