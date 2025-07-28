@@ -5,8 +5,8 @@
 >
   <defs>
     <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style={{stopColor:"#f97316"}} />
-      <stop offset="100%" style={{stopColor:"#ec4899"}} />
+      <stop offset="0%" style={{stopColor:"hsl(var(--primary))"}} />
+      <stop offset="100%" style={{stopColor:"hsl(var(--accent))"}} />
     </linearGradient>
   </defs>
   <path d="M12 2C12 2 13 4 15 6C17 8 18 11 18 14C18 18.4183 14.4183 22 10 22C5.58172 22 2 18.4183 2 14C2 11.5 3.5 8.5 5 6C6.5 3.5 12 2 12 2Z" fill="url(#logoGradient)"/>
