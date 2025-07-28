@@ -14,6 +14,7 @@ import { AnnouncementBar } from '@/components/AnnouncementBar';
 import type { AnnouncementSettings } from '@/lib/types';
 import { MusicPlayer } from '@/components/MusicPlayer';
 import Script from 'next/script';
+import { Logo } from '@/components/icons/Logo';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -22,7 +23,7 @@ const inter = Inter({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { siteTitle, logoUrl } = await getSettings(['siteTitle', 'logoUrl']);
+  const { siteTitle, faviconUrl } = await getSettings(['siteTitle', 'faviconUrl']);
   
   return {
     title: {
@@ -31,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     description: 'Top up your favorite games.',
     icons: {
-      icon: logoUrl || '/valhalla-logo.svg',
+      icon: faviconUrl || '/valhalla-logo.svg',
     }
   };
 }

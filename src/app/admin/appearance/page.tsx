@@ -29,6 +29,7 @@ const appearanceFormSchema = z.object({
 const identityFormSchema = z.object({
   siteTitle: z.string().min(2, { message: 'Site title must be at least 2 characters.' }),
   logoUrl: z.string().url({ message: 'Please enter a valid URL.' }).or(z.literal('')),
+  faviconUrl: z.string().url({ message: 'Please enter a valid URL.' }).or(z.literal('')),
 });
 const notificationFormSchema = z.object({
   orderWebhookUrl: z.string().url({ message: 'Please enter a valid webhook URL.' }).or(z.literal('')),
@@ -103,7 +104,7 @@ export default function AppearancePage() {
 
   const identityForm = useForm<IdentityFormData>({
     resolver: zodResolver(identityFormSchema),
-    defaultValues: { siteTitle: 'TopUp Hub', logoUrl: '' },
+    defaultValues: { siteTitle: 'TopUp Hub', logoUrl: '', faviconUrl: '' },
   });
   
   const announcementForm = useForm<AnnouncementFormData>({
@@ -150,7 +151,7 @@ export default function AppearancePage() {
       setLoading(true);
       try {
         const settingKeys = [
-            'heroImageUrl', 'theme', 'siteTitle', 'logoUrl', 'orderWebhookUrl',
+            'heroImageUrl', 'theme', 'siteTitle', 'logoUrl', 'faviconUrl', 'orderWebhookUrl',
             'socialLinks', 'aboutPageContent', 'contactPageContent', 'announcement',
             'enableBackgroundMusic', 'backgroundMusicUrl'
         ];
@@ -159,6 +160,7 @@ export default function AppearancePage() {
         appearanceForm.setValue('heroImageUrl', settings.heroImageUrl || 'https://placehold.co/1920x1080.png');
         identityForm.setValue('siteTitle', settings.siteTitle || 'TopUp Hub');
         identityForm.setValue('logoUrl', settings.logoUrl || '');
+        identityForm.setValue('faviconUrl', settings.faviconUrl || '');
         notificationForm.setValue('orderWebhookUrl', settings.orderWebhookUrl || '');
         musicForm.setValue('enableBackgroundMusic', settings.enableBackgroundMusic || false);
         musicForm.setValue('backgroundMusicUrl', settings.backgroundMusicUrl || '');
@@ -208,6 +210,20 @@ export default function AppearancePage() {
       console.error(`Failed to update ${formName}`, error);
     }
   }
+
+  const handleIdentitySubmit = async (data: IdentityFormData) => {
+    try {
+      await Promise.all([
+        updateSetting('siteTitle', data.siteTitle),
+        updateSetting('logoUrl', data.logoUrl),
+        updateSetting('faviconUrl', data.faviconUrl),
+      ]);
+      toast({ title: 'Success', description: `Store Identity updated successfully.` });
+    } catch (error) {
+       toast({ title: 'Error', description: `Failed to update Store Identity.`, variant: 'destructive' });
+      console.error(`Failed to update Store Identity`, error);
+    }
+  }
   
   const watchedHeroUrl = appearanceForm.watch('heroImageUrl');
 
@@ -244,7 +260,7 @@ export default function AppearancePage() {
                 </CardHeader>
                 <CardContent>
                 <Form {...identityForm}>
-                    <form onSubmit={identityForm.handleSubmit((data) => handleGenericSubmit('siteTitle', data.siteTitle, 'Website Name').then(() => handleGenericSubmit('logoUrl', data.logoUrl, 'Logo URL')))} className="space-y-4">
+                    <form onSubmit={identityForm.handleSubmit(handleIdentitySubmit)} className="space-y-4">
                     <FormField
                         control={identityForm.control}
                         name="siteTitle"
@@ -263,6 +279,19 @@ export default function AppearancePage() {
                         <FormItem>
                             <FormLabel>Logo Image URL</FormLabel>
                             <FormControl><Input placeholder="https://example.com/logo.png" {...field} /></FormControl>
+                            <FormDescription>The main logo used in the header and other places.</FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={identityForm.control}
+                        name="faviconUrl"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Favicon URL</FormLabel>
+                            <FormControl><Input placeholder="https://example.com/favicon.ico" {...field} /></FormControl>
+                             <FormDescription>The icon that appears in the browser tab.</FormDescription>
                             <FormMessage />
                         </FormItem>
                         )}
