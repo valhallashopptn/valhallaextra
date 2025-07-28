@@ -72,7 +72,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={cn(inter.variable, 'dark')} style={themeStyle}>
-      <body className="font-body antialiased min-h-screen flex flex-col bg-background">
+      <body>
         <Providers>
           <AnnouncementBar settings={announcementSettings} />
           <Header siteTitle={settings.siteTitle} logoUrl={settings.logoUrl} />
