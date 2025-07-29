@@ -276,6 +276,20 @@ body {
       transform: rotate(45deg);
       padding: 4px 0;
   }
+  
+  .featured-ribbon-wrapper {
+    @apply absolute top-0 right-0 h-24 w-24 overflow-hidden z-10;
+  }
+  .featured-ribbon {
+      @apply absolute top-0 right-0 flex items-center justify-center text-center transform-gpu;
+      @apply bg-amber-500 text-white text-xs font-bold uppercase tracking-wider;
+      @apply shadow-md;
+      width: 150%;
+      right: -35px;
+      top: 25px;
+      transform: rotate(45deg);
+      padding: 4px 0;
+  }
 
   .slide-out-widget {
     @apply fixed top-1/2 left-0 -translate-y-1/2 z-50 flex items-center;
