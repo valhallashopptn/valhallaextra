@@ -1,4 +1,5 @@
 
+
 import { db } from '@/lib/firebase';
 import type { Review, UserProfile } from '@/lib/types';
 import {
@@ -38,7 +39,7 @@ export const getAllReviews = async (): Promise<Review[]> => {
 
 // Add a new review for a product and update the product's average rating
 export const addReview = async (
-  reviewData: Omit<Review, 'id' | 'createdAt' | 'username' | 'userEmail'>
+  reviewData: Omit<Review, 'id' | 'createdAt' | 'username' | 'userEmail' | 'userAvatarUrl'>
 ) => {
   const userProfile = await getUserProfile(reviewData.userId);
   if (!userProfile) {
@@ -48,6 +49,7 @@ export const addReview = async (
     ...reviewData,
     username: userProfile.username,
     userEmail: userProfile.email,
+    userAvatarUrl: userProfile.avatarUrl || '',
   }
 
   const productDocRef = doc(productsCollectionRef, reviewData.productId);

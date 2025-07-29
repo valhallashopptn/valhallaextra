@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
@@ -69,7 +70,7 @@ function ReviewCard({ review }: { review: Review }) {
         <Card className="flex flex-col text-center h-full">
             <CardContent className="p-8 flex flex-col flex-grow items-center">
                 <Avatar className="h-24 w-24 mb-4">
-                    <AvatarImage src={`https://i.pravatar.cc/150?u=${review.userId}`} />
+                    <AvatarImage src={review.userAvatarUrl} />
                     <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <h4 className="text-xl font-bold font-headline">{username}</h4>

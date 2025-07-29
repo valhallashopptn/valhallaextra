@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -8,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Crown, Trophy } from 'lucide-react';
 import { RankIcon } from '@/app/account/RankProgressCard';
@@ -106,6 +107,7 @@ export default function LeaderboardPage() {
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Avatar>
+                              <AvatarImage src={user.avatarUrl} />
                               <AvatarFallback>{user.username ? user.username.charAt(0).toUpperCase() : '?'}</AvatarFallback>
                             </Avatar>
                             <span className="font-medium">{user.username || 'Anonymous'}</span>

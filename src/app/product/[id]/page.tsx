@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
@@ -18,7 +19,7 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { ReviewForm } from './ReviewForm';
 import { useToast } from '@/hooks/use-toast';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -242,8 +243,6 @@ export default function ProductDetailPage() {
             productId: product.id,
             productName: product.name,
             productImage: product.imageUrl,
-            username: user.displayName || 'Anonymous',
-            userEmail: user.email || '',
         });
         const updatedReviews = await getReviewsForProduct(product.id);
         setReviews(updatedReviews);
@@ -552,6 +551,7 @@ export default function ProductDetailPage() {
                       {reviews.map(review => (
                           <div key={review.id} className="flex gap-4">
                             <Avatar>
+                                  <AvatarImage src={review.userAvatarUrl} />
                                   <AvatarFallback>{review.username ? review.username.charAt(0).toUpperCase() : '?'}</AvatarFallback>
                               </Avatar>
                               <div className="flex-1">

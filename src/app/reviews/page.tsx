@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -119,7 +120,7 @@ export default function ReviewsPage() {
                   <CardContent className="p-6 flex flex-col flex-grow text-center">
                     <div className="flex flex-col items-center">
                         <Avatar className="h-16 w-16">
-                             <AvatarImage src={`https://i.pravatar.cc/150?u=${review.userId}`} />
+                             <AvatarImage src={review.userAvatarUrl} />
                             <AvatarFallback>{review.username ? review.username.charAt(0).toUpperCase() : '?'}</AvatarFallback>
                         </Avatar>
                         <p className="font-semibold text-lg mt-3">{review.username}</p>
