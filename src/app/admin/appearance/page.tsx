@@ -14,12 +14,12 @@ import { useToast } from '@/hooks/use-toast';
 import { getSettings, updateSetting } from '@/services/settingsService';
 import Image from 'next/image';
 import { themes, type Theme } from '@/lib/themes';
-import { Check, PlusCircle, Trash2 } from 'lucide-react';
+import { Check, PlusCircle, Trash2, ShieldAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { AboutPageContent, ContactPageContent, SocialLink, AnnouncementSettings, HomePageFeaturesContent } from '@/lib/types';
+import type { AboutPageContent, ContactPageContent, SocialLink, AnnouncementSettings, HomePageFeaturesContent, MaintenanceModeSettings } from '@/lib/types';
 import { Switch } from '@/components/ui/switch';
 
 
@@ -95,6 +95,11 @@ const contactPageFormSchema = z.object({
     address: z.string().min(1, 'Required'),
 });
 
+const maintenanceModeFormSchema = z.object({
+  enabled: z.boolean().default(false),
+  message: z.string().optional(),
+});
+
 type AppearanceFormData = z.infer<typeof appearanceFormSchema>;
 type IdentityFormData = z.infer<typeof identityFormSchema>;
 type NotificationFormData = z.infer<typeof notificationFormSchema>;
@@ -104,6 +109,7 @@ type AboutPageFormData = z.infer<typeof aboutPageFormSchema>;
 type ContactPageFormData = z.infer<typeof contactPageFormSchema>;
 type AnnouncementFormData = z.infer<typeof announcementFormSchema>;
 type HomePageFeaturesFormData = z.infer<typeof homePageFeaturesFormSchema>;
+type MaintenanceModeFormData = z.infer<typeof maintenanceModeFormSchema>;
 
 export default function AppearancePage() {
   const { toast } = useToast();
@@ -157,6 +163,11 @@ export default function AppearancePage() {
   const contactPageForm = useForm<ContactPageFormData>({
       resolver: zodResolver(contactPageFormSchema),
   });
+  
+  const maintenanceModeForm = useForm<MaintenanceModeFormData>({
+      resolver: zodResolver(maintenanceModeFormSchema),
+      defaultValues: { enabled: false, message: 'Our site is currently down for maintenance. We will be back shortly.' },
+  });
 
   const { fields: socialLinkFields, append: appendSocialLink, remove: removeSocialLink } = useFieldArray({
     control: socialLinksForm.control,
@@ -175,7 +186,7 @@ export default function AppearancePage() {
         const settingKeys = [
             'heroImageUrl', 'theme', 'siteTitle', 'logoUrl', 'faviconUrl', 'orderWebhookUrl',
             'socialLinks', 'aboutPageContent', 'contactPageContent', 'announcement',
-            'enableBackgroundMusic', 'backgroundMusicUrl', 'homePageFeatures'
+            'enableBackgroundMusic', 'backgroundMusicUrl', 'homePageFeatures', 'maintenanceMode'
         ];
         const settings = await getSettings(settingKeys);
         
@@ -189,6 +200,7 @@ export default function AppearancePage() {
         setActiveTheme(settings.theme || 'Night Runner');
         socialLinksForm.reset({ socialLinks: settings.socialLinks || [] });
         announcementForm.reset(settings.announcement || { enabled: false, text: '', countdownDate: '', linkText: '', linkUrl: '' });
+        maintenanceModeForm.reset(settings.maintenanceMode || { enabled: false, message: 'Our site is currently down for maintenance. We will be back shortly.' });
         
         homePageFeaturesForm.reset(settings.homePageFeatures || {
             title: 'Why Choose TopUp Hub?',
@@ -231,7 +243,7 @@ export default function AppearancePage() {
       }
     };
     fetchSettings();
-  }, [appearanceForm, identityForm, notificationForm, musicForm, socialLinksForm, aboutPageForm, contactPageForm, announcementForm, homePageFeaturesForm, toast]);
+  }, [appearanceForm, identityForm, notificationForm, musicForm, socialLinksForm, aboutPageForm, contactPageForm, announcementForm, homePageFeaturesForm, maintenanceModeForm, toast]);
 
   const handleGenericSubmit = async (key: string, data: any, formName: string) => {
     try {
@@ -580,6 +592,48 @@ export default function AppearancePage() {
         </TabsContent>
         
         <TabsContent value="advanced" className="mt-6 space-y-8">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Maintenance Mode</CardTitle>
+                    <CardDescription>Take your site offline for updates. Logged-in admins will still have access.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Form {...maintenanceModeForm}>
+                    <form onSubmit={maintenanceModeForm.handleSubmit((data) => handleGenericSubmit('maintenanceMode', data, 'Maintenance Mode'))} className="space-y-4">
+                        <FormField
+                            control={maintenanceModeForm.control}
+                            name="enabled"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                <div className="space-y-0.5">
+                                    <FormLabel className="flex items-center gap-2"><ShieldAlert className="h-4 w-4 text-destructive" /> Enable Maintenance Mode</FormLabel>
+                                    <FormDescription>This will take the site offline for all non-admin users.</FormDescription>
+                                </div>
+                                <FormControl>
+                                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={maintenanceModeForm.control}
+                            name="message"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Maintenance Message</FormLabel>
+                                <FormControl><Textarea {...field} rows={3} /></FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <Button type="submit" disabled={maintenanceModeForm.formState.isSubmitting} variant="destructive">
+                            {maintenanceModeForm.formState.isSubmitting ? 'Saving...' : 'Save Maintenance Settings'}
+                        </Button>
+                    </form>
+                    </Form>
+                </CardContent>
+            </Card>
+
             <Card>
                 <CardHeader>
                     <CardTitle>Social Media Links</CardTitle>

@@ -11,11 +11,12 @@ import { themes } from '@/lib/themes';
 import { cn } from '@/lib/utils';
 import { Footer } from '@/components/Footer';
 import { AnnouncementBar } from '@/components/AnnouncementBar';
-import type { AnnouncementSettings, SocialLink } from '@/lib/types';
+import type { AnnouncementSettings, SocialLink, MaintenanceModeSettings } from '@/lib/types';
 import { MusicPlayer } from '@/components/MusicPlayer';
 import Script from 'next/script';
 import { Logo } from '@/components/icons/Logo';
 import { ReviewReminder } from '@/components/ReviewReminder';
+import { MaintenanceWrapper } from '@/components/MaintenanceWrapper';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -42,11 +43,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getSettings(['theme', 'siteTitle', 'logoUrl', 'announcement', 'enableBackgroundMusic', 'backgroundMusicUrl', 'socialLinks']);
+  const settings = await getSettings(['theme', 'siteTitle', 'logoUrl', 'announcement', 'enableBackgroundMusic', 'backgroundMusicUrl', 'socialLinks', 'maintenanceMode']);
   const themeName = settings.theme || 'Night Runner';
   const activeTheme = themes.find(t => t.name === themeName) || themes[0];
   const announcementSettings = settings.announcement as AnnouncementSettings | null;
   const socialLinks = settings.socialLinks as SocialLink[] | [];
+  const maintenanceMode = settings.maintenanceMode as MaintenanceModeSettings | null;
   
   const themeStyle = {
     '--background': activeTheme.colors.background,
@@ -79,7 +81,9 @@ export default async function RootLayout({
           <AnnouncementBar settings={announcementSettings} />
           <Header siteTitle={settings.siteTitle} logoUrl={settings.logoUrl} />
           <main className="flex-grow">
-            {children}
+            <MaintenanceWrapper maintenanceMode={maintenanceMode}>
+              {children}
+            </MaintenanceWrapper>
           </main>
           <Toaster />
           <Footer siteTitle={settings.siteTitle} logoUrl={settings.logoUrl} socialLinks={socialLinks} />

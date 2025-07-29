@@ -215,3 +215,8 @@ export interface ContactPageContent {
   phone: string;
   address: string;
 }
+
+export interface MaintenanceModeSettings {
+  enabled: boolean;
+  message: string;
+}
