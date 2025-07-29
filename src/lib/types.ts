@@ -137,6 +137,7 @@ export interface UserProfile {
     createdAt: Timestamp;
     bannedAt?: Timestamp;
     suspendedUntil?: Timestamp;
+    reviewPromptedOrderIds?: string[];
 }
 
 export interface Review {

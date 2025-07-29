@@ -5,7 +5,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getOrdersForUser } from '@/services/orderService';
 import { getReviewsForProduct } from '@/services/reviewService';
-import type { Order, Product } from '@/lib/types';
+import { getUserProfile, markReviewPrompted } from '@/services/walletService';
+import type { Order, UserProfile } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Star, X } from 'lucide-react';
@@ -20,26 +21,24 @@ export function ReviewReminder() {
   useEffect(() => {
     const checkLastOrder = async () => {
       if (!user) return;
+      
+      const userProfile = await getUserProfile(user.uid);
+      if (!userProfile) return;
 
       const userOrders = await getOrdersForUser(user.uid);
       
-      // Find the most recent 'completed' order
       const mostRecentCompletedOrder = userOrders
         .filter(o => o.status === 'completed')
         .sort((a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime())[0];
 
       if (!mostRecentCompletedOrder) return;
 
-      // Check if the user has already been prompted for this order
-      const dismissed = localStorage.getItem(`review_prompt_dismissed_${mostRecentCompletedOrder.id}`);
-      if (dismissed) return;
+      const alreadyPrompted = userProfile.reviewPromptedOrderIds?.includes(mostRecentCompletedOrder.id);
+      if (alreadyPrompted) return;
       
-      // For simplicity, we'll prompt for a review on the first item in the order.
-      // A more complex system could check all items.
       const productToReview = mostRecentCompletedOrder.items[0];
       if (!productToReview) return;
       
-      // Check if the user has already reviewed this product since the order was placed
       const reviews = await getReviewsForProduct(productToReview.id);
       const hasReviewed = reviews.some(review => 
         review.userId === user.uid && review.createdAt.toDate() > mostRecentCompletedOrder.createdAt.toDate()
@@ -47,7 +46,6 @@ export function ReviewReminder() {
 
       if (!hasReviewed) {
         setLastOrder(mostRecentCompletedOrder);
-        // Delay showing the dialog slightly to not be too intrusive on page load
         setTimeout(() => setShowDialog(true), 3000);
       }
     };
@@ -56,8 +54,8 @@ export function ReviewReminder() {
   }, [user]);
 
   const handleDismiss = () => {
-    if (lastOrder) {
-      localStorage.setItem(`review_prompt_dismissed_${lastOrder.id}`, 'true');
+    if (lastOrder && user) {
+      markReviewPrompted(user.uid, lastOrder.id);
     }
     setShowDialog(false);
   };
@@ -108,4 +106,3 @@ export function ReviewReminder() {
     </Dialog>
   );
 }
-

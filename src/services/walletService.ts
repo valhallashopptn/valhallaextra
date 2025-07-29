@@ -1,7 +1,7 @@
 
 
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, updateDoc, increment, runTransaction, serverTimestamp, type Transaction, collection, query, orderBy, limit, getDocs, where, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, increment, runTransaction, serverTimestamp, type Transaction, collection, query, orderBy, limit, getDocs, where, Timestamp, arrayUnion } from 'firebase/firestore';
 import { updateOrderStatus } from './orderService';
 import type { UserProfile, AdminPermission } from '@/lib/types';
 
@@ -40,6 +40,7 @@ export const createUserProfile = async (userId: string, email: string, username:
       status: 'active',
       role: 'user',
       permissions: [],
+      reviewPromptedOrderIds: [],
       createdAt: createdAt as any, // Temporary cast
     }
     await setDoc(userDocRef, newUserProfile);
@@ -97,6 +98,9 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
     }
      if (profileData.permissions === undefined) {
         updates.permissions = [];
+    }
+    if (profileData.reviewPromptedOrderIds === undefined) {
+        updates.reviewPromptedOrderIds = [];
     }
 
     if (Object.keys(updates).length > 0) {
@@ -327,3 +331,12 @@ export const getUserRank = async (userId: string): Promise<number | null> => {
     }
 };
 
+/**
+ * Marks an order ID as having had a review prompted for a specific user.
+ */
+export const markReviewPrompted = async (userId: string, orderId: string) => {
+    const userDocRef = doc(db, usersCollectionRef, userId);
+    return await updateDoc(userDocRef, {
+        reviewPromptedOrderIds: arrayUnion(orderId)
+    });
+};
