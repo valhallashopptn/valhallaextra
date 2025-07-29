@@ -15,6 +15,7 @@ import type { AnnouncementSettings, SocialLink } from '@/lib/types';
 import { MusicPlayer } from '@/components/MusicPlayer';
 import Script from 'next/script';
 import { Logo } from '@/components/icons/Logo';
+import { ReviewReminder } from '@/components/ReviewReminder';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -85,6 +86,7 @@ export default async function RootLayout({
           {settings.enableBackgroundMusic && settings.backgroundMusicUrl && (
             <MusicPlayer src={settings.backgroundMusicUrl} />
           )}
+          <ReviewReminder />
         </Providers>
         <Script id="tawk-to-script" strategy="lazyOnload">
         {`
