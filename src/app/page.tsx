@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { getCategories } from '@/services/categoryService';
-import type { Category, Product, Review } from '@/lib/types';
+import type { Category, Product, Review, HomePageFeaturesContent } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -14,7 +14,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { getSetting } from '@/services/settingsService';
+import { getSetting, getSettings } from '@/services/settingsService';
 import { Separator } from '@/components/ui/separator';
 import { getAllReviews } from '@/services/reviewService';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -87,11 +87,28 @@ function ReviewCard({ review }: { review: Review }) {
     );
 }
 
+const defaultFeaturesContent: HomePageFeaturesContent = {
+    title: 'Why Choose TopUp Hub?',
+    subtitle: 'We are committed to providing a fast, secure, and reliable service for all your digital needs.',
+    features: [
+        { id: 'feature_1', title: 'Products Live', value: '120+' },
+        { id: 'feature_2', title: 'Transactions Completed', value: '15k+' },
+        { id: 'feature_3', title: 'Dedicated Support', value: '24/7' },
+    ],
+};
+
+const featureIcons: { [key: string]: React.ReactNode } = {
+    feature_1: <Package size={32} />,
+    feature_2: <ShoppingCart size={32} />,
+    feature_3: <LifeBuoy size={32} />,
+};
+
 export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [heroImageUrl, setHeroImageUrl] = useState('');
+  const [featuresContent, setFeaturesContent] = useState<HomePageFeaturesContent>(defaultFeaturesContent);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -100,16 +117,17 @@ export default function Home() {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const [categoriesFromDb, productsFromDb, reviewsFromDb, heroUrl] = await Promise.all([
+        const [categoriesFromDb, productsFromDb, reviewsFromDb, settings] = await Promise.all([
             getCategories(),
             getProducts(),
             getAllReviews(),
-            getSetting('heroImageUrl', 'https://placehold.co/1920x1080.png?text=TopUp+Hub')
+            getSettings(['heroImageUrl', 'homePageFeatures'])
         ]);
         setCategories(categoriesFromDb);
         setProducts(productsFromDb);
         setReviews(reviewsFromDb);
-        setHeroImageUrl(heroUrl);
+        setHeroImageUrl(settings.heroImageUrl || 'https://placehold.co/1920x1080.png?text=TopUp+Hub');
+        setFeaturesContent(settings.homePageFeatures || defaultFeaturesContent);
       } catch (error) {
         console.error("Failed to fetch data:", error);
       } finally {
@@ -286,13 +304,18 @@ export default function Home() {
         <section className="bg-card py-16 -my-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
             <div className="text-center">
-              <h2 className="text-3xl font-bold font-headline">{t('HomePage.whyChooseUsTitle')}</h2>
-              <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">{t('HomePage.whyChooseUsSubtitle')}</p>
+              <h2 className="text-3xl font-bold font-headline">{featuresContent.title}</h2>
+              <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">{featuresContent.subtitle}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FeatureCard icon={<Package size={32} />} title={t('HomePage.productsLive')} value="120+" animationClass="animate-spin-slow" />
-                <FeatureCard icon={<ShoppingCart size={32} />} title={t('HomePage.transactionsCompleted')} value="15k+" animationClass="animate-spin-slow" />
-                <FeatureCard icon={<LifeBuoy size={32} />} title={t('HomePage.dedicatedSupport')} value="24/7" animationClass="animate-spin-slow" />
+                {featuresContent.features.map(feature => (
+                     <FeatureCard 
+                        key={feature.id} 
+                        icon={featureIcons[feature.id] || <Package size={32} />} 
+                        title={feature.title} 
+                        value={feature.value} 
+                        animationClass="animate-spin-slow" />
+                ))}
             </div>
           </div>
         </section>

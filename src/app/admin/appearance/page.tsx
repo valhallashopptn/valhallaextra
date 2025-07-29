@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { AboutPageContent, ContactPageContent, SocialLink, AnnouncementSettings } from '@/lib/types';
+import type { AboutPageContent, ContactPageContent, SocialLink, AnnouncementSettings, HomePageFeaturesContent } from '@/lib/types';
 import { Switch } from '@/components/ui/switch';
 
 
@@ -59,6 +59,18 @@ const announcementFormSchema = z.object({
     linkUrl: z.string().url().or(z.literal('')).optional(),
 });
 
+const homePageFeatureSchema = z.object({
+    id: z.string(),
+    title: z.string().min(1, 'Required'),
+    value: z.string().min(1, 'Required'),
+});
+
+const homePageFeaturesFormSchema = z.object({
+    title: z.string().min(1, 'Required'),
+    subtitle: z.string().min(1, 'Required'),
+    features: z.array(homePageFeatureSchema),
+});
+
 const aboutPageFormSchema = z.object({
     mainTitle: z.string().min(1, 'Required'),
     subtitle: z.string().min(1, 'Required'),
@@ -91,6 +103,7 @@ type SocialLinksFormData = z.infer<typeof socialLinksFormSchema>;
 type AboutPageFormData = z.infer<typeof aboutPageFormSchema>;
 type ContactPageFormData = z.infer<typeof contactPageFormSchema>;
 type AnnouncementFormData = z.infer<typeof announcementFormSchema>;
+type HomePageFeaturesFormData = z.infer<typeof homePageFeaturesFormSchema>;
 
 export default function AppearancePage() {
   const { toast } = useToast();
@@ -133,6 +146,10 @@ export default function AppearancePage() {
     defaultValues: { socialLinks: [] },
   });
 
+  const homePageFeaturesForm = useForm<HomePageFeaturesFormData>({
+      resolver: zodResolver(homePageFeaturesFormSchema),
+  });
+
   const aboutPageForm = useForm<AboutPageFormData>({
     resolver: zodResolver(aboutPageFormSchema),
   });
@@ -145,6 +162,11 @@ export default function AppearancePage() {
     control: socialLinksForm.control,
     name: "socialLinks",
   });
+  
+   const { fields: featureFields } = useFieldArray({
+    control: homePageFeaturesForm.control,
+    name: "features",
+  });
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -153,7 +175,7 @@ export default function AppearancePage() {
         const settingKeys = [
             'heroImageUrl', 'theme', 'siteTitle', 'logoUrl', 'faviconUrl', 'orderWebhookUrl',
             'socialLinks', 'aboutPageContent', 'contactPageContent', 'announcement',
-            'enableBackgroundMusic', 'backgroundMusicUrl'
+            'enableBackgroundMusic', 'backgroundMusicUrl', 'homePageFeatures'
         ];
         const settings = await getSettings(settingKeys);
         
@@ -167,6 +189,16 @@ export default function AppearancePage() {
         setActiveTheme(settings.theme || 'Night Runner');
         socialLinksForm.reset({ socialLinks: settings.socialLinks || [] });
         announcementForm.reset(settings.announcement || { enabled: false, text: '', countdownDate: '', linkText: '', linkUrl: '' });
+        
+        homePageFeaturesForm.reset(settings.homePageFeatures || {
+            title: 'Why Choose TopUp Hub?',
+            subtitle: 'We are committed to providing a fast, secure, and reliable service for all your digital needs.',
+            features: [
+                { id: 'feature_1', title: 'Products Live', value: '120+' },
+                { id: 'feature_2', title: 'Transactions Completed', value: '15k+' },
+                { id: 'feature_3', title: 'Dedicated Support', value: '24/7' },
+            ],
+        });
         
         aboutPageForm.reset(settings.aboutPageContent || {
             mainTitle: 'About ApexTop',
@@ -199,7 +231,7 @@ export default function AppearancePage() {
       }
     };
     fetchSettings();
-  }, [appearanceForm, identityForm, notificationForm, musicForm, socialLinksForm, aboutPageForm, contactPageForm, announcementForm, toast]);
+  }, [appearanceForm, identityForm, notificationForm, musicForm, socialLinksForm, aboutPageForm, contactPageForm, announcementForm, homePageFeaturesForm, toast]);
 
   const handleGenericSubmit = async (key: string, data: any, formName: string) => {
     try {
@@ -457,6 +489,54 @@ export default function AppearancePage() {
                 </div>
               </CardContent>
           </Card>
+          
+          <Card>
+              <CardHeader>
+                <CardTitle>Homepage Features</CardTitle>
+                <CardDescription>Edit the "Why Choose Us" section on the homepage.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                  <Form {...homePageFeaturesForm}>
+                      <form onSubmit={homePageFeaturesForm.handleSubmit((data) => handleGenericSubmit('homePageFeatures', data, 'Homepage Features'))} className="space-y-6">
+                        <FormField name="title" control={homePageFeaturesForm.control} render={({ field }) => (<FormItem><FormLabel>Section Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField name="subtitle" control={homePageFeaturesForm.control} render={({ field }) => (<FormItem><FormLabel>Section Subtitle</FormLabel><FormControl><Textarea {...field} rows={2} /></FormControl><FormMessage /></FormItem>)} />
+                        
+                        <div className="space-y-4">
+                            {featureFields.map((field, index) => (
+                                <div key={field.id} className="grid grid-cols-2 gap-4 items-center p-3 border rounded-md">
+                                    <FormField
+                                        control={homePageFeaturesForm.control}
+                                        name={`features.${index}.title`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Feature {index + 1} Title</FormLabel>
+                                                <FormControl><Input {...field} /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={homePageFeaturesForm.control}
+                                        name={`features.${index}.value`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Feature {index + 1} Value</FormLabel>
+                                                <FormControl><Input {...field} /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                        
+                        <Button type="submit" disabled={homePageFeaturesForm.formState.isSubmitting}>
+                            {homePageFeaturesForm.formState.isSubmitting ? 'Saving...' : 'Save Homepage Features'}
+                        </Button>
+                      </form>
+                  </Form>
+              </CardContent>
+          </Card>
 
           <Card>
               <CardHeader><CardTitle>About Us Page</CardTitle><CardDescription>Edit the content of your About Us page.</CardDescription></CardHeader>
@@ -603,5 +683,3 @@ export default function AppearancePage() {
     </div>
   );
 }
-
-    

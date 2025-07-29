@@ -180,6 +180,18 @@ export interface AnnouncementSettings {
     linkText: string;
 }
 
+export interface HomePageFeature {
+    id: string;
+    title: string;
+    value: string;
+}
+
+export interface HomePageFeaturesContent {
+    title: string;
+    subtitle: string;
+    features: HomePageFeature[];
+}
+
 export interface AboutPageContent {
   mainTitle: string;
   subtitle: string;
