@@ -339,17 +339,18 @@ export default function AccountPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                  <div className="flex items-center gap-4">
-                    <div className="relative group">
+                    <div className="relative">
                         <Avatar className="h-20 w-20 border-2 border-primary">
                             <AvatarImage src={userProfile.avatarUrl} />
                             <AvatarFallback>{userProfile.username.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
-                        <button 
+                        <Button 
                             onClick={() => setIsAvatarDialogOpen(true)}
-                            className="absolute inset-0 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-full"
+                            size="icon"
+                            className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full border-2 border-card"
                         >
-                            <Camera className="h-6 w-6" />
-                        </button>
+                            <Camera className="h-4 w-4" />
+                        </Button>
                     </div>
                     <div>
                         <p className="text-lg font-semibold">{userProfile.username}</p>
