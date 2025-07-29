@@ -7,8 +7,9 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getOrdersForUser } from '@/services/orderService';
-import { getUserProfile, getUserRank } from '@/services/walletService';
+import { getUserProfile, getUserRank, updateUserProfile } from '@/services/walletService';
 import type { Order, DeliveredAssetInfo, UserProfile } from '@/lib/types';
+import { getAvatarList } from '@/services/avatarService';
 import {
   Accordion,
   AccordionContent,
@@ -21,10 +22,13 @@ import { Separator } from '@/components/ui/separator';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Wallet, KeySquare, Copy, Check, Star, User } from 'lucide-react';
+import { Wallet, KeySquare, Copy, Check, Star, User, Camera } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { RankProgressCard } from './RankProgressCard';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useToast } from '@/hooks/use-toast';
 
 function DeliveredAssetDialog({ asset, isOpen, onOpenChange }: { asset: DeliveredAssetInfo | null, isOpen: boolean, onOpenChange: (open: boolean) => void }) {
     const [isCopied, setIsCopied] = useState(false);
@@ -76,6 +80,48 @@ function DeliveredAssetDialog({ asset, isOpen, onOpenChange }: { asset: Delivere
             </DialogContent>
         </Dialog>
     )
+}
+
+function AvatarSelectionDialog({ isOpen, onOpenChange, onAvatarSelect, currentAvatarUrl }: { isOpen: boolean, onOpenChange: (open: boolean) => void, onAvatarSelect: (url: string) => void, currentAvatarUrl?: string }) {
+    const [avatarList, setAvatarList] = useState<string[]>([]);
+    
+    useEffect(() => {
+        if (isOpen) {
+            getAvatarList().then(urls => setAvatarList(urls));
+        }
+    }, [isOpen]);
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-3xl">
+                <DialogHeader>
+                    <DialogTitle>Choose Your Avatar</DialogTitle>
+                    <DialogDescription>Select an avatar from the list below.</DialogDescription>
+                </DialogHeader>
+                <ScrollArea className="h-[60vh] -mr-6 pr-6">
+                    <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-4 py-4">
+                        {avatarList.map(url => (
+                            <button 
+                                key={url} 
+                                className={cn(
+                                    "relative aspect-square rounded-full overflow-hidden border-2 transition-all duration-200",
+                                    currentAvatarUrl === url ? 'border-primary ring-2 ring-primary' : 'border-transparent hover:border-primary'
+                                )}
+                                onClick={() => onAvatarSelect(url)}
+                            >
+                                <Image src={url} alt="Avatar option" fill className="object-cover" />
+                                {currentAvatarUrl === url && (
+                                    <div className="absolute inset-0 bg-primary/50 flex items-center justify-center">
+                                        <Check className="h-8 w-8 text-primary-foreground" />
+                                    </div>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                </ScrollArea>
+            </DialogContent>
+        </Dialog>
+    );
 }
 
 function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadgeClass, onViewAsset }: { order: Order, formatOrderPrice: any, formatItemPrice: any, getStatusBadgeClass: any, onViewAsset: (asset: DeliveredAssetInfo) => void }) {
@@ -175,6 +221,7 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
 
 export default function AccountPage() {
   const { user, loading, logOut } = useAuth();
+  const { toast } = useToast();
   const { formatPrice: formatCurrency, convertPrice, currency: currentDisplayCurrency } = useCurrency();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -182,6 +229,7 @@ export default function AccountPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [globalRank, setGlobalRank] = useState<number | null>(null);
   const [viewingAsset, setViewingAsset] = useState<DeliveredAssetInfo | null>(null);
+  const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -189,21 +237,22 @@ export default function AccountPage() {
     }
   }, [user, loading, router]);
   
+  const fetchAccountData = async () => {
+    if (user) {
+      setOrdersLoading(true);
+      const [userOrders, profile, rank] = await Promise.all([
+          getOrdersForUser(user.uid),
+          getUserProfile(user.uid),
+          getUserRank(user.uid)
+      ]);
+      setOrders(userOrders);
+      setUserProfile(profile);
+      setGlobalRank(rank);
+      setOrdersLoading(false);
+    }
+  };
+  
   useEffect(() => {
-    const fetchAccountData = async () => {
-      if (user) {
-        setOrdersLoading(true);
-        const [userOrders, profile, rank] = await Promise.all([
-            getOrdersForUser(user.uid),
-            getUserProfile(user.uid),
-            getUserRank(user.uid)
-        ]);
-        setOrders(userOrders);
-        setUserProfile(profile);
-        setGlobalRank(rank);
-        setOrdersLoading(false);
-      }
-    };
     fetchAccountData();
   }, [user]);
   
@@ -248,6 +297,18 @@ export default function AccountPage() {
   const handleViewAsset = (asset: DeliveredAssetInfo) => {
     setViewingAsset(asset);
   }
+  
+  const handleAvatarSelect = async (url: string) => {
+    if (!user) return;
+    try {
+        await updateUserProfile(user.uid, { avatarUrl: url });
+        setUserProfile(prev => prev ? { ...prev, avatarUrl: url } : null);
+        toast({ title: 'Success!', description: 'Your avatar has been updated.' });
+        setIsAvatarDialogOpen(false);
+    } catch (error) {
+        toast({ title: 'Error', description: 'Failed to update your avatar.', variant: 'destructive' });
+    }
+  };
 
   return (
     <>
@@ -255,6 +316,12 @@ export default function AccountPage() {
         asset={viewingAsset}
         isOpen={!!viewingAsset}
         onOpenChange={(isOpen) => !isOpen && setViewingAsset(null)}
+    />
+    <AvatarSelectionDialog 
+        isOpen={isAvatarDialogOpen} 
+        onOpenChange={setIsAvatarDialogOpen}
+        onAvatarSelect={handleAvatarSelect}
+        currentAvatarUrl={userProfile.avatarUrl}
     />
     <PageWrapper>
       <div className="space-y-8">
@@ -271,14 +338,24 @@ export default function AccountPage() {
                 <CardDescription>Your personal information</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                 <div>
-                  <p className="text-sm font-medium">Username</p>
-                  <p className="text-muted-foreground">{userProfile.username}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Email</p>
-                  <p className="text-muted-foreground">{user.email}</p>
-                </div>
+                 <div className="flex items-center gap-4">
+                    <div className="relative group">
+                        <Avatar className="h-20 w-20 border-2 border-primary">
+                            <AvatarImage src={userProfile.avatarUrl} />
+                            <AvatarFallback>{userProfile.username.charAt(0).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <button 
+                            onClick={() => setIsAvatarDialogOpen(true)}
+                            className="absolute inset-0 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-full"
+                        >
+                            <Camera className="h-6 w-6" />
+                        </button>
+                    </div>
+                    <div>
+                        <p className="text-lg font-semibold">{userProfile.username}</p>
+                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                    </div>
+                 </div>
                 <Button variant="destructive" className='w-full' onClick={logOut}>Log Out</Button>
               </CardContent>
             </Card>

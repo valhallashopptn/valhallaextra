@@ -4,6 +4,7 @@ import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, updateDoc, increment, runTransaction, serverTimestamp, type Transaction, collection, query, orderBy, limit, getDocs, where, Timestamp, arrayUnion } from 'firebase/firestore';
 import { updateOrderStatus } from './orderService';
 import type { UserProfile, AdminPermission } from '@/lib/types';
+import { getAvatarList } from './avatarService';
 
 const usersCollectionRef = 'users';
 const COINS_EARNED_PER_DOLLAR = 10;
@@ -30,10 +31,15 @@ export const createUserProfile = async (userId: string, email: string, username:
       throw new Error("Username is already taken.");
   }
 
+  // Assign a random avatar on creation
+  const avatarList = await getAvatarList();
+  const randomAvatarUrl = avatarList.length > 0 ? avatarList[Math.floor(Math.random() * avatarList.length)] : '';
+
   if (!docSnap.exists()) {
     const newUserProfile: Omit<UserProfile, 'id' | 'createdAt'> = {
       username: username,
       email: email,
+      avatarUrl: randomAvatarUrl,
       walletBalance: 0,
       valhallaCoins: 0,
       xp: 0,
@@ -102,6 +108,9 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
     if (profileData.reviewPromptedOrderIds === undefined) {
         updates.reviewPromptedOrderIds = [];
     }
+     if (profileData.avatarUrl === undefined) {
+        updates.avatarUrl = '';
+    }
 
     if (Object.keys(updates).length > 0) {
         await updateDoc(userDocRef, updates);
@@ -113,6 +122,15 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
   // If user profile doesn't exist, return null. Creation happens on signup.
   return null;
 };
+
+/**
+ * Updates a user's profile with partial data.
+ */
+export const updateUserProfile = async (userId: string, data: Partial<UserProfile>) => {
+    const userDocRef = doc(db, usersCollectionRef, userId);
+    return await updateDoc(userDocRef, data);
+};
+
 
 /**
  * Gets all user profiles for the admin dashboard.

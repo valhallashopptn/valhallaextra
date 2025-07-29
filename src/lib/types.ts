@@ -12,7 +12,8 @@ export const ALL_ADMIN_PERMISSIONS = [
     'manage_coupons',
     'manage_payments',
     'manage_appearance',
-    'manage_admins'
+    'manage_admins',
+    'manage_avatars'
 ] as const;
 
 export type AdminPermission = typeof ALL_ADMIN_PERMISSIONS[number];
@@ -129,6 +130,7 @@ export interface UserProfile {
     id: string;
     username: string;
     email: string;
+    avatarUrl?: string;
     walletBalance: number;
     valhallaCoins: number;
     xp: number;
