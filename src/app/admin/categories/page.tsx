@@ -8,10 +8,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from '@/components/ui/button';
 import { getCategories, addCategory, updateCategory } from '@/services/categoryService';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle, Edit } from 'lucide-react';
+import { PlusCircle, Edit, Star } from 'lucide-react';
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CategoryForm } from './CategoryForm';
+import { Badge } from '@/components/ui/badge';
 
 export default function CategoriesPage() {
   const { toast } = useToast();
@@ -93,6 +94,7 @@ export default function CategoriesPage() {
                 <TableRow>
                   <TableHead>Image</TableHead>
                   <TableHead>Category Name</TableHead>
+                  <TableHead>Featured</TableHead>
                   <TableHead>Date Added</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -100,7 +102,7 @@ export default function CategoriesPage() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center">Loading...</TableCell>
+                    <TableCell colSpan={5} className="text-center">Loading...</TableCell>
                   </TableRow>
                 ) : categories.map(category => (
                   <TableRow key={category.id}>
@@ -108,6 +110,9 @@ export default function CategoriesPage() {
                       <Image src={category.imageUrl || 'https://placehold.co/40x40.png'} alt={category.name} width={40} height={40} className="rounded-md object-cover" />
                     </TableCell>
                     <TableCell className="font-medium">{category.name}</TableCell>
+                    <TableCell>
+                      {category.featured && <Badge variant="default" className="bg-accent text-accent-foreground"><Star className="h-3 w-3 mr-1" />Featured</Badge>}
+                    </TableCell>
                     <TableCell>{new Date(category.createdAt.toDate()).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">
                        <Button variant="ghost" size="icon" onClick={() => handleEdit(category)}>

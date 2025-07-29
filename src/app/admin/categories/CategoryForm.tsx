@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import type { Category } from '@/lib/types';
 import { useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,12 +14,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Switch } from '@/components/ui/switch';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Category name must be at least 2 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
   imageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/300x200.png'),
   backImageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/300x200.png'),
+  featured: z.boolean().default(false),
 });
 
 type CategoryFormData = z.infer<typeof formSchema>;
@@ -38,6 +40,7 @@ export function CategoryForm({ onSubmit, initialData, onCancel }: CategoryFormPr
       description: '',
       imageUrl: 'https://placehold.co/300x200.png',
       backImageUrl: 'https://placehold.co/300x200.png',
+      featured: false,
     },
   });
 
@@ -45,6 +48,7 @@ export function CategoryForm({ onSubmit, initialData, onCancel }: CategoryFormPr
     if (initialData) {
       form.reset({
         ...initialData,
+        featured: initialData.featured || false,
       });
     } else {
       form.reset({
@@ -52,6 +56,7 @@ export function CategoryForm({ onSubmit, initialData, onCancel }: CategoryFormPr
         description: '',
         imageUrl: 'https://placehold.co/300x200.png',
         backImageUrl: 'https://placehold.co/300x200.png',
+        featured: false,
       });
     }
   }, [initialData, form]);
@@ -112,6 +117,26 @@ export function CategoryForm({ onSubmit, initialData, onCancel }: CategoryFormPr
                     <Input placeholder="https://placehold.co/300x200.png" {...field} />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="featured"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Featured Category</FormLabel>
+                    <FormDescription>
+                      Featured categories will be highlighted on the homepage.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />

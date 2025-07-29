@@ -24,6 +24,7 @@ export interface Category {
   imageUrl: string;
   backImageUrl: string;
   createdAt: Timestamp;
+  featured?: boolean;
 }
 
 export interface ProductTab {

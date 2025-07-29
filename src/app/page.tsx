@@ -138,7 +138,15 @@ export default function Home() {
     fetchInitialData();
   }, []);
 
-  const featuredCategories = useMemo(() => categories.slice(0, 5), [categories]);
+  const featuredCategories = useMemo(() => categories.filter(c => c.featured), [categories]);
+  const nonFeaturedCategories = useMemo(() => categories.filter(c => !c.featured), [categories]);
+
+  const displayCategories = useMemo(() => {
+    // Show featured first, then fill up to 5 with non-featured
+    const cats = [...featuredCategories, ...nonFeaturedCategories];
+    return cats.slice(0, 5);
+  }, [featuredCategories, nonFeaturedCategories]);
+
 
   const filteredProducts = useMemo(() => {
     let prods = products;
@@ -212,7 +220,7 @@ export default function Home() {
                     <Skeleton key={i} className="aspect-[3/4] w-full rounded-xl" />
                 ))
                 ) : (
-                featuredCategories.map((category: Category) => (
+                displayCategories.map((category: Category) => (
                     <CategoryCard key={category.id} category={category} />
                 ))
                 )}
@@ -256,7 +264,7 @@ export default function Home() {
                       >
                           {t('HomePage.all')}
                       </Button>
-                      {featuredCategories.map((category, index) => (
+                      {displayCategories.map((category, index) => (
                           <Button
                           key={category.id}
                           variant={selectedCategory === category.id ? 'default' : 'outline'}

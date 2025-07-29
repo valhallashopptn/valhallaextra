@@ -4,6 +4,8 @@
 import type { Category } from '@/lib/types';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Badge } from './ui/badge';
+import { Star } from 'lucide-react';
 
 export function CategoryCard({ category }: { category: Category }) {
   return (
@@ -19,11 +21,17 @@ export function CategoryCard({ category }: { category: Category }) {
                 className="object-cover"
                 data-ai-hint="game category"
               />
+               {category.featured && (
+                <Badge className="absolute top-3 right-3 bg-accent text-accent-foreground shadow-lg">
+                    <Star className="h-3 w-3 mr-1" />
+                    Featured
+                </Badge>
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
               <div className="absolute inset-x-0 bottom-0 p-4">
-                  <div className="bg-black/50 backdrop-blur-sm p-2 rounded-md">
-                      <h3 className="text-xl font-bold text-white text-center">{category.name}</h3>
-                  </div>
+                  <h3 className="text-xl font-bold text-white text-center" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+                    {category.name}
+                  </h3>
               </div>
             </div>
           </div>
