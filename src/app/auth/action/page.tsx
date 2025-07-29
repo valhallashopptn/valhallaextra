@@ -153,22 +153,17 @@ function AuthActionHandler({ logoUrl }: { logoUrl?: string | null }) {
 }
 
 
-export default function AuthActionPage() {
-  const [settings, setSettings] = useState<{ logoUrl?: string | null }>({});
+function AuthActionPageClient({ logoUrl }: { logoUrl?: string | null }) {
+    return (
+        <PageWrapper>
+            <Suspense fallback={<div>Loading...</div>}>
+                <AuthActionHandler logoUrl={logoUrl} />
+            </Suspense>
+        </PageWrapper>
+    );
+}
 
-  useEffect(() => {
-    const fetchSettings = async () => {
-      const { logoUrl } = await getSettings(['logoUrl']);
-      setSettings({ logoUrl });
-    };
-    fetchSettings();
-  }, []);
-
-  return (
-    <PageWrapper>
-      <Suspense fallback={<div>Loading...</div>}>
-        <AuthActionHandler logoUrl={settings.logoUrl} />
-      </Suspense>
-    </PageWrapper>
-  );
+export default async function AuthActionPage() {
+    const { logoUrl } = await getSettings(['logoUrl']);
+    return <AuthActionPageClient logoUrl={logoUrl} />;
 }
