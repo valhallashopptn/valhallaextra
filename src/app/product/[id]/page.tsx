@@ -524,7 +524,7 @@ export default function ProductDetailPage() {
               </TabsList>
               {product.tabs?.map(tab => (
                 <TabsContent key={tab.id} value={tab.id}>
-                  <p className="text-muted-foreground">{tab.content}</p>
+                  <p className="text-muted-foreground whitespace-pre-wrap">{tab.content}</p>
                 </TabsContent>
               ))}
             </Tabs>
