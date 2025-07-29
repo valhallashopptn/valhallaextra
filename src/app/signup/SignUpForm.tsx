@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -14,6 +15,9 @@ import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Logo } from '@/components/icons/Logo';
+import { updateProfile } from 'firebase/auth';
+import { getAvatarList } from '@/services/avatarService';
+import { auth } from '@/lib/firebase';
 
 const formSchema = z.object({
   username: z.string().min(3, { message: 'Username must be at least 3 characters.' }).max(20, { message: 'Username must be 20 characters or less.' }).regex(/^[a-zA-Z0-9_]+$/, { message: 'Username can only contain letters, numbers, and underscores.' }),
@@ -52,7 +56,21 @@ export function SignUpForm({ siteTitle = 'ApexTop', logoUrl }: SignUpFormProps) 
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await signUp(values.email, values.password, values.username);
+      const userCredential = await signUp(values.email, values.password, values.username);
+      
+      // We need to set the display name and photoURL for the Firebase Auth user
+      // The photoURL is already set in the createUserProfile function, but let's ensure it here too.
+      const avatarList = await getAvatarList();
+      const randomAvatarUrl = avatarList.length > 0 ? avatarList[Math.floor(Math.random() * avatarList.length)] : '';
+
+      await updateProfile(userCredential.user, {
+        displayName: values.username,
+        photoURL: randomAvatarUrl,
+      });
+
+      // Reload user to get updated info from Auth
+      await auth.currentUser?.reload();
+
       router.push('/account');
       toast({
         title: 'Account Created',

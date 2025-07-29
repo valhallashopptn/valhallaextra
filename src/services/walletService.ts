@@ -5,6 +5,8 @@ import { doc, getDoc, setDoc, updateDoc, increment, runTransaction, serverTimest
 import { updateOrderStatus } from './orderService';
 import type { UserProfile, AdminPermission } from '@/lib/types';
 import { getAvatarList } from './avatarService';
+import { auth } from '@/lib/firebase';
+import { updateProfile } from 'firebase/auth';
 
 const usersCollectionRef = 'users';
 const COINS_EARNED_PER_DOLLAR = 10;
@@ -50,6 +52,10 @@ export const createUserProfile = async (userId: string, email: string, username:
       createdAt: createdAt as any, // Temporary cast
     }
     await setDoc(userDocRef, newUserProfile);
+     // Also update the Firebase Auth user profile
+    if (auth.currentUser) {
+        await updateProfile(auth.currentUser, { photoURL: randomAvatarUrl });
+    }
     return { ...newUserProfile, id: userId, createdAt: new Date() } as UserProfile;
   }
   
@@ -125,9 +131,21 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
 
 /**
  * Updates a user's profile with partial data.
+ * This function also updates the Firebase Auth user's photoURL if avatarUrl is changed.
  */
 export const updateUserProfile = async (userId: string, data: Partial<UserProfile>) => {
     const userDocRef = doc(db, usersCollectionRef, userId);
+    
+    // If the avatarUrl is being updated, also update the Firebase Auth user object
+    if (data.avatarUrl && auth.currentUser && auth.currentUser.uid === userId) {
+        try {
+            await updateProfile(auth.currentUser, { photoURL: data.avatarUrl });
+        } catch (error) {
+            console.error("Failed to update Firebase Auth profile photo:", error);
+            // We don't re-throw here, as updating the Firestore profile is more critical
+        }
+    }
+    
     return await updateDoc(userDocRef, data);
 };
 
