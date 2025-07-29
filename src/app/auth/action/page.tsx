@@ -2,7 +2,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -16,8 +16,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/icons/Logo';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ShieldCheck, ShieldX } from 'lucide-react';
+import { ShieldX } from 'lucide-react';
 import Link from 'next/link';
+import { getSettings } from '@/services/settingsService';
 
 const passwordResetSchema = z.object({
   password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
@@ -27,7 +28,7 @@ const passwordResetSchema = z.object({
   path: ["confirmPassword"],
 });
 
-function ResetPasswordForm({ actionCode }: { actionCode: string }) {
+function ResetPasswordForm({ actionCode, logoUrl }: { actionCode: string, logoUrl?: string | null }) {
   const router = useRouter();
   const { toast } = useToast();
   const form = useForm<z.infer<typeof passwordResetSchema>>({
@@ -57,7 +58,7 @@ function ResetPasswordForm({ actionCode }: { actionCode: string }) {
     <Card className="w-full max-w-md">
       <CardHeader className="text-center">
         <div className="flex justify-center mb-4">
-          <Logo className="h-12 w-12 text-primary" />
+          <Logo imageUrl={logoUrl} altText="Site Logo" className="h-12 w-12 text-primary" />
         </div>
         <CardTitle className="text-2xl font-headline">Reset Your Password</CardTitle>
         <CardDescription>Enter a new password for your account.</CardDescription>
@@ -101,7 +102,7 @@ function ResetPasswordForm({ actionCode }: { actionCode: string }) {
   );
 }
 
-export default function AuthActionPage() {
+function AuthActionHandler({ logoUrl }: { logoUrl?: string | null }) {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState('');
@@ -127,10 +128,9 @@ export default function AuthActionPage() {
   }, [mode, actionCode]);
 
   return (
-    <PageWrapper>
       <div className="flex items-center justify-center">
         {status === 'loading' && <p>Verifying link...</p>}
-        {status === 'valid' && mode === 'resetPassword' && <ResetPasswordForm actionCode={actionCode!} />}
+        {status === 'valid' && mode === 'resetPassword' && <ResetPasswordForm actionCode={actionCode!} logoUrl={logoUrl} />}
         {status === 'invalid' && (
            <Alert variant="destructive" className="max-w-lg">
                 <ShieldX className="h-4 w-4" />
@@ -144,6 +144,18 @@ export default function AuthActionPage() {
             </Alert>
         )}
       </div>
+  );
+}
+
+
+export default async function AuthActionPage() {
+  const { logoUrl } = await getSettings(['logoUrl']);
+
+  return (
+    <PageWrapper>
+      <Suspense fallback={<div>Loading...</div>}>
+        <AuthActionHandler logoUrl={logoUrl} />
+      </Suspense>
     </PageWrapper>
   );
 }
