@@ -163,7 +163,14 @@ function AuthActionPageClient({ logoUrl }: { logoUrl?: string | null }) {
     );
 }
 
-export default async function AuthActionPage() {
-    const { logoUrl } = await getSettings(['logoUrl']);
+export default function AuthActionPage() {
+    const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        getSettings(['logoUrl']).then(settings => {
+            setLogoUrl(settings.logoUrl);
+        });
+    }, []);
+
     return <AuthActionPageClient logoUrl={logoUrl} />;
 }
