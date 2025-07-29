@@ -21,7 +21,12 @@ import Link from 'next/link';
 import { getSettings } from '@/services/settingsService';
 
 const passwordResetSchema = z.object({
-  password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
+  password: z.string()
+    .min(8, { message: 'Password must be at least 8 characters.' })
+    .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter.' })
+    .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter.' })
+    .regex(/[0-9]/, { message: 'Password must contain at least one number.' })
+    .regex(/[^a-zA-Z0-9]/, { message: 'Password must contain at least one special character.' }),
   confirmPassword: z.string()
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -148,13 +153,21 @@ function AuthActionHandler({ logoUrl }: { logoUrl?: string | null }) {
 }
 
 
-export default async function AuthActionPage() {
-  const { logoUrl } = await getSettings(['logoUrl']);
+export default function AuthActionPage() {
+  const [settings, setSettings] = useState<{ logoUrl?: string | null }>({});
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const { logoUrl } = await getSettings(['logoUrl']);
+      setSettings({ logoUrl });
+    };
+    fetchSettings();
+  }, []);
 
   return (
     <PageWrapper>
       <Suspense fallback={<div>Loading...</div>}>
-        <AuthActionHandler logoUrl={logoUrl} />
+        <AuthActionHandler logoUrl={settings.logoUrl} />
       </Suspense>
     </PageWrapper>
   );
