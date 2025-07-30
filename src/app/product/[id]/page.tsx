@@ -312,8 +312,10 @@ export default function ProductDetailPage() {
         <div className="flex items-center gap-3">
             {isInstant ? <Zap className="h-6 w-6 text-primary" /> : <Clock className="h-6 w-6 text-primary" />}
             <div>
-                <p className="font-semibold">Delivery Method</p>
-                <p className="text-sm text-muted-foreground">{isInstant ? 'Instant Delivery' : time || 'Manual Delivery'}</p>
+                <p className="font-semibold">{isInstant ? 'Instant Delivery' : 'Manual Delivery'}</p>
+                <p className="text-sm text-muted-foreground">
+                    {isInstant ? 'Delivered to your account instantly' : time || 'Processing time varies'}
+                </p>
             </div>
         </div>
     );
