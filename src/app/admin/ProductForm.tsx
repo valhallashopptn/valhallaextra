@@ -265,7 +265,7 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                       <FormControl>
                         <RadioGroup
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            value={field.value}
                             className="flex gap-4"
                         >
                             <FormItem className="flex items-center space-x-2">
