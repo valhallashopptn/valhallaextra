@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useCurrency } from '@/context/CurrencyContext';
-import { CheckCircle, ShoppingCart, Star, PackageCheck, Minus, Plus, Zap, Tag, Info } from 'lucide-react';
+import { CheckCircle, ShoppingCart, Star, PackageCheck, Minus, Plus, Zap, Tag, Info, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { ReviewForm } from './ReviewForm';
@@ -300,7 +300,20 @@ export default function ProductDetailPage() {
             <PackageCheck className={cn("h-6 w-6", iconColor)} />
             <div>
                 <p className="font-semibold">{text}</p>
-                <p className="text-sm text-muted-foreground">{stock} available</p>
+                <p className="text-sm text-muted-foreground">{stock > 0 ? `${stock} available` : 'Unavailable'}</p>
+            </div>
+        </div>
+    );
+  }
+
+  const DeliveryDisplay = ({ method, time }: { method: 'instant' | 'manual', time?: string }) => {
+    const isInstant = method === 'instant';
+    return (
+        <div className="flex items-center gap-3">
+            {isInstant ? <Zap className="h-6 w-6 text-primary" /> : <Clock className="h-6 w-6 text-primary" />}
+            <div>
+                <p className="font-semibold">Delivery Method</p>
+                <p className="text-sm text-muted-foreground">{isInstant ? 'Instant Delivery' : time || 'Manual Delivery'}</p>
             </div>
         </div>
     );
@@ -466,14 +479,8 @@ export default function ProductDetailPage() {
                 )}
 
                 <div className="rounded-lg border bg-card/50 p-4 grid grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3">
-                        <Zap className="h-6 w-6 text-primary" />
-                        <div>
-                            <p className="font-semibold">Delivery Method</p>
-                            <p className="text-sm text-muted-foreground">Instant Delivery</p>
-                        </div>
-                    </div>
-                     <StockDisplay stock={product.stock} />
+                    <DeliveryDisplay method={product.deliveryMethod} time={product.manualDeliveryTime} />
+                    <StockDisplay stock={product.stock} />
                 </div>
                 
                 <div className="flex gap-4">

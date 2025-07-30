@@ -57,6 +57,8 @@ export interface Product {
   stock: number;
   categoryId: string;
   categoryName: string;
+  deliveryMethod: 'instant' | 'manual';
+  manualDeliveryTime?: string;
   category?: Category;
   tabs?: ProductTab[];
   variants?: ProductVariant[];

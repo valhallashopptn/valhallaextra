@@ -46,6 +46,8 @@ const formSchema = z.object({
   stock: z.coerce.number().int().min(0, { message: 'Stock must be a non-negative integer.' }),
   categoryId: z.string().min(1, { message: 'Please select a category.' }),
   imageUrl: z.string().url({ message: 'Please enter a valid URL.' }).default('https://placehold.co/600x400.png'),
+  deliveryMethod: z.enum(['instant', 'manual']).default('instant'),
+  manualDeliveryTime: z.string().optional(),
   tabs: z.array(productTabSchema).optional(),
   variants: z.array(productVariantSchema).optional(),
   customFields: z.array(customFieldSchema).optional(),
@@ -73,6 +75,8 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
       stock: 100,
       categoryId: '',
       imageUrl: 'https://placehold.co/600x400.png',
+      deliveryMethod: 'instant',
+      manualDeliveryTime: '',
       tabs: [],
       variants: [],
       customFields: [],
@@ -94,6 +98,8 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
     control: form.control,
     name: 'customFields',
   });
+  
+  const deliveryMethod = form.watch('deliveryMethod');
 
   useEffect(() => {
     if (initialData) {
@@ -102,6 +108,8 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
         price: Number(initialData.price) * CONVERSION_RATE_USD_TO_TND,
         discountPrice: initialData.discountPrice ? Number(initialData.discountPrice) * CONVERSION_RATE_USD_TO_TND : 0,
         stock: Number(initialData.stock),
+        deliveryMethod: initialData.deliveryMethod || 'instant',
+        manualDeliveryTime: initialData.manualDeliveryTime || '',
         tabs: initialData.tabs || [],
         variants: initialData.variants?.map(v => ({
             ...v, 
@@ -120,6 +128,8 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
             stock: 100,
             categoryId: '',
             imageUrl: 'https://placehold.co/600x400.png',
+            deliveryMethod: 'instant',
+            manualDeliveryTime: '',
             tabs: [],
             variants: [],
             customFields: [],
@@ -231,19 +241,60 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                 )}
                 />
             </div>
-             <FormField
-                control={form.control}
-                name="stock"
-                render={({ field }) => (
+            <div className="grid grid-cols-2 gap-4">
+                <FormField
+                    control={form.control}
+                    name="stock"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Stock</FormLabel>
+                        <FormControl>
+                            <Input type="number" placeholder="100" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                <FormField
+                  control={form.control}
+                  name="deliveryMethod"
+                  render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Stock</FormLabel>
-                    <FormControl>
-                        <Input type="number" placeholder="100" {...field} />
-                    </FormControl>
-                    <FormMessage />
+                      <FormLabel>Delivery Method</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a delivery method" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="instant">Instant Delivery</SelectItem>
+                          <SelectItem value="manual">Manual Delivery</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
                     </FormItem>
-                )}
+                  )}
                 />
+            </div>
+
+            {deliveryMethod === 'manual' && (
+              <FormField
+                control={form.control}
+                name="manualDeliveryTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Manual Delivery Time</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., 1-2 hours, 24 hours" {...field} />
+                    </FormControl>
+                    <FormDescription>Let customers know how long manual delivery will take.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            
             <FormField
               control={form.control}
               name="imageUrl"
