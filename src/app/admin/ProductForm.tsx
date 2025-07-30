@@ -16,6 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCurrency } from '@/context/CurrencyContext';
 import { Switch } from '@/components/ui/switch';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const productTabSchema = z.object({
   id: z.string().default(() => `tab_${crypto.randomUUID()}`),
@@ -261,17 +262,22 @@ export function ProductForm({ onSubmit, initialData, onCancel, categories }: Pro
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Delivery Method</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a delivery method" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="instant">Instant Delivery</SelectItem>
-                          <SelectItem value="manual">Manual Delivery</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex gap-4"
+                        >
+                            <FormItem className="flex items-center space-x-2">
+                                <RadioGroupItem value="instant" id="instant" />
+                                <FormLabel htmlFor="instant" className="font-normal cursor-pointer">Instant Delivery</FormLabel>
+                            </FormItem>
+                             <FormItem className="flex items-center space-x-2">
+                                <RadioGroupItem value="manual" id="manual" />
+                                <FormLabel htmlFor="manual" className="font-normal cursor-pointer">Manual Delivery</FormLabel>
+                            </FormItem>
+                        </RadioGroup>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
