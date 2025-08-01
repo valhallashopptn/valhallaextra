@@ -218,6 +218,24 @@ body {
       );
       animation: shimmer 5s linear infinite;
   }
+
+  .marquee {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem; /* 20px */
+      width: 100%;
+      animation: marquee 25s linear infinite;
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .marquee-content:hover .marquee {
+    animation-play-state: paused;
+  }
 }
 
 @layer components {
@@ -308,3 +326,5 @@ body {
     @apply group-hover:max-w-xs group-hover:opacity-100 group-hover:transform-none;
   }
 }
+
+    
