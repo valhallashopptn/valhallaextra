@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, Package, ShoppingCart, Warehouse, Palette, CreditCard, Gift, Users, Smile } from 'lucide-react';
+import { LayoutGrid, Package, ShoppingCart, Warehouse, Palette, CreditCard, Gift, Users, Smile, Handshake } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -11,7 +11,7 @@ const navItems = [
   { href: '/admin/products', icon: Package, label: 'Products' },
   { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
   { href: '/admin/users', icon: Users, label: 'Users' },
-  { href: '/admin/avatars', icon: Smile, label: 'Avatars' },
+  { href: '/admin/affiliates', icon: Handshake, label: 'Affiliates' },
 ];
 
 export function MobileBottomNav() {

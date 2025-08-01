@@ -11,6 +11,7 @@ import { updateProfile } from 'firebase/auth';
 const usersCollectionRef = 'users';
 const COINS_EARNED_PER_DOLLAR = 10;
 const XP_EARNED_PER_DOLLAR = 1000;
+const AFFILIATE_COMMISSION_RATE = 0.05; // 5%
 
 /**
  * Checks if a username is already taken.
@@ -24,7 +25,7 @@ const isUsernameTaken = async (username: string): Promise<boolean> => {
 /**
  * Creates a user profile document if it doesn't exist.
  */
-export const createUserProfile = async (userId: string, email: string, username: string): Promise<UserProfile> => {
+export const createUserProfile = async (userId: string, email: string, username: string, referredByCode?: string): Promise<UserProfile> => {
   const userDocRef = doc(db, usersCollectionRef, userId);
   const docSnap = await getDoc(userDocRef);
   const createdAt = serverTimestamp();
@@ -33,7 +34,6 @@ export const createUserProfile = async (userId: string, email: string, username:
       throw new Error("Username is already taken.");
   }
 
-  // Assign a random avatar on creation
   const avatarList = await getAvatarList();
   const randomAvatarUrl = avatarList.length > 0 ? avatarList[Math.floor(Math.random() * avatarList.length)] : '';
 
@@ -49,10 +49,12 @@ export const createUserProfile = async (userId: string, email: string, username:
       role: 'user',
       permissions: [],
       reviewPromptedOrderIds: [],
+      affiliateStatus: 'none',
+      affiliateEarnings: 0,
+      referredBy: referredByCode || undefined,
       createdAt: createdAt as any, // Temporary cast
     }
     await setDoc(userDocRef, newUserProfile);
-     // Also update the Firebase Auth user profile
     if (auth.currentUser) {
         await updateProfile(auth.currentUser, { photoURL: randomAvatarUrl });
     }
@@ -71,7 +73,6 @@ export const createUserProfile = async (userId: string, email: string, username:
   if (profileData.status === undefined) {
     updates.status = 'active';
   }
-
 
   if (Object.keys(updates).length > 0) {
     await updateDoc(userDocRef, updates);
@@ -117,6 +118,9 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
      if (profileData.avatarUrl === undefined) {
         updates.avatarUrl = '';
     }
+    if (profileData.affiliateStatus === undefined) {
+        updates.affiliateStatus = 'none';
+    }
 
     if (Object.keys(updates).length > 0) {
         await updateDoc(userDocRef, updates);
@@ -125,41 +129,32 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
     return profileData;
   }
   
-  // If user profile doesn't exist, return null. Creation happens on signup.
   return null;
 };
 
 /**
  * Updates a user's profile with partial data.
- * This function also updates the Firebase Auth user's photoURL if avatarUrl is changed.
  */
 export const updateUserProfile = async (userId: string, data: Partial<UserProfile>) => {
     const userDocRef = doc(db, usersCollectionRef, userId);
     
-    // If the avatarUrl is being updated, also update the Firebase Auth user object
     if (data.avatarUrl && auth.currentUser && auth.currentUser.uid === userId) {
         try {
             await updateProfile(auth.currentUser, { photoURL: data.avatarUrl });
         } catch (error) {
             console.error("Failed to update Firebase Auth profile photo:", error);
-            // We don't re-throw here, as updating the Firestore profile is more critical
         }
     }
     
     return await updateDoc(userDocRef, data);
 };
 
-
-/**
- * Gets all user profiles for the admin dashboard.
- */
 export const getAllUserProfiles = async (): Promise<UserProfile[]> => {
     const usersRef = collection(db, usersCollectionRef);
     const q = query(usersRef, orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => {
       const data = doc.data();
-      // Ensure status defaults to active if it's missing
       if (!data.status) {
         data.status = 'active';
       }
@@ -170,9 +165,6 @@ export const getAllUserProfiles = async (): Promise<UserProfile[]> => {
     });
 };
 
-/**
- * Updates a user's status (e.g., to ban or unban them).
- */
 export const updateUserStatus = async (userId: string, status: 'active' | 'banned' | 'suspended', durationDays?: number) => {
     const userDocRef = doc(db, usersCollectionRef, userId);
     const updateData: Partial<UserProfile> = { status };
@@ -199,19 +191,11 @@ export const updateUserPermissions = async (userId: string, role: 'user' | 'admi
     return await updateDoc(userDocRef, updateData);
 };
 
-
-/**
- * Gets the wallet balance for a given user.
- * Returns 0 if the user profile or wallet doesn't exist.
- */
 export const getUserWalletBalance = async (userId: string): Promise<number> => {
   const userProfile = await getUserProfile(userId);
   return userProfile?.walletBalance || 0;
 };
 
-/**
- * Adds Valhalla Coins and XP to a user's balance after a purchase.
- */
 export const addRewardsForPurchase = async (userId: string, purchaseAmountUSD: number) => {
     if (purchaseAmountUSD <= 0) return;
     
@@ -225,6 +209,16 @@ export const addRewardsForPurchase = async (userId: string, purchaseAmountUSD: n
     if (xpToAdd > 0) {
         rewards.xp = increment(xpToAdd);
     }
+    
+    const userProfile = await getUserProfile(userId);
+    // Add affiliate commission if the user was referred
+    if (userProfile?.referredBy) {
+        const commissionAmount = purchaseAmountUSD * AFFILIATE_COMMISSION_RATE;
+        if (commissionAmount > 0) {
+            await addAffiliateCommission(userProfile.referredBy, commissionAmount);
+        }
+    }
+
 
     if (Object.keys(rewards).length > 0) {
         const userDocRef = doc(db, usersCollectionRef, userId);
@@ -232,10 +226,6 @@ export const addRewardsForPurchase = async (userId: string, purchaseAmountUSD: n
     }
 };
 
-/**
- * Redeems a user's Valhalla coins for a discount.
- * Designed to be used within a Firestore transaction.
- */
 export const redeemCoins = async (transaction: Transaction, userId: string, coinsToRedeem: number) => {
     if (coinsToRedeem <= 0) return;
 
@@ -255,27 +245,19 @@ export const redeemCoins = async (transaction: Transaction, userId: string, coin
     });
 };
 
-
-/**
- * Adds a specified amount to a user's wallet.
- */
 export const addToWallet = async (userId: string, amount: number) => {
   if (amount <= 0) {
     throw new Error("Amount must be positive.");
   }
 
   const userDocRef = doc(db, usersCollectionRef, userId);
-  await getUserProfile(userId); // Ensures profile exists
+  await getUserProfile(userId);
 
   return await updateDoc(userDocRef, {
     walletBalance: increment(amount)
   });
 };
 
-/**
- * Debits an amount from a user's wallet.
- * This function is designed to be used within a Firestore transaction.
- */
 export const debitFromWallet = async (transaction: Transaction, userId: string, amount: number) => {
   if (amount <= 0) {
     throw new Error("Debit amount must be positive.");
@@ -298,12 +280,6 @@ export const debitFromWallet = async (transaction: Transaction, userId: string, 
   });
 }
 
-
-/**
- * Processes a refund by adding the order's subtotal to the user's wallet
- * and updating the order status to 'refunded'. This is a transaction
- * to ensure both operations succeed or fail together.
- */
 export const refundToWallet = async (userId: string, subtotal: number, orderId: string) => {
     if (subtotal <= 0) {
         throw new Error("Refund amount must be positive.");
@@ -337,9 +313,6 @@ export const refundToWallet = async (userId: string, subtotal: number, orderId: 
     }
 };
 
-/**
- * Gets the top users based on XP.
- */
 export const getTopUsers = async (count: number): Promise<UserProfile[]> => {
     const usersRef = collection(db, usersCollectionRef);
     const q = query(usersRef, orderBy('xp', 'desc'), limit(count));
@@ -347,10 +320,6 @@ export const getTopUsers = async (count: number): Promise<UserProfile[]> => {
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile));
 };
 
-
-/**
- * Gets the global rank of a specific user.
- */
 export const getUserRank = async (userId: string): Promise<number | null> => {
     try {
         const usersRef = collection(db, usersCollectionRef);
@@ -367,12 +336,91 @@ export const getUserRank = async (userId: string): Promise<number | null> => {
     }
 };
 
-/**
- * Marks an order ID as having had a review prompted for a specific user.
- */
 export const markReviewPrompted = async (userId: string, orderId: string) => {
     const userDocRef = doc(db, usersCollectionRef, userId);
     return await updateDoc(userDocRef, {
         reviewPromptedOrderIds: arrayUnion(orderId)
     });
 };
+
+// --- AFFILIATE SYSTEM FUNCTIONS ---
+
+/**
+ * User requests to become an affiliate. Sets their status to 'pending'.
+ */
+export const applyForAffiliate = async (userId: string) => {
+  const userDocRef = doc(db, usersCollectionRef, userId);
+  return updateDoc(userDocRef, { affiliateStatus: 'pending' });
+};
+
+/**
+ * Admin approves an affiliate request, generates a unique code, and sets status to 'active'.
+ */
+export const approveAffiliate = async (userId: string) => {
+    const userDocRef = doc(db, usersCollectionRef, userId);
+    const userProfile = await getUserProfile(userId);
+    if (!userProfile) throw new Error("User not found");
+
+    // Generate a unique affiliate code
+    const baseCode = userProfile.username.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8).toUpperCase();
+    let affiliateCode = baseCode;
+    let isUnique = false;
+    let counter = 1;
+    while (!isUnique) {
+        const q = query(collection(db, usersCollectionRef), where("affiliateCode", "==", affiliateCode));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+            isUnique = true;
+        } else {
+            affiliateCode = `${baseCode}${counter}`;
+            counter++;
+        }
+    }
+
+    return updateDoc(userDocRef, {
+        affiliateStatus: 'active',
+        affiliateCode: affiliateCode
+    });
+};
+
+/**
+ * Admin denies an affiliate request.
+ */
+export const denyAffiliate = async (userId: string) => {
+    const userDocRef = doc(db, usersCollectionRef, userId);
+    return updateDoc(userDocRef, { affiliateStatus: 'denied', affiliateCode: '' });
+};
+
+/**
+ * Adds commission to an affiliate's wallet balance and tracks total earnings.
+ */
+export const addAffiliateCommission = async (affiliateCode: string, commissionAmount: number) => {
+    if (commissionAmount <= 0) return;
+
+    const q = query(collection(db, usersCollectionRef), where("affiliateCode", "==", affiliateCode));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+        console.error(`Affiliate with code ${affiliateCode} not found.`);
+        return;
+    }
+
+    const affiliateDocRef = snapshot.docs[0].ref;
+    
+    // Use increment to avoid race conditions
+    await updateDoc(affiliateDocRef, {
+        walletBalance: increment(commissionAmount),
+        affiliateEarnings: increment(commissionAmount)
+    });
+};
+
+/**
+ * Get all user profiles that are affiliates or have a pending request.
+ */
+export const getAffiliates = async (): Promise<UserProfile[]> => {
+    const usersRef = collection(db, usersCollectionRef);
+    const q = query(usersRef, where('affiliateStatus', 'in', ['active', 'pending']));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile));
+};
+

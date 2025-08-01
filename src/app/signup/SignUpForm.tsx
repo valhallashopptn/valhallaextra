@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { PageWrapper } from '@/components/PageWrapper';
@@ -18,6 +18,7 @@ import { Logo } from '@/components/icons/Logo';
 import { updateProfile } from 'firebase/auth';
 import { getAvatarList } from '@/services/avatarService';
 import { auth } from '@/lib/firebase';
+import { useEffect } from 'react';
 
 const formSchema = z.object({
   username: z.string().min(3, { message: 'Username must be at least 3 characters.' }).max(20, { message: 'Username must be 20 characters or less.' }).regex(/^[a-zA-Z0-9_]+$/, { message: 'Username can only contain letters, numbers, and underscores.' }),
@@ -29,6 +30,7 @@ const formSchema = z.object({
     .regex(/[0-9]/, { message: 'Password must contain at least one number.' })
     .regex(/[^a-zA-Z0-9]/, { message: 'Password must contain at least one special character.' }),
   confirmPassword: z.string(),
+  ref: z.string().optional(),
 }).refine(data => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"],
@@ -43,6 +45,7 @@ export function SignUpForm({ siteTitle = 'ApexTop', logoUrl }: SignUpFormProps) 
   const { signUp } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -51,15 +54,21 @@ export function SignUpForm({ siteTitle = 'ApexTop', logoUrl }: SignUpFormProps) 
       email: '',
       password: '',
       confirmPassword: '',
+      ref: '',
     },
   });
 
+  useEffect(() => {
+    const refCode = searchParams.get('ref');
+    if (refCode) {
+      form.setValue('ref', refCode);
+    }
+  }, [searchParams, form]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const userCredential = await signUp(values.email, values.password, values.username);
+      const userCredential = await signUp(values.email, values.password, values.username, values.ref);
       
-      // We need to set the display name and photoURL for the Firebase Auth user
-      // The photoURL is already set in the createUserProfile function, but let's ensure it here too.
       const avatarList = await getAvatarList();
       const randomAvatarUrl = avatarList.length > 0 ? avatarList[Math.floor(Math.random() * avatarList.length)] : '';
 
@@ -68,7 +77,6 @@ export function SignUpForm({ siteTitle = 'ApexTop', logoUrl }: SignUpFormProps) 
         photoURL: randomAvatarUrl,
       });
 
-      // Reload user to get updated info from Auth
       await auth.currentUser?.reload();
 
       router.push('/account');
@@ -147,6 +155,19 @@ export function SignUpForm({ siteTitle = 'ApexTop', logoUrl }: SignUpFormProps) 
                       <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
                         <Input type="password" placeholder="••••••••" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="ref"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Referral Code (Optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Affiliate code" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

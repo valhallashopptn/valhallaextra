@@ -13,7 +13,8 @@ export const ALL_ADMIN_PERMISSIONS = [
     'manage_payments',
     'manage_appearance',
     'manage_admins',
-    'manage_avatars'
+    'manage_avatars',
+    'manage_affiliates',
 ] as const;
 
 export type AdminPermission = typeof ALL_ADMIN_PERMISSIONS[number];
@@ -143,6 +144,11 @@ export interface UserProfile {
     bannedAt?: Timestamp;
     suspendedUntil?: Timestamp;
     reviewPromptedOrderIds?: string[];
+    // Affiliate fields
+    affiliateStatus?: 'none' | 'pending' | 'active' | 'denied';
+    affiliateCode?: string;
+    referredBy?: string; // The affiliate code of the user who referred this person
+    affiliateEarnings?: number;
 }
 
 export interface Review {

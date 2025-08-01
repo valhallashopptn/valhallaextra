@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
@@ -11,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signUp: (email: string, pass: string, username: string) => Promise<UserCredential>;
+  signUp: (email: string, pass: string, username: string, referredByCode?: string) => Promise<UserCredential>;
   logIn: (email: string, pass: string) => Promise<UserCredential>;
   logOut: () => Promise<void>;
 }
@@ -64,9 +65,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, [toast]);
 
-  const signUp = async (email: string, pass: string, username: string) => {
+  const signUp = async (email: string, pass: string, username: string, referredByCode?: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-    await createUserProfile(userCredential.user.uid, email, username);
+    await createUserProfile(userCredential.user.uid, email, username, referredByCode);
     return userCredential;
   };
   

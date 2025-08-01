@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
@@ -7,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getOrdersForUser } from '@/services/orderService';
-import { getUserProfile, getUserRank, updateUserProfile } from '@/services/walletService';
+import { getUserProfile, getUserRank, updateUserProfile, applyForAffiliate } from '@/services/walletService';
 import type { Order, DeliveredAssetInfo, UserProfile } from '@/lib/types';
 import { getAvatarList } from '@/services/avatarService';
 import {
@@ -22,13 +23,14 @@ import { Separator } from '@/components/ui/separator';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Wallet, KeySquare, Copy, Check, Star, User, Camera } from 'lucide-react';
+import { Wallet, KeySquare, Copy, Check, Star, User, Camera, Link as LinkIcon, Handshake, Info, DollarSign } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { RankProgressCard } from './RankProgressCard';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
 
 function DeliveredAssetDialog({ asset, isOpen, onOpenChange }: { asset: DeliveredAssetInfo | null, isOpen: boolean, onOpenChange: (open: boolean) => void }) {
     const [isCopied, setIsCopied] = useState(false);
@@ -219,6 +221,103 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
     );
 }
 
+function AffiliateCard({ profile, onUpdate }: { profile: UserProfile, onUpdate: () => void }) {
+    const { toast } = useToast();
+    const { formatPrice } = useCurrency();
+    const [isCopied, setIsCopied] = useState(false);
+    const [baseUrl, setBaseUrl] = useState('');
+
+    useEffect(() => {
+      setBaseUrl(window.location.origin);
+    }, []);
+
+    const handleApply = async () => {
+        try {
+            await applyForAffiliate(profile.id);
+            toast({ title: 'Application Submitted!', description: 'Your affiliate application has been submitted for review.' });
+            onUpdate();
+        } catch (error) {
+            toast({ title: 'Error', description: 'Could not submit your application.', variant: 'destructive' });
+        }
+    };
+
+    const referralLink = `${baseUrl}/signup?ref=${profile.affiliateCode}`;
+
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(referralLink);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+    };
+
+    const CardStatus = () => {
+        switch(profile.affiliateStatus) {
+            case 'pending':
+                return (
+                    <div className="text-center p-6 space-y-3">
+                        <p className="font-semibold text-lg">Application Pending</p>
+                        <p className="text-muted-foreground">Your request to join the affiliate program is under review. We'll notify you soon!</p>
+                    </div>
+                );
+            case 'denied':
+                 return (
+                    <div className="text-center p-6 space-y-3">
+                        <p className="font-semibold text-lg text-destructive">Application Denied</p>
+                        <p className="text-muted-foreground">We're sorry, but your affiliate application was not approved at this time. Please contact support for more information.</p>
+                    </div>
+                );
+            case 'active':
+                return (
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <CardTitle>Your Affiliate Dashboard</CardTitle>
+                            <Badge className="bg-green-600">Active</Badge>
+                        </div>
+                         <div className="grid grid-cols-2 gap-4">
+                            <Card className="p-4 text-center">
+                                <CardDescription className="flex items-center justify-center gap-1"><DollarSign className="h-4 w-4" />Total Earnings</CardDescription>
+                                <p className="text-2xl font-bold text-primary">{formatPrice(profile.affiliateEarnings || 0)}</p>
+                            </Card>
+                             <Card className="p-4 text-center">
+                                <CardDescription className="flex items-center justify-center gap-1"><Handshake className="h-4 w-4" />Referrals</CardDescription>
+                                <p className="text-2xl font-bold text-primary">{profile.referrals?.length || 0}</p>
+                            </Card>
+                        </div>
+                        <div className="space-y-2">
+                           <Label htmlFor="referral-link">Your Unique Referral Link</Label>
+                            <div className="relative">
+                               <Input id="referral-link" readOnly value={referralLink} />
+                                <Button size="icon" variant="ghost" className="absolute top-1 right-1 h-8 w-8" onClick={handleCopyLink}>
+                                    {isCopied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
+                                </Button>
+                            </div>
+                            <p className="text-xs text-muted-foreground">Share this link to earn a commission on purchases made by new users who sign up through it.</p>
+                        </div>
+                    </div>
+                );
+            default: // none
+                 return (
+                    <div className="text-center p-6 space-y-3">
+                        <p className="font-semibold text-lg">Join Our Affiliate Program!</p>
+                        <p className="text-muted-foreground">Earn money by referring new customers to our platform. Apply now to get your unique referral link.</p>
+                        <Button onClick={handleApply}>
+                            <Handshake className="mr-2 h-4 w-4" />
+                            Become an Affiliate
+                        </Button>
+                    </div>
+                );
+        }
+    }
+
+    return (
+        <Card>
+            <CardHeader className={profile.affiliateStatus === 'active' ? '' : 'hidden'}/>
+            <CardContent>
+                <CardStatus />
+            </CardContent>
+        </Card>
+    );
+}
+
 export default function AccountPage() {
   const { user, loading, logOut } = useAuth();
   const { toast } = useToast();
@@ -257,7 +356,6 @@ export default function AccountPage() {
   }, [user]);
   
   const formatOrderPrice = (total: number, orderCurrency: 'TND' | 'USD') => {
-    // Orders are stored in USD. We need to display them in the user's selected currency.
     let displayTotal = total;
     if (currentDisplayCurrency === 'TND') {
       displayTotal = convertPrice(total);
@@ -395,6 +493,7 @@ export default function AccountPage() {
 
           <div className="md:col-span-2 space-y-8">
             {userProfile && <RankProgressCard xp={userProfile.xp} globalRank={globalRank ?? undefined} />}
+            {userProfile && <AffiliateCard profile={userProfile} onUpdate={fetchAccountData} />}
             <Card>
               <CardHeader>
                 <CardTitle>Order History</CardTitle>

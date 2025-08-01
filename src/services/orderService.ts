@@ -52,7 +52,6 @@ export const addOrder = async (orderData: {
   }
   const username = userProfile.username;
 
-  // Sanitize items to remove potentially problematic fields for Firestore
   const sanitizedItems = orderData.items.map(item => {
     const { category, ...restOfItem } = item;
     return restOfItem;
@@ -66,17 +65,14 @@ export const addOrder = async (orderData: {
 
 
   const orderRef = await runTransaction(db, async (transaction) => {
-    // 1. Debit from wallet if used
     if (finalOrderData.walletDeduction > 0) {
       await debitFromWallet(transaction, finalOrderData.userId, finalOrderData.walletDeduction);
     }
     
-    // 2. Redeem coins if used
     if (finalOrderData.coinsRedeemed && finalOrderData.coinsRedeemed > 0) {
       await redeemCoins(transaction, finalOrderData.userId, finalOrderData.coinsRedeemed);
     }
 
-    // 3. Mark coupon as used if applicable
     if (finalOrderData.couponCode) {
         const couponQuery = query(collection(db, 'coupons'), where('code', '==', finalOrderData.couponCode));
         const couponSnapshot = await getDocs(couponQuery); 
@@ -88,7 +84,6 @@ export const addOrder = async (orderData: {
         }
     }
     
-    // 4. Create the order document
     const newOrderRef = doc(collection(db, 'orders'));
     transaction.set(newOrderRef, {
       ...finalOrderData,
@@ -101,12 +96,9 @@ export const addOrder = async (orderData: {
     return newOrderRef;
   });
   
-  // 5. Send webhook notification if URL is configured
   const webhookUrl = await getSetting('orderWebhookUrl');
   if (webhookUrl) {
     try {
-      // We don't await this, as we don't want to block the user's flow
-      // if the webhook fails.
       fetch(webhookUrl, {
         method: 'POST',
         headers: {
@@ -120,15 +112,11 @@ export const addOrder = async (orderData: {
       });
     } catch (error) {
       console.error("Failed to send order notification webhook:", error);
-      // Do not re-throw, as this is a non-critical background task.
     }
   }
 
-  // 6. Attempt auto-delivery if the order was paid for with wallet funds
   if (finalOrderData.status === 'paid') {
       try {
-        // We don't need to show a toast here, it will be shown in the admin panel if it fails.
-        // We don't await this so it doesn't block the user's checkout flow.
         attemptAutoDelivery(orderRef.id);
       } catch (error) {
           console.error(`Auto-delivery attempt failed for wallet order ${orderRef.id}:`, error);
@@ -138,7 +126,6 @@ export const addOrder = async (orderData: {
   return orderRef;
 };
 
-// Get all orders for a specific user
 export const getOrdersForUser = async (userId: string): Promise<Order[]> => {
   const q = query(
     ordersCollectionRef,
@@ -149,14 +136,12 @@ export const getOrdersForUser = async (userId: string): Promise<Order[]> => {
   return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Order[];
 };
 
-// Get all orders (for admin)
 export const getAllOrders = async (): Promise<Order[]> => {
   const q = query(ordersCollectionRef, orderBy('createdAt', 'desc'));
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Order[];
 };
 
-// Update an order's status
 export const updateOrderStatus = async (orderId: string, status: 'pending' | 'completed' | 'canceled' | 'refunded' | 'paid') => {
   const orderDocRef = doc(db, 'orders', orderId);
   const orderSnap = await getDoc(orderDocRef);
@@ -165,23 +150,19 @@ export const updateOrderStatus = async (orderId: string, status: 'pending' | 'co
   }
   const orderData = orderSnap.data() as Order;
 
-  // Add Valhalla coins and XP if order is being marked as completed
   if (status === 'completed' && orderData.status !== 'completed') {
-    // We only award points on the subtotal (pre-discounts, pre-tax)
     await addRewardsForPurchase(orderData.userId, orderData.subtotal);
   }
 
   return await updateDoc(orderDocRef, { status: status });
 };
 
-// Delete an order
 export const deleteOrder = async (orderId: string) => {
     const orderDocRef = doc(db, 'orders', orderId);
     return await deleteDoc(orderDocRef);
 };
 
 
-// Deliver an order manually
 export const deliverOrderManually = async (orderId: string, deliveryData: DeliveredAssetInfo) => {
     const orderDocRef = doc(db, 'orders', orderId);
      const orderSnap = await getDoc(orderDocRef);
@@ -189,7 +170,6 @@ export const deliverOrderManually = async (orderId: string, deliveryData: Delive
         throw new Error("Order not found");
       }
     const orderData = orderSnap.data() as Order;
-    // Award coins and XP on manual completion
      if (orderData.status !== 'completed') {
         await addRewardsForPurchase(orderData.userId, orderData.subtotal);
     }
@@ -200,7 +180,6 @@ export const deliverOrderManually = async (orderId: string, deliveryData: Delive
     });
 };
 
-// Attempt to automatically deliver an order
 export const attemptAutoDelivery = async (orderId: string): Promise<{ delivered: boolean, message: string }> => {
     const orderDocRef = doc(db, 'orders', orderId);
 
@@ -248,7 +227,6 @@ export const attemptAutoDelivery = async (orderId: string): Promise<{ delivered:
             orderId: orderId,
         });
 
-        // Award Valhalla coins
         await addRewardsForPurchase(orderData.userId, orderData.subtotal);
 
         transaction.update(orderDocRef, {
