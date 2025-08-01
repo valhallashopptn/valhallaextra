@@ -346,17 +346,9 @@ export const markReviewPrompted = async (userId: string, orderId: string) => {
 // --- AFFILIATE SYSTEM FUNCTIONS ---
 
 /**
- * User requests to become an affiliate. Sets their status to 'pending'.
+ * Admin activates an affiliate, generates a unique code, and sets status to 'active'.
  */
-export const applyForAffiliate = async (userId: string) => {
-  const userDocRef = doc(db, usersCollectionRef, userId);
-  return updateDoc(userDocRef, { affiliateStatus: 'pending' });
-};
-
-/**
- * Admin approves an affiliate request, generates a unique code, and sets status to 'active'.
- */
-export const approveAffiliate = async (userId: string) => {
+export const activateAffiliate = async (userId: string) => {
     const userDocRef = doc(db, usersCollectionRef, userId);
     const userProfile = await getUserProfile(userId);
     if (!userProfile) throw new Error("User not found");
@@ -384,11 +376,11 @@ export const approveAffiliate = async (userId: string) => {
 };
 
 /**
- * Admin denies an affiliate request.
+ * Admin revokes an affiliate's status.
  */
-export const denyAffiliate = async (userId: string) => {
+export const revokeAffiliate = async (userId: string) => {
     const userDocRef = doc(db, usersCollectionRef, userId);
-    return updateDoc(userDocRef, { affiliateStatus: 'denied', affiliateCode: '' });
+    return updateDoc(userDocRef, { affiliateStatus: 'none', affiliateCode: '' });
 };
 
 /**
@@ -415,12 +407,11 @@ export const addAffiliateCommission = async (affiliateCode: string, commissionAm
 };
 
 /**
- * Get all user profiles that are affiliates or have a pending request.
+ * Get all user profiles that are active affiliates.
  */
 export const getAffiliates = async (): Promise<UserProfile[]> => {
     const usersRef = collection(db, usersCollectionRef);
-    const q = query(usersRef, where('affiliateStatus', 'in', ['active', 'pending']));
+    const q = query(usersRef, where('affiliateStatus', '==', 'active'));
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile));
 };
-

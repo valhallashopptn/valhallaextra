@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
@@ -8,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getOrdersForUser } from '@/services/orderService';
-import { getUserProfile, getUserRank, updateUserProfile, applyForAffiliate } from '@/services/walletService';
+import { getUserProfile, getUserRank } from '@/services/walletService';
 import type { Order, DeliveredAssetInfo, UserProfile } from '@/lib/types';
 import { getAvatarList } from '@/services/avatarService';
 import {
@@ -221,8 +220,7 @@ function OrderItemCard({ order, formatOrderPrice, formatItemPrice, getStatusBadg
     );
 }
 
-function AffiliateCard({ profile, onUpdate }: { profile: UserProfile, onUpdate: () => void }) {
-    const { toast } = useToast();
+function AffiliateCard({ profile }: { profile: UserProfile }) {
     const { formatPrice } = useCurrency();
     const [isCopied, setIsCopied] = useState(false);
     const [baseUrl, setBaseUrl] = useState('');
@@ -230,16 +228,6 @@ function AffiliateCard({ profile, onUpdate }: { profile: UserProfile, onUpdate: 
     useEffect(() => {
       setBaseUrl(window.location.origin);
     }, []);
-
-    const handleApply = async () => {
-        try {
-            await applyForAffiliate(profile.id);
-            toast({ title: 'Application Submitted!', description: 'Your affiliate application has been submitted for review.' });
-            onUpdate();
-        } catch (error) {
-            toast({ title: 'Error', description: 'Could not submit your application.', variant: 'destructive' });
-        }
-    };
 
     const referralLink = `${baseUrl}/signup?ref=${profile.affiliateCode}`;
 
@@ -251,20 +239,6 @@ function AffiliateCard({ profile, onUpdate }: { profile: UserProfile, onUpdate: 
 
     const CardStatus = () => {
         switch(profile.affiliateStatus) {
-            case 'pending':
-                return (
-                    <div className="text-center p-6 space-y-3">
-                        <p className="font-semibold text-lg">Application Pending</p>
-                        <p className="text-muted-foreground">Your request to join the affiliate program is under review. We'll notify you soon!</p>
-                    </div>
-                );
-            case 'denied':
-                 return (
-                    <div className="text-center p-6 space-y-3">
-                        <p className="font-semibold text-lg text-destructive">Application Denied</p>
-                        <p className="text-muted-foreground">We're sorry, but your affiliate application was not approved at this time. Please contact support for more information.</p>
-                    </div>
-                );
             case 'active':
                 return (
                     <div className="space-y-6">
@@ -294,14 +268,14 @@ function AffiliateCard({ profile, onUpdate }: { profile: UserProfile, onUpdate: 
                         </div>
                     </div>
                 );
-            default: // none
+            default: // none or other statuses
                  return (
                     <div className="text-center p-6 space-y-3">
-                        <p className="font-semibold text-lg">Join Our Affiliate Program!</p>
-                        <p className="text-muted-foreground">Earn money by referring new customers to our platform. Apply now to get your unique referral link.</p>
-                        <Button onClick={handleApply}>
+                        <p className="font-semibold text-lg">Interested in our Affiliate Program?</p>
+                        <p className="text-muted-foreground">Earn money by referring new customers. Our affiliate program is invite-only. Contact support for more information!</p>
+                         <Button variant="outline" disabled>
                             <Handshake className="mr-2 h-4 w-4" />
-                            Become an Affiliate
+                            Program is Invite-Only
                         </Button>
                     </div>
                 );
@@ -493,7 +467,7 @@ export default function AccountPage() {
 
           <div className="md:col-span-2 space-y-8">
             {userProfile && <RankProgressCard xp={userProfile.xp} globalRank={globalRank ?? undefined} />}
-            {userProfile && <AffiliateCard profile={userProfile} onUpdate={fetchAccountData} />}
+            {userProfile && <AffiliateCard profile={userProfile} />}
             <Card>
               <CardHeader>
                 <CardTitle>Order History</CardTitle>

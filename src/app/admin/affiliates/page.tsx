@@ -6,18 +6,56 @@ import type { UserProfile } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
-import { getAffiliates, approveAffiliate, denyAffiliate } from '@/services/walletService';
+import { getAffiliates, activateAffiliate, revokeAffiliate, getAllUserProfiles } from '@/services/walletService';
 import { useToast } from '@/hooks/use-toast';
-import { Check, X, Handshake, Link as LinkIcon, Copy } from 'lucide-react';
+import { Check, X, Handshake, Link as LinkIcon, Copy, PlusCircle, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useCurrency } from '@/context/CurrencyContext';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+
+
+function AddAffiliateDialog({ isOpen, onOpenChange, onAdd, allUsers, existingAffiliateIds }: { isOpen: boolean, onOpenChange: (open: boolean) => void, onAdd: (userId: string) => void, allUsers: UserProfile[], existingAffiliateIds: string[] }) {
+    const [selectedUserId, setSelectedUserId] = useState('');
+    const availableUsers = allUsers.filter(u => !existingAffiliateIds.includes(u.id));
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Add New Affiliate</DialogTitle>
+                    <DialogDescription>Select a user to enroll in the affiliate program. They will be immediately activated.</DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                    <Select onValueChange={setSelectedUserId} value={selectedUserId}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a user..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {availableUsers.map(user => (
+                                <SelectItem key={user.id} value={user.id}>{user.username} ({user.email})</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+                    <Button onClick={() => onAdd(selectedUserId)} disabled={!selectedUserId}>Add Affiliate</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
 
 export default function AffiliatesPage() {
   const { toast } = useToast();
   const { formatPrice } = useCurrency();
+  const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
   const [affiliates, setAffiliates] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -26,33 +64,38 @@ export default function AffiliatesPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const data = await getAffiliates();
-      setAffiliates(data);
+      const [affiliateData, allUsersData] = await Promise.all([
+          getAffiliates(),
+          getAllUserProfiles()
+      ]);
+      setAffiliates(affiliateData);
+      setAllUsers(allUsersData);
     } catch (error) {
-      console.error("Failed to fetch affiliates:", error);
+      console.error("Failed to fetch affiliate data:", error);
       toast({ title: 'Error', description: 'Could not load affiliate data.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleApprove = async (userId: string) => {
+  const handleAddAffiliate = async (userId: string) => {
     try {
-      await approveAffiliate(userId);
-      toast({ title: 'Success', description: 'Affiliate approved.' });
+      await activateAffiliate(userId);
+      toast({ title: 'Success', description: 'Affiliate activated.' });
       fetchData();
+      setIsAddDialogOpen(false);
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to approve affiliate.', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Failed to activate affiliate.', variant: 'destructive' });
     }
   };
   
-  const handleDeny = async (userId: string) => {
+  const handleRevoke = async (userId: string) => {
      try {
-      await denyAffiliate(userId);
-      toast({ title: 'Success', description: 'Affiliate denied.' });
+      await revokeAffiliate(userId);
+      toast({ title: 'Success', description: 'Affiliate status revoked.' });
       fetchData();
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to deny affiliate.', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Failed to revoke affiliate status.', variant: 'destructive' });
     }
   };
   
@@ -62,23 +105,28 @@ export default function AffiliatesPage() {
   };
 
   return (
+    <>
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold font-headline">Affiliate Management</h1>
-        <p className="text-muted-foreground">Manage your affiliate partners and review applications.</p>
+        <p className="text-muted-foreground">Manage your affiliate partners.</p>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Affiliates & Applicants</CardTitle>
-          <CardDescription>A list of all active affiliates and pending applications.</CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Active Affiliates</CardTitle>
+            <CardDescription>A list of all active affiliate partners.</CardDescription>
+          </div>
+          <Button onClick={() => setIsAddDialogOpen(true)}>
+            <PlusCircle className="mr-2 h-4 w-4" /> Add Affiliate
+          </Button>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>User</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead>Code</TableHead>
                 <TableHead>Total Earnings</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -87,7 +135,7 @@ export default function AffiliatesPage() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">Loading...</TableCell>
+                  <TableCell colSpan={4} className="text-center">Loading...</TableCell>
                 </TableRow>
               ) : affiliates.map(user => (
                 <TableRow key={user.id}>
@@ -103,11 +151,6 @@ export default function AffiliatesPage() {
                         </div>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <Badge variant={user.affiliateStatus === 'active' ? 'default' : 'secondary'} className={user.affiliateStatus === 'active' ? 'bg-green-600' : 'bg-yellow-500'}>
-                      {user.affiliateStatus}
-                    </Badge>
-                  </TableCell>
                   <TableCell className="font-mono">
                     {user.affiliateCode ? (
                         <Button variant="ghost" size="sm" onClick={() => handleCopyCode(user.affiliateCode!)}>
@@ -119,28 +162,43 @@ export default function AffiliatesPage() {
                     {formatPrice(user.affiliateEarnings || 0)}
                   </TableCell>
                   <TableCell className="text-right">
-                    {user.affiliateStatus === 'pending' ? (
-                      <div className="space-x-2">
-                        <Button variant="outline" size="sm" onClick={() => handleApprove(user.id)}>
-                          <Check className="mr-2 h-4 w-4" /> Approve
-                        </Button>
-                        <Button variant="destructive" size="sm" onClick={() => handleDeny(user.id)}>
-                           <X className="mr-2 h-4 w-4" /> Deny
-                        </Button>
-                      </div>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">No actions</span>
-                    )}
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm">
+                               <Trash2 className="mr-2 h-4 w-4" /> Revoke
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This will remove {user.username} from the affiliate program. Their code will no longer work, but their past earnings will remain. This action can be undone by adding them again.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleRevoke(user.id)} className="bg-destructive hover:bg-destructive/90">Confirm Revoke</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
            {!loading && affiliates.length === 0 && (
-              <p className="text-muted-foreground text-center py-8">No affiliates or applicants found.</p>
+              <p className="text-muted-foreground text-center py-8">No active affiliates found.</p>
           )}
         </CardContent>
       </Card>
     </div>
+    <AddAffiliateDialog 
+        isOpen={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onAdd={handleAddAffiliate}
+        allUsers={allUsers}
+        existingAffiliateIds={affiliates.map(a => a.id)}
+    />
+    </>
   );
 }
