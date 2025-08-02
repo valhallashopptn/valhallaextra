@@ -40,20 +40,6 @@ export function Footer({ siteTitle = 'Valhalla Shop', logoUrl, socialLinks = [] 
     <footer className="bg-card border-t border-border mt-auto">
       <div className="container mx-auto px-4 py-8 space-y-8">
 
-        {socialLinks && socialLinks.length > 0 && (
-          <div className="relative w-full overflow-hidden group">
-            <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-card to-transparent z-10"></div>
-            <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-card to-transparent z-10"></div>
-            <div className="marquee-content flex gap-5">
-              <div className="marquee">
-                  {duplicatedSocialLinks.map((link, index) => (
-                      <SocialLink key={`${link.id}-${index}`} link={link} />
-                  ))}
-              </div>
-            </div>
-          </div>
-        )}
-
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
           <div className="flex flex-col items-center md:items-start md:col-span-2">
             <Link href="/" className="flex items-center space-x-2 mb-4">
@@ -86,8 +72,22 @@ export function Footer({ siteTitle = 'Valhalla Shop', logoUrl, socialLinks = [] 
                  <button onClick={openCart} className="text-left text-muted-foreground hover:text-primary transition-colors">{t('Footer.cart')}</button>
              </nav>
           </div>
-
         </div>
+        
+        {socialLinks && socialLinks.length > 0 && (
+            <div className="relative w-full overflow-hidden group pt-8">
+                <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-card to-transparent z-10"></div>
+                <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-card to-transparent z-10"></div>
+                <div className="marquee-content flex gap-5">
+                    <div className="marquee">
+                        {duplicatedSocialLinks.map((link, index) => (
+                            <SocialLink key={`${link.id}-${index}`} link={link} />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )}
+
          <div className="mt-8 pt-8 border-t border-border/50 flex flex-col sm:flex-row justify-between items-center text-sm text-muted-foreground">
             <p className='mb-4 sm:mb-0'>&copy; {new Date().getFullYear()} {siteTitle}. {t('Footer.copyright')}</p>
         </div>
@@ -95,5 +95,3 @@ export function Footer({ siteTitle = 'Valhalla Shop', logoUrl, socialLinks = [] 
     </footer>
   );
 }
-
-    
