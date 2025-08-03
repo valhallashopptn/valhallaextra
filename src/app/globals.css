@@ -331,11 +331,10 @@ body {
   }
 
   .social-btn {
-    @apply cursor-pointer h-12 w-12 flex items-center justify-center;
-    color: hsl(var(--primary-foreground));
+    @apply cursor-pointer h-14 w-14 flex items-center justify-center;
+    background: transparent;
     border-radius: 10px 0 0 10px;
     box-shadow: -5px 5px 10px rgba(0,0,0,0.1);
-    background: transparent;
     margin: 2px 0;
     transition: all 0.3s;
   }
@@ -346,7 +345,7 @@ body {
   }
 
   .social-btn .social-icon {
-    @apply h-6 w-6;
+    @apply h-8 w-8;
     transition: transform 0.5s;
   }
 

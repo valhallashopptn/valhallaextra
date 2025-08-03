@@ -27,8 +27,8 @@ export function SocialSidePanel({ socialLinks }: SocialSidePanelProps) {
           <Image
             src={link.iconUrl}
             alt={link.name}
-            width={24}
-            height={24}
+            width={32}
+            height={32}
             className="social-icon"
           />
           <span className="social-text">{link.name}</span>
