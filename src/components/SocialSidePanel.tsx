@@ -24,7 +24,7 @@ export function SocialSidePanel({ socialLinks }: SocialSidePanelProps) {
                         rel="noopener noreferrer"
                         aria-label={link.name}
                         >
-                        {link.name}
+                        <span className="social-link-text">{link.name}</span>
                         <Image
                             src={link.iconUrl}
                             alt={link.name}

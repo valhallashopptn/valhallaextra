@@ -310,10 +310,10 @@ body {
   }
 
   .slide-out-widget {
-    @apply fixed top-1/2 left-0 -translate-y-1/2 z-50 flex items-center;
+    @apply fixed top-1/2 right-0 -translate-y-1/2 z-50 flex items-center;
   }
   .slide-out-widget-icon {
-    @apply bg-primary text-primary-foreground p-3 rounded-r-md shadow-lg transition-colors duration-300 ease-in-out;
+    @apply bg-primary text-primary-foreground p-3 rounded-l-md shadow-lg transition-colors duration-300 ease-in-out;
     @apply group-hover:bg-accent group-hover:text-accent-foreground;
   }
   .slide-out-widget-text {
@@ -321,36 +321,38 @@ body {
     max-width: 0;
     opacity: 0;
     overflow: hidden;
-    transform: translateX(-100%);
+    transform: translateX(100%);
     @apply group-hover:max-w-xs group-hover:opacity-100 group-hover:transform-none;
   }
   
   .social-panel {
     position: fixed;
     top: 50%;
-    right: 0;
+    left: 0;
     transform: translateY(-50%);
     z-index: 50;
   }
   
   .social-panel ul {
+    list-style: none;
     padding: 0px;
-    transform: translateX(calc(100% - 50px)); /* Hide most of the panel */
+    transform: translateX(-260px);
   }
 
   .social-panel li {
     display: block;
-    margin: 5px 0;
+    margin: 5px;
     background: hsla(var(--card) / 0.5);
     backdrop-filter: blur(4px);
-    width: 200px;
-    text-align: left;
-    border-radius: 30px 0 0 30px;
+    width: 300px;
+    text-align: right;
+    padding: 10px;
+    border-radius: 0 30px 30px 0;
     transition: all 0.5s;
   }
 
   .social-panel li:hover {
-    transform: translateX(calc(-100% + 160px)); /* Slide out on hover */
+    transform: translateX(110px);
     background: hsla(var(--primary) / 0.8);
   }
   
@@ -359,8 +361,7 @@ body {
     text-decoration: none;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 10px;
+    justify-content: flex-end;
     font-weight: bold;
   }
 
@@ -369,7 +370,7 @@ body {
   }
 
   .social-panel .social-icon {
-    margin-right: 10px;
+    margin-left: 10px;
     width: 32px;
     height: 32px;
     transition: transform 0.5s;
@@ -377,5 +378,11 @@ body {
   
   .social-panel li:hover .social-icon {
     transform: rotate(360deg);
+  }
+
+  .social-link-text {
+    flex-grow: 1;
+    text-align: right;
+    padding-right: 10px;
   }
 }
