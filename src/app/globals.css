@@ -327,7 +327,7 @@ body {
   }
 
   .social-side-panel {
-    @apply fixed top-1/2 right-0 -translate-y-1/2 z-50 flex flex-col gap-2;
+    @apply fixed top-1/2 right-0 -translate-y-1/2 z-50 flex flex-col;
   }
 
   .social-btn {
