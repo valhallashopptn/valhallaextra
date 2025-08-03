@@ -17,6 +17,7 @@ import Script from 'next/script';
 import { Logo } from '@/components/icons/Logo';
 import { ReviewReminder } from '@/components/ReviewReminder';
 import { MaintenanceWrapper } from '@/components/MaintenanceWrapper';
+import { SocialSidePanel } from '@/components/SocialSidePanel';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -86,11 +87,12 @@ export default async function RootLayout({
             </MaintenanceWrapper>
           </main>
           <Toaster />
-          <Footer siteTitle={settings.siteTitle} logoUrl={settings.logoUrl} socialLinks={socialLinks} />
+          <Footer siteTitle={settings.siteTitle} logoUrl={settings.logoUrl} />
           {settings.enableBackgroundMusic && settings.backgroundMusicUrl && (
             <MusicPlayer src={settings.backgroundMusicUrl} />
           )}
           <ReviewReminder />
+          <SocialSidePanel socialLinks={socialLinks} />
         </Providers>
         <Script id="tawk-to-script" strategy="lazyOnload">
         {`

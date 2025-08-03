@@ -12,29 +12,14 @@ import { useCart } from '@/context/CartContext';
 import type { SocialLink as SocialLinkType } from '@/lib/types';
 
 
-function SocialLink({ link }: { link: SocialLinkType }) {
-    return (
-        <a href={link.url} target="_blank" rel="noopener noreferrer" className="transition-transform duration-300 hover:scale-110">
-            {link.iconUrl ? (
-                <Image src={link.iconUrl} alt={link.name} width={40} height={40} className="h-10 w-10" />
-            ) : (
-                <Button variant="ghost" size="icon"><LinkIcon className="h-5 w-5" /></Button>
-            )}
-        </a>
-    );
-}
-
 interface FooterProps {
     siteTitle?: string;
     logoUrl?: string;
-    socialLinks?: SocialLinkType[];
 }
 
-export function Footer({ siteTitle = 'Valhalla Shop', logoUrl, socialLinks = [] }: FooterProps) {
+export function Footer({ siteTitle = 'Valhalla Shop', logoUrl }: FooterProps) {
   const { t } = useTranslation();
   const { openCart } = useCart();
-
-  const duplicatedSocialLinks = socialLinks ? [...socialLinks, ...socialLinks] : [];
 
   return (
     <footer className="bg-card border-t border-border mt-auto">
@@ -74,20 +59,6 @@ export function Footer({ siteTitle = 'Valhalla Shop', logoUrl, socialLinks = [] 
           </div>
         </div>
         
-        {socialLinks && socialLinks.length > 0 && (
-            <div className="relative w-full overflow-hidden group pt-8">
-                <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-card to-transparent z-10"></div>
-                <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-card to-transparent z-10"></div>
-                <div className="marquee-content flex gap-5">
-                    <div className="marquee">
-                        {duplicatedSocialLinks.map((link, index) => (
-                            <SocialLink key={`${link.id}-${index}`} link={link} />
-                        ))}
-                    </div>
-                </div>
-            </div>
-        )}
-
          <div className="mt-8 pt-8 border-t border-border/50 flex flex-col sm:flex-row justify-between items-center text-sm text-muted-foreground">
             <p className='mb-4 sm:mb-0'>&copy; {new Date().getFullYear()} {siteTitle}. {t('Footer.copyright')}</p>
         </div>

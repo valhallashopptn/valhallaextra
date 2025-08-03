@@ -325,6 +325,42 @@ body {
     transform: translateX(-100%);
     @apply group-hover:max-w-xs group-hover:opacity-100 group-hover:transform-none;
   }
-}
 
-    
+  .social-side-panel {
+    @apply fixed top-1/2 right-0 -translate-y-1/2 z-50 flex flex-col gap-2;
+  }
+
+  .social-btn {
+    @apply cursor-pointer h-12 w-12 flex items-center justify-center;
+    color: hsl(var(--primary-foreground));
+    border-radius: 10px 0 0 10px;
+    box-shadow: -5px 5px 10px rgba(0,0,0,0.1);
+    background: hsl(var(--card));
+    margin: 2px 0;
+    transition: all 0.3s;
+  }
+
+  .social-btn:hover {
+    width: 150px;
+    background: hsl(var(--primary));
+  }
+
+  .social-btn .social-icon {
+    @apply h-6 w-6;
+  }
+
+  .social-btn .social-text {
+    width: 0px;
+    overflow: hidden;
+    transition: 0.3s;
+    text-align: center;
+    margin-left: 5px;
+    font-weight: bold;
+    color: hsl(var(--primary-foreground));
+  }
+
+  .social-btn:hover .social-text {
+    padding: 2px;
+    width: 80px;
+  }
+}
