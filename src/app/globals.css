@@ -318,7 +318,6 @@ body {
   }
   .slide-out-widget-text {
     @apply bg-primary text-primary-foreground font-bold pl-4 pr-10 -mr-8 py-3 whitespace-nowrap transition-all duration-300 ease-in-out;
-    @apply rounded-r-md shadow-lg;
     max-width: 0;
     opacity: 0;
     overflow: hidden;
@@ -331,7 +330,7 @@ body {
   }
 
   .social-btn {
-    @apply cursor-pointer h-14 w-14 flex items-center justify-center;
+    @apply cursor-pointer h-14 w-14 flex items-center;
     background: transparent;
     border-radius: 30px 0 0 30px;
     box-shadow: -5px 5px 10px rgba(0,0,0,0.1);
@@ -348,6 +347,7 @@ body {
   .social-btn .social-icon {
     @apply h-8 w-8;
     transition: transform 0.5s;
+    margin-left: 10px;
   }
 
   .social-btn:hover .social-icon {
