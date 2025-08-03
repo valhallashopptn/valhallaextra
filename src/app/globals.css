@@ -369,7 +369,7 @@ body {
     color: hsl(var(--primary-foreground));
   }
 
-  .social-panel .social-icon {
+  .social-icon {
     margin-left: 10px;
     width: 32px;
     height: 32px;

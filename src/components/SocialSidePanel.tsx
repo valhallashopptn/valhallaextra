@@ -15,27 +15,22 @@ export function SocialSidePanel({ socialLinks }: SocialSidePanelProps) {
 
   return (
     <div className="social-panel">
-        <ul>
-            {socialLinks.map((link) => (
-                <li key={link.id}>
-                    <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={link.name}
-                        >
-                        <span className="social-link-text">{link.name}</span>
-                        <Image
-                            src={link.iconUrl}
-                            alt={link.name}
-                            width={32}
-                            height={32}
-                            className="social-icon"
-                        />
-                    </a>
-                </li>
-            ))}
-        </ul>
+      <ul>
+        {socialLinks.map((link) => (
+          <li key={link.id}>
+            <a href={link.url} target="_blank" rel="noopener noreferrer" aria-label={link.name}>
+              <div className="social-link-text">{link.name}</div>
+              <Image
+                src={link.iconUrl}
+                alt={link.name}
+                width={32}
+                height={32}
+                className="social-icon"
+              />
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
