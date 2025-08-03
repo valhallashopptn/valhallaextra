@@ -347,6 +347,11 @@ body {
 
   .social-btn .social-icon {
     @apply h-6 w-6;
+    transition: transform 0.5s;
+  }
+
+  .social-btn:hover .social-icon {
+    transform: rotate(360deg);
   }
 
   .social-btn .social-text {
