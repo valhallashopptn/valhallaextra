@@ -335,14 +335,14 @@ body {
     color: hsl(var(--primary-foreground));
     border-radius: 10px 0 0 10px;
     box-shadow: -5px 5px 10px rgba(0,0,0,0.1);
-    background: hsl(var(--card));
+    background: transparent;
     margin: 2px 0;
     transition: all 0.3s;
   }
 
   .social-btn:hover {
     width: 150px;
-    background: hsl(var(--primary));
+    background: hsl(var(--primary) / 0.8);
   }
 
   .social-btn .social-icon {
