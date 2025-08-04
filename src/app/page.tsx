@@ -162,14 +162,6 @@ export default function Home() {
 
   return (
     <>
-      <div className="leaderboard-widget">
-        <Link href="/leaderboard" className="leaderboard-widget-link" aria-label="View Leaderboard">
-            <div className="leaderboard-widget-icon">
-                <Trophy className="h-6 w-6" />
-            </div>
-            <span className="leaderboard-widget-text">Leaderboard</span>
-        </Link>
-      </div>
       <div className="space-y-16 pb-16">
         {/* Hero Section */}
         <section className="relative h-[400px] md:h-[500px] overflow-hidden -mt-16">
