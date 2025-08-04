@@ -337,7 +337,7 @@ body {
 
   .social-panel ul li:hover {
     transform: translateX(110px);
-    background: #6D9886;
+    background: rgba(255, 255, 255, 0.4);
   }
   
   .social-panel a {
@@ -351,7 +351,7 @@ body {
   }
 
   .social-panel li:hover a {
-    color: hsl(var(--primary-foreground));
+    color: #000;
   }
 
   .social-icon {
