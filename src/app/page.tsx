@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { getCategories } from '@/services/categoryService';
-import type { Category, Product, Review, HomePageFeaturesContent } from '@/lib/types';
+import type { Category, Product, Review, HomePageFeaturesContent, UserProfile } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { getSetting, getSettings } from '@/services/settingsService';
 import { Separator } from '@/components/ui/separator';
 import { getAllReviews } from '@/services/reviewService';
+import { getTopUsers } from '@/services/walletService';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Carousel,
@@ -108,6 +109,7 @@ export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [topUsers, setTopUsers] = useState<UserProfile[]>([]);
   const [heroImageUrl, setHeroImageUrl] = useState('');
   const [featuresContent, setFeaturesContent] = useState<HomePageFeaturesContent>(defaultFeaturesContent);
   const [loading, setLoading] = useState(true);
@@ -118,15 +120,17 @@ export default function Home() {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const [categoriesFromDb, productsFromDb, reviewsFromDb, settings] = await Promise.all([
+        const [categoriesFromDb, productsFromDb, reviewsFromDb, topUsersFromDb, settings] = await Promise.all([
             getCategories(),
             getProducts(),
             getAllReviews(),
+            getTopUsers(3),
             getSettings(['heroImageUrl', 'homePageFeatures'])
         ]);
         setCategories(categoriesFromDb);
         setProducts(productsFromDb);
         setReviews(reviewsFromDb);
+        setTopUsers(topUsersFromDb);
         setHeroImageUrl(settings.heroImageUrl || 'https://placehold.co/1920x1080.png?text=TopUp+Hub');
         setFeaturesContent(settings.homePageFeatures || defaultFeaturesContent);
       } catch (error) {
@@ -381,6 +385,39 @@ export default function Home() {
             </div>
           </div>
         </section>
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="animated-separator"></div>
+        </div>
+
+        {/* Leaderboard Section */}
+        <section>
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-card rounded-lg p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="text-center md:text-left">
+                <h2 className="text-3xl font-bold font-headline">Join the Ranks</h2>
+                <p className="text-muted-foreground mt-2 max-w-xl">Compete with other players, earn XP with every purchase, and climb to the top of the leaderboard!</p>
+              </div>
+              <div className="flex-shrink-0 flex flex-col items-center gap-4">
+                 <div className="flex -space-x-4">
+                    {topUsers.map((user, index) => (
+                       <Avatar key={user.id} className={cn("h-16 w-16 border-4 border-card", index === 1 && "z-10 -translate-y-2 transform-gpu scale-110")}>
+                           <AvatarImage src={user.avatarUrl} />
+                           <AvatarFallback>{user.username.charAt(0)}</AvatarFallback>
+                       </Avatar>
+                    ))}
+                 </div>
+                 <Button asChild size="lg">
+                    <Link href="/leaderboard">
+                        <Trophy className="mr-2" />
+                        View Leaderboard
+                    </Link>
+                 </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </div>
     </>
   );

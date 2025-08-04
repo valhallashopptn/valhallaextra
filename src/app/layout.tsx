@@ -96,14 +96,6 @@ export default async function RootLayout({
           )}
           <ReviewReminder />
           <SocialSidePanel socialLinks={socialLinks} />
-           <div className="leaderboard-widget">
-            <Button asChild>
-                <Link href="/leaderboard">
-                    <Trophy className="mr-2 h-4 w-4" />
-                    Leaderboard
-                </Link>
-            </Button>
-          </div>
         </Providers>
         <Script id="tawk-to-script" strategy="lazyOnload">
         {`

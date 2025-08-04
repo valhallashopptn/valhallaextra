@@ -370,11 +370,4 @@ body {
     text-align: right;
     padding-right: 16px;
   }
-
-  .leaderboard-widget {
-    position: fixed;
-    bottom: 1.5rem;
-    left: 1.5rem;
-    z-index: 50;
-  }
 }
