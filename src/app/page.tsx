@@ -28,6 +28,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useTranslation } from '@/context/TranslationContext';
 import { CategoryCard } from '@/components/CategoryCard';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 
 function FeatureCard({ icon, title, value, animationClass }: { icon: React.ReactNode, title: string, value: string, animationClass?: string }) {
@@ -248,7 +249,8 @@ export default function Home() {
                           onChange={(e) => setSearchQuery(e.target.value)}
                       />
                   </div>
-                    <div className="flex items-center gap-2 pb-2 justify-center">
+                  <ScrollArea className="w-full md:w-auto whitespace-nowrap">
+                    <div className="flex items-center gap-2 pb-2">
                       <Button
                           variant={!selectedCategory ? 'default' : 'outline'}
                           onClick={() => setSelectedCategory(null)}
@@ -266,7 +268,9 @@ export default function Home() {
                           {category.name}
                           </Button>
                       ))}
-                  </div>
+                    </div>
+                    <ScrollBar orientation="horizontal" className="md:hidden" />
+                  </ScrollArea>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

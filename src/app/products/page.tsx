@@ -28,6 +28,10 @@ export default function ProductsPage() {
     if (categoryIdFromUrl) {
       setSelectedCategory(categoryIdFromUrl);
     }
+    const searchQueryFromUrl = searchParams.get('q');
+    if (searchQueryFromUrl) {
+      setSearchQuery(searchQueryFromUrl);
+    }
 
     const fetchInitialData = async () => {
       try {
@@ -88,7 +92,7 @@ export default function ProductsPage() {
                     />
                 </div>
                 <ScrollArea className="w-full md:w-auto whitespace-nowrap">
-                    <div className="flex items-center gap-2 pb-2 justify-start md:justify-center">
+                    <div className="flex items-center gap-2 pb-2">
                         <Button
                             variant={!selectedCategory ? 'default' : 'outline'}
                             onClick={() => setSelectedCategory(null)}
