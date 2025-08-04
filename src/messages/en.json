@@ -11,7 +11,8 @@
     "register": "Register",
     "account": "Account",
     "admin": "Admin",
-    "logout": "Log out"
+    "logout": "Log out",
+    "leaderboard": "Leaderboard"
   },
   "Footer": {
     "description": "Your one-stop shop for instant game top-ups and digital vouchers. Quick, secure, and always on.",
