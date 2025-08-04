@@ -373,44 +373,8 @@ body {
 
   .leaderboard-widget {
     position: fixed;
-    top: 50%;
-    right: 0;
-    transform: translateY(-50%) translateX(calc(100% - 52px));
+    bottom: 1.5rem;
+    left: 1.5rem;
     z-index: 50;
-    transition: all 0.5s;
-    width: 180px;
-    background: hsla(var(--card) / 0.5);
-    backdrop-filter: blur(4px);
-    border-radius: 30px 0 0 30px;
-    padding: 10px;
-  }
-
-  .leaderboard-widget:hover {
-    transform: translateY(-50%) translateX(0);
-    background: hsla(var(--primary) / 0.8);
-  }
-
-  .leaderboard-widget a {
-    color: hsl(var(--foreground));
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    font-weight: bold;
-  }
-  
-  .leaderboard-widget:hover a {
-    color: hsl(var(--primary-foreground));
-  }
-
-  .leaderboard-widget .leaderboard-icon {
-    width: 32px;
-    height: 32px;
-    transition: transform 0.5s;
-    margin-right: 10px;
-  }
-  
-  .leaderboard-widget:hover .leaderboard-icon {
-    transform: rotate(360deg);
   }
 }

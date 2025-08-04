@@ -20,6 +20,7 @@ import { MaintenanceWrapper } from '@/components/MaintenanceWrapper';
 import { SocialSidePanel } from '@/components/SocialSidePanel';
 import Link from 'next/link';
 import { Trophy } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -96,10 +97,12 @@ export default async function RootLayout({
           <ReviewReminder />
           <SocialSidePanel socialLinks={socialLinks} />
            <div className="leaderboard-widget">
-            <Link href="/leaderboard" aria-label="View Leaderboard">
-                <Trophy className="leaderboard-icon" />
-                <div className="leaderboard-text">Leaderboard</div>
-            </Link>
+            <Button asChild>
+                <Link href="/leaderboard">
+                    <Trophy className="mr-2 h-4 w-4" />
+                    Leaderboard
+                </Link>
+            </Button>
           </div>
         </Providers>
         <Script id="tawk-to-script" strategy="lazyOnload">
