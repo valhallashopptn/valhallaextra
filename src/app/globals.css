@@ -320,7 +320,7 @@ body {
   .social-panel ul {
     list-style: none;
     padding: 0px;
-    transform: translateX(-260px);
+    transform: translateX(-275px);
   }
 
   .social-panel ul li {
@@ -328,15 +328,15 @@ body {
     margin: 5px;
     background: hsla(var(--card) / 0.5);
     backdrop-filter: blur(4px);
-    width: 300px;
+    width: 320px;
     text-align: right;
-    padding: 10px;
+    padding: 12px;
     border-radius: 0 30px 30px 0;
     transition: all 0.5s;
   }
 
   .social-panel ul li:hover {
-    transform: translateX(110px);
+    transform: translateX(120px);
     background: hsla(var(--primary) / 0.8);
   }
   
@@ -347,6 +347,7 @@ body {
     align-items: center;
     justify-content: flex-end;
     font-weight: bold;
+    font-size: 1.1rem;
   }
 
   .social-panel li:hover a {
@@ -354,9 +355,9 @@ body {
   }
 
   .social-icon {
-    margin-left: 10px;
-    width: 32px;
-    height: 32px;
+    margin-left: 12px;
+    width: 40px;
+    height: 40px;
     transition: transform 0.5s;
   }
   
@@ -367,7 +368,7 @@ body {
   .social-link-text {
     flex-grow: 1;
     text-align: right;
-    padding-right: 10px;
+    padding-right: 12px;
   }
 
   .leaderboard-widget {
@@ -413,4 +414,3 @@ body {
     transform: rotate(360deg);
   }
 }
-
