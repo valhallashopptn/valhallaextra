@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Search, Package, ShoppingCart, LifeBuoy, Star, MessageSquare, Trophy } from 'lucide-react';
+import { ArrowRight, Search, Package, ShoppingCart, LifeBuoy, Star, MessageSquare, Trophy, Filter, Check } from 'lucide-react';
 import { getProducts } from '@/services/productService';
 import { ProductCard } from '@/components/ProductCard';
 import { Input } from '@/components/ui/input';
@@ -28,7 +28,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useTranslation } from '@/context/TranslationContext';
 import { CategoryCard } from '@/components/CategoryCard';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 
 function FeatureCard({ icon, title, value, animationClass }: { icon: React.ReactNode, title: string, value: string, animationClass?: string }) {
@@ -160,6 +160,11 @@ export default function Home() {
     return prods.slice(0, 4); // Show only 4 products on homepage
   }, [products, searchQuery, selectedCategory]);
 
+  const selectedCategoryName = useMemo(() => {
+    if (!selectedCategory) return t('HomePage.all');
+    return categories.find(c => c.id === selectedCategory)?.name || t('HomePage.all');
+  }, [selectedCategory, categories, t]);
+
 
   return (
     <>
@@ -249,28 +254,30 @@ export default function Home() {
                           onChange={(e) => setSearchQuery(e.target.value)}
                       />
                   </div>
-                  <ScrollArea className="w-full md:w-auto whitespace-nowrap">
-                    <div className="flex items-center gap-2 pb-2">
-                      <Button
-                          variant={!selectedCategory ? 'default' : 'outline'}
-                          onClick={() => setSelectedCategory(null)}
-                          className={cn("flex-shrink-0", !selectedCategory && "bg-primary text-primary-foreground")}
-                      >
-                          {t('HomePage.all')}
-                      </Button>
-                      {displayCategories.map((category, index) => (
-                          <Button
-                          key={category.id}
-                          variant={selectedCategory === category.id ? 'default' : 'outline'}
-                          onClick={() => setSelectedCategory(category.id)}
-                          className={cn("flex-shrink-0", selectedCategory === category.id && (index % 2 === 0 ? "bg-accent text-accent-foreground" : "bg-primary text-primary-foreground"))}
-                          >
-                          {category.name}
+                  <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                          <Button variant="outline" className="w-full md:w-auto">
+                              <Filter className="mr-2 h-4 w-4" />
+                              <span>{selectedCategoryName}</span>
                           </Button>
-                      ))}
-                    </div>
-                    <ScrollBar orientation="horizontal" className="md:hidden" />
-                  </ScrollArea>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                          <DropdownMenuItem onSelect={() => setSelectedCategory(null)}>
+                            <div className="flex items-center justify-between w-full">
+                                <span>{t('HomePage.all')}</span>
+                                {!selectedCategory && <Check className="h-4 w-4" />}
+                            </div>
+                          </DropdownMenuItem>
+                          {categories.map((category) => (
+                            <DropdownMenuItem key={category.id} onSelect={() => setSelectedCategory(category.id)}>
+                               <div className="flex items-center justify-between w-full">
+                                <span>{category.name}</span>
+                                {selectedCategory === category.id && <Check className="h-4 w-4" />}
+                               </div>
+                            </DropdownMenuItem>
+                          ))}
+                      </DropdownMenuContent>
+                  </DropdownMenu>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

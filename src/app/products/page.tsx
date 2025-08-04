@@ -12,8 +12,8 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Search, Filter, Check } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -64,6 +64,11 @@ export default function ProductsPage() {
     return prods;
   }, [products, selectedCategory, searchQuery]);
 
+  const selectedCategoryName = useMemo(() => {
+    if (!selectedCategory) return 'All Categories';
+    return categories.find(c => c.id === selectedCategory)?.name || 'All Categories';
+  }, [selectedCategory, categories]);
+
   return (
     <div className="space-y-12">
       <div className="bg-card py-12">
@@ -91,28 +96,30 @@ export default function ProductsPage() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
-                <ScrollArea className="w-full md:w-auto whitespace-nowrap">
-                    <div className="flex items-center gap-2 pb-2">
-                        <Button
-                            variant={!selectedCategory ? 'default' : 'outline'}
-                            onClick={() => setSelectedCategory(null)}
-                            className="flex-shrink-0"
-                        >
-                            All
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="w-full md:w-auto">
+                            <Filter className="mr-2 h-4 w-4" />
+                            <span>{selectedCategoryName}</span>
                         </Button>
-                        {categories.map(category => (
-                            <Button
-                            key={category.id}
-                            variant={selectedCategory === category.id ? 'default' : 'outline'}
-                            onClick={() => setSelectedCategory(category.id)}
-                            className="flex-shrink-0"
-                            >
-                            {category.name}
-                            </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => setSelectedCategory(null)}>
+                            <div className="flex items-center justify-between w-full">
+                                <span>All Categories</span>
+                                {!selectedCategory && <Check className="h-4 w-4" />}
+                            </div>
+                        </DropdownMenuItem>
+                        {categories.map((category) => (
+                            <DropdownMenuItem key={category.id} onSelect={() => setSelectedCategory(category.id)}>
+                                <div className="flex items-center justify-between w-full">
+                                <span>{category.name}</span>
+                                {selectedCategory === category.id && <Check className="h-4 w-4" />}
+                                </div>
+                            </DropdownMenuItem>
                         ))}
-                    </div>
-                    <ScrollBar orientation="horizontal" className='md:hidden' />
-                </ScrollArea>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
           
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
