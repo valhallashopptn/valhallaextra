@@ -309,22 +309,6 @@ body {
       padding: 4px 0;
   }
 
-  .slide-out-widget {
-    @apply fixed top-1/2 right-0 -translate-y-1/2 z-50 flex items-center;
-  }
-  .slide-out-widget-icon {
-    @apply bg-primary text-primary-foreground p-3 rounded-l-md shadow-lg transition-colors duration-300 ease-in-out;
-    @apply group-hover:bg-accent group-hover:text-accent-foreground;
-  }
-  .slide-out-widget-text {
-    @apply bg-primary text-primary-foreground font-bold pl-4 pr-10 -mr-8 py-3 whitespace-nowrap transition-all duration-300 ease-in-out;
-    max-width: 0;
-    opacity: 0;
-    overflow: hidden;
-    transform: translateX(100%);
-    @apply group-hover:max-w-xs group-hover:opacity-100 group-hover:transform-none;
-  }
-  
   .social-panel {
     position: fixed;
     top: 50%;
@@ -339,7 +323,7 @@ body {
     transform: translateX(-260px);
   }
 
-  .social-panel li {
+  .social-panel ul li {
     display: block;
     margin: 5px;
     background: hsla(var(--card) / 0.5);
@@ -351,7 +335,7 @@ body {
     transition: all 0.5s;
   }
 
-  .social-panel li:hover {
+  .social-panel ul li:hover {
     transform: translateX(110px);
     background: hsla(var(--primary) / 0.8);
   }
@@ -385,4 +369,28 @@ body {
     text-align: right;
     padding-right: 10px;
   }
+
+  .leaderboard-widget {
+    @apply fixed bottom-5 right-5 z-50;
+  }
+  .leaderboard-widget-link {
+    @apply flex items-center bg-primary text-primary-foreground rounded-full shadow-lg overflow-hidden transition-all duration-300 ease-in-out;
+    @apply h-14 w-14 hover:w-48;
+  }
+  .leaderboard-widget-icon {
+    @apply flex-shrink-0 h-14 w-14 flex items-center justify-center;
+  }
+  .leaderboard-widget-text {
+    @apply font-bold whitespace-nowrap px-4 opacity-0 transition-opacity duration-200;
+  }
+  .leaderboard-widget-link:hover .leaderboard-widget-text {
+    @apply opacity-100;
+  }
+  .leaderboard-widget-link .leaderboard-widget-icon svg {
+    @apply transition-transform duration-300;
+  }
+  .leaderboard-widget-link:hover .leaderboard-widget-icon svg {
+    @apply rotate-12;
+  }
+
 }
