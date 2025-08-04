@@ -492,10 +492,10 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                         onSelect={() => router.push('/leaderboard')} 
-                        className="bg-amber-400/10 text-amber-400 focus:bg-amber-400/20 focus:text-amber-400"
+                        className="bg-amber-400/10 text-amber-400 focus:bg-amber-400/20 focus:text-popover-foreground"
                     >
                       <Trophy className="mr-2 h-4 w-4" />
-                      <span>Leaderboard</span>
+                      <span className="text-popover-foreground">{t('Header.leaderboard')}</span>
                     </DropdownMenuItem>
                      {isAdmin && (
                       <DropdownMenuItem onSelect={() => router.push('/admin')}>
