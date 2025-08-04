@@ -312,7 +312,7 @@ body {
   .social-panel {
     position: fixed;
     top: 50%;
-    left: 0;
+    left: 1rem;
     transform: translateY(-50%);
     z-index: 50;
   }
@@ -320,7 +320,7 @@ body {
   .social-panel ul {
     list-style: none;
     padding: 0px;
-    transform: translateX(-275px);
+    transform: translateX(-285px);
   }
 
   .social-panel ul li {
@@ -328,15 +328,15 @@ body {
     margin: 5px;
     background: hsla(var(--card) / 0.5);
     backdrop-filter: blur(4px);
-    width: 320px;
+    width: 340px;
     text-align: right;
-    padding: 12px;
+    padding: 16px;
     border-radius: 0 30px 30px 0;
     transition: all 0.5s;
   }
 
   .social-panel ul li:hover {
-    transform: translateX(120px);
+    transform: translateX(110px);
     background: hsla(var(--primary) / 0.8);
   }
   
@@ -347,7 +347,7 @@ body {
     align-items: center;
     justify-content: flex-end;
     font-weight: bold;
-    font-size: 1.1rem;
+    font-size: 1.25rem;
   }
 
   .social-panel li:hover a {
@@ -355,9 +355,9 @@ body {
   }
 
   .social-icon {
-    margin-left: 12px;
-    width: 40px;
-    height: 40px;
+    margin-left: 16px;
+    width: 48px;
+    height: 48px;
     transition: transform 0.5s;
   }
   
@@ -368,7 +368,7 @@ body {
   .social-link-text {
     flex-grow: 1;
     text-align: right;
-    padding-right: 12px;
+    padding-right: 16px;
   }
 
   .leaderboard-widget {
