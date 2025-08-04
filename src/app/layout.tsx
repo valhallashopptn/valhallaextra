@@ -17,7 +17,6 @@ import Script from 'next/script';
 import { Logo } from '@/components/icons/Logo';
 import { ReviewReminder } from '@/components/ReviewReminder';
 import { MaintenanceWrapper } from '@/components/MaintenanceWrapper';
-import { SocialSidePanel } from '@/components/SocialSidePanel';
 import Link from 'next/link';
 import { Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -51,7 +50,6 @@ export default async function RootLayout({
   const themeName = settings.theme || 'Night Runner';
   const activeTheme = themes.find(t => t.name === themeName) || themes[0];
   const announcementSettings = settings.announcement as AnnouncementSettings | null;
-  const socialLinks = settings.socialLinks as SocialLink[] | [];
   const maintenanceMode = settings.maintenanceMode as MaintenanceModeSettings | null;
   
   const themeStyle = {
@@ -95,7 +93,6 @@ export default async function RootLayout({
             <MusicPlayer src={settings.backgroundMusicUrl} />
           )}
           <ReviewReminder />
-          <SocialSidePanel socialLinks={socialLinks} />
         </Providers>
         <Script id="tawk-to-script" strategy="lazyOnload">
         {`
