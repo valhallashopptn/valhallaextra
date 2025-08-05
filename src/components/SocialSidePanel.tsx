@@ -23,8 +23,8 @@ export function SocialSidePanel({ socialLinks }: SocialSidePanelProps) {
               <Image
                 src={link.iconUrl}
                 alt={link.name}
-                width={32}
-                height={32}
+                width={28}
+                height={28}
                 className="social-icon"
               />
             </a>
