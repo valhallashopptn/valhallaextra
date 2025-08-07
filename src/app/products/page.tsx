@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { ProductCard } from '@/components/ProductCard';
@@ -14,6 +15,7 @@ import { PageWrapper } from '@/components/PageWrapper';
 import { Input } from '@/components/ui/input';
 import { Search, Filter, Check } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { PageHeader } from '@/components/PageHeader';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -71,18 +73,7 @@ export default function ProductsPage() {
 
   return (
     <div className="space-y-12">
-      <div className="bg-card py-12">
-        <PageWrapper>
-          <div className="space-y-4 text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
-              All Products
-            </h1>
-            <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl">
-              Instantly top up your favorite games. Fast, secure, and reliable service.
-            </p>
-          </div>
-        </PageWrapper>
-      </div>
+      <PageHeader pageKey="products" />
 
       <PageWrapper>
          <div className="space-y-8">

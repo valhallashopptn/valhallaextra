@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { getCategories } from '@/services/categoryService';
@@ -7,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageWrapper } from '@/components/PageWrapper';
 import { CategoryCard } from '@/components/CategoryCard';
+import { PageHeader } from '@/components/PageHeader';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -29,18 +31,7 @@ export default function CategoriesPage() {
 
   return (
     <div className="space-y-12">
-      <div className="bg-card py-12">
-        <PageWrapper>
-          <div className="space-y-4 text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
-              All Categories
-            </h1>
-            <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground sm:text-xl">
-              Browse through all our categories to find exactly what you're looking for.
-            </p>
-          </div>
-        </PageWrapper>
-      </div>
+      <PageHeader pageKey="categories" />
 
       <PageWrapper>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">

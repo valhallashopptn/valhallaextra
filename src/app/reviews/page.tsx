@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { LeaveReviewDialog } from './LeaveReviewDialog';
 import { PageWrapper } from '@/components/PageWrapper';
 import Link from 'next/link';
+import { PageHeader } from '@/components/PageHeader';
 
 function StarRating({ rating, size = 'md' }: { rating: number, size?: 'sm' | 'md' | 'lg' }) {
   const starClasses = size === 'sm' ? 'h-4 w-4' : size === 'md' ? 'h-5 w-5' : 'h-6 w-6';
@@ -75,26 +76,16 @@ export default function ReviewsPage() {
 
   return (
     <div className="space-y-12">
-       <div className="bg-card py-12">
-        <PageWrapper>
-          <div className="space-y-6 text-center">
-              <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
-              Customer Reviews
-              </h1>
-              <p className="mt-3 max-w-2xl mx-auto text-lg text-muted-foreground">
-              See what our community is saying about their experience.
-              </p>
-              {loading ? (
-                  <Skeleton className="h-12 w-80 mx-auto" />
-              ) : (
-                  <div className="flex flex-col items-center gap-4">
-                      <AverageRatingDisplay rating={averageRating} count={reviews.length} />
-                      <LeaveReviewDialog onReviewSubmitted={onReviewSubmitted} />
-                  </div>
-              )}
-          </div>
-        </PageWrapper>
-      </div>
+       <PageHeader pageKey="reviews">
+            {loading ? (
+                <Skeleton className="h-12 w-80 mx-auto" />
+            ) : (
+                <div className="flex flex-col items-center gap-4">
+                    <AverageRatingDisplay rating={averageRating} count={reviews.length} />
+                    <LeaveReviewDialog onReviewSubmitted={onReviewSubmitted} />
+                </div>
+            )}
+       </PageHeader>
 
       <PageWrapper>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { getSetting } from '@/services/settingsService';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { AboutPageContent } from '@/lib/types';
+import { PageHeader } from '@/components/PageHeader';
 
 
 function ValueCard({ icon, title, children, animateIcon = false }: { icon: React.ReactNode, title: string, children: React.ReactNode, animateIcon?: boolean }) {
@@ -70,18 +72,7 @@ export default function AboutPage() {
 
   return (
     <div className="space-y-12 pb-12">
-      <div className="bg-card py-12">
-        <PageWrapper>
-          <div className="space-y-4 text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
-              {content.mainTitle}
-            </h1>
-            <p className="mt-3 max-w-3xl mx-auto text-lg text-muted-foreground sm:text-xl">
-              {content.subtitle}
-            </p>
-          </div>
-        </PageWrapper>
-      </div>
+      <PageHeader pageKey="about" />
       
       <PageWrapper>
         <div className="max-w-5xl mx-auto space-y-20">

@@ -1,8 +1,9 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -14,12 +15,12 @@ import { useToast } from '@/hooks/use-toast';
 import { getSettings, updateSetting } from '@/services/settingsService';
 import Image from 'next/image';
 import { themes, type Theme } from '@/lib/themes';
-import { Check, PlusCircle, Trash2, ShieldAlert } from 'lucide-react';
+import { Check, PlusCircle, Trash2, ShieldAlert, Settings2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import type { AboutPageContent, ContactPageContent, SocialLink, AnnouncementSettings, HomePageFeaturesContent, MaintenanceModeSettings } from '@/lib/types';
+import type { AboutPageContent, ContactPageContent, SocialLink, AnnouncementSettings, HomePageFeaturesContent, MaintenanceModeSettings, PageHeaders } from '@/lib/types';
 import { Switch } from '@/components/ui/switch';
 
 
@@ -100,6 +101,22 @@ const maintenanceModeFormSchema = z.object({
   message: z.string().optional(),
 });
 
+const pageHeaderSettingSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  subtitle: z.string().min(1, "Subtitle is required"),
+  background: z.string().min(1, "Background is required (URL or CSS color)"),
+});
+
+const pageHeadersFormSchema = z.object({
+    products: pageHeaderSettingSchema,
+    categories: pageHeaderSettingSchema,
+    reviews: pageHeaderSettingSchema,
+    leaderboard: pageHeaderSettingSchema,
+    about: pageHeaderSettingSchema,
+    contact: pageHeaderSettingSchema,
+});
+
+
 type AppearanceFormData = z.infer<typeof appearanceFormSchema>;
 type IdentityFormData = z.infer<typeof identityFormSchema>;
 type NotificationFormData = z.infer<typeof notificationFormSchema>;
@@ -110,6 +127,16 @@ type ContactPageFormData = z.infer<typeof contactPageFormSchema>;
 type AnnouncementFormData = z.infer<typeof announcementFormSchema>;
 type HomePageFeaturesFormData = z.infer<typeof homePageFeaturesFormSchema>;
 type MaintenanceModeFormData = z.infer<typeof maintenanceModeFormSchema>;
+type PageHeadersFormData = z.infer<typeof pageHeadersFormSchema>;
+
+const defaultPageHeaders: PageHeaders = {
+    products: { title: 'All Products', subtitle: 'Browse our full catalog of digital goods.', background: 'https://placehold.co/1920x400.png' },
+    categories: { title: 'All Categories', subtitle: 'Find exactly what you\'re looking for.', background: 'https://placehold.co/1920x400.png' },
+    reviews: { title: 'Customer Reviews', subtitle: 'See what our community is saying.', background: 'https://placehold.co/1920x400.png' },
+    leaderboard: { title: 'Ranking Leaderboard', subtitle: 'See who\'s at the top of the game.', background: 'https://placehold.co/1920x400.png' },
+    about: { title: 'About Us', subtitle: 'Learn more about our mission and team.', background: 'https://placehold.co/1920x400.png' },
+    contact: { title: 'Get In Touch', subtitle: 'We\'d love to hear from you!', background: 'https://placehold.co/1920x400.png' },
+};
 
 export default function AppearancePage() {
   const { toast } = useToast();
@@ -168,6 +195,11 @@ export default function AppearancePage() {
       resolver: zodResolver(maintenanceModeFormSchema),
       defaultValues: { enabled: false, message: 'Our site is currently down for maintenance. We will be back shortly.' },
   });
+  
+  const pageHeadersForm = useForm<PageHeadersFormData>({
+    resolver: zodResolver(pageHeadersFormSchema),
+    defaultValues: defaultPageHeaders,
+  });
 
   const { fields: socialLinkFields, append: appendSocialLink, remove: removeSocialLink } = useFieldArray({
     control: socialLinksForm.control,
@@ -186,7 +218,7 @@ export default function AppearancePage() {
         const settingKeys = [
             'heroImageUrl', 'theme', 'siteTitle', 'logoUrl', 'faviconUrl', 'orderWebhookUrl',
             'socialLinks', 'aboutPageContent', 'contactPageContent', 'announcement',
-            'enableBackgroundMusic', 'backgroundMusicUrl', 'homePageFeatures', 'maintenanceMode'
+            'enableBackgroundMusic', 'backgroundMusicUrl', 'homePageFeatures', 'maintenanceMode', 'pageHeaders'
         ];
         const settings = await getSettings(settingKeys);
         
@@ -201,6 +233,7 @@ export default function AppearancePage() {
         socialLinksForm.reset({ socialLinks: settings.socialLinks || [] });
         announcementForm.reset(settings.announcement || { enabled: false, text: '', countdownDate: '', linkText: '', linkUrl: '' });
         maintenanceModeForm.reset(settings.maintenanceMode || { enabled: false, message: 'Our site is currently down for maintenance. We will be back shortly.' });
+        pageHeadersForm.reset(settings.pageHeaders || defaultPageHeaders);
         
         homePageFeaturesForm.reset(settings.homePageFeatures || {
             title: 'Why Choose TopUp Hub?',
@@ -243,7 +276,7 @@ export default function AppearancePage() {
       }
     };
     fetchSettings();
-  }, [appearanceForm, identityForm, notificationForm, musicForm, socialLinksForm, aboutPageForm, contactPageForm, announcementForm, homePageFeaturesForm, maintenanceModeForm, toast]);
+  }, [appearanceForm, identityForm, notificationForm, musicForm, socialLinksForm, aboutPageForm, contactPageForm, announcementForm, homePageFeaturesForm, maintenanceModeForm, pageHeadersForm, toast]);
 
   const handleGenericSubmit = async (key: string, data: any, formName: string) => {
     try {
@@ -281,6 +314,9 @@ export default function AppearancePage() {
         console.error("Failed to update theme", error);
     }
   }
+  
+   const pageHeaderKeys = Object.keys(defaultPageHeaders) as (keyof PageHeaders)[];
+
 
   return (
     <div className="space-y-8">
@@ -501,6 +537,65 @@ export default function AppearancePage() {
                 </div>
               </CardContent>
           </Card>
+
+           <Card>
+                <CardHeader>
+                    <CardTitle>Page Headers</CardTitle>
+                    <CardDescription>Customize the headers for your main pages.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Form {...pageHeadersForm}>
+                    <form onSubmit={pageHeadersForm.handleSubmit((data) => handleGenericSubmit('pageHeaders', data, 'Page Headers'))} className="space-y-6">
+                        {pageHeaderKeys.map((pageKey) => (
+                        <Card key={pageKey} className="overflow-hidden">
+                            <CardHeader className="bg-muted/50 p-4">
+                            <CardTitle className="text-lg capitalize flex items-center gap-2"><Settings2 className="h-5 w-5" /> {pageKey} Page</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-4 space-y-4">
+                            <FormField
+                                control={pageHeadersForm.control}
+                                name={`${pageKey}.title`}
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Title</FormLabel>
+                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={pageHeadersForm.control}
+                                name={`${pageKey}.subtitle`}
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Subtitle</FormLabel>
+                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={pageHeadersForm.control}
+                                name={`${pageKey}.background`}
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Background Image URL or CSS Color</FormLabel>
+                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            </CardContent>
+                        </Card>
+                        ))}
+                        <Button type="submit" disabled={pageHeadersForm.formState.isSubmitting}>
+                            {pageHeadersForm.formState.isSubmitting ? 'Saving...' : 'Save Page Headers'}
+                        </Button>
+                    </form>
+                    </Form>
+                </CardContent>
+            </Card>
+
           
           <Card>
               <CardHeader>
@@ -737,5 +832,3 @@ export default function AppearancePage() {
     </div>
   );
 }
-
-    

@@ -15,6 +15,7 @@ import { Crown, Trophy } from 'lucide-react';
 import { RankIcon } from '@/app/account/RankProgressCard';
 import { getRankDetails } from '@/app/account/RankProgressCard';
 import { cn } from '@/lib/utils';
+import { PageHeader } from '@/components/PageHeader';
 
 export default function LeaderboardPage() {
   const [topUsers, setTopUsers] = useState<UserProfile[]>([]);
@@ -51,18 +52,7 @@ export default function LeaderboardPage() {
 
   return (
     <div className="space-y-12 pb-12">
-      <div className="bg-card py-12">
-        <PageWrapper>
-          <div className="space-y-4 text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-primary sm:text-5xl md:text-6xl font-headline">
-              Ranking Leaderboard
-            </h1>
-            <p className="mt-3 max-w-3xl mx-auto text-lg text-muted-foreground sm:text-xl">
-              See who's at the top. Earn XP with every purchase to climb the ranks!
-            </p>
-          </div>
-        </PageWrapper>
-      </div>
+      <PageHeader pageKey="leaderboard" />
 
       <PageWrapper>
         <Card>

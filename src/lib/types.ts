@@ -232,3 +232,18 @@ export interface MaintenanceModeSettings {
   enabled: boolean;
   message: string;
 }
+
+export interface PageHeaderSetting {
+    title: string;
+    subtitle: string;
+    background: string;
+}
+
+export interface PageHeaders {
+    products: PageHeaderSetting;
+    categories: PageHeaderSetting;
+    reviews: PageHeaderSetting;
+    leaderboard: PageHeaderSetting;
+    about: PageHeaderSetting;
+    contact: PageHeaderSetting;
+}
