@@ -147,16 +147,6 @@ export default function Home() {
     fetchInitialData();
   }, []);
 
-  const featuredCategories = useMemo(() => categories.filter(c => c.featured), [categories]);
-  const nonFeaturedCategories = useMemo(() => categories.filter(c => !c.featured), [categories]);
-
-  const displayCategories = useMemo(() => {
-    // Show featured first, then fill up to 5 with non-featured
-    const cats = [...featuredCategories, ...nonFeaturedCategories];
-    return cats.slice(0, 5);
-  }, [featuredCategories, nonFeaturedCategories]);
-
-
   const filteredProducts = useMemo(() => {
     let prods = products;
     if (searchQuery) {
@@ -222,40 +212,23 @@ export default function Home() {
               </div>
             </div>
             
-            {/* Desktop Category Grid */}
-            <div className="hidden lg:grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                {loading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="aspect-[3/4] w-full rounded-xl" />
-                ))
-                ) : (
-                displayCategories.map((category: Category) => (
-                    <CategoryCard key={category.id} category={category} />
-                ))
-                )}
-            </div>
-
-            {/* Mobile Category Carousel */}
-            <div className="lg:hidden">
-              {loading ? (
-                <div className="flex space-x-4 overflow-hidden">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                      <Skeleton key={i} className="aspect-[3/4] w-2/3 flex-shrink-0 rounded-xl" />
-                  ))}
-                </div>
-              ) : (
-                <Carousel opts={{ align: "start" }} className="w-full">
-                  <CarouselContent className="-ml-2">
-                    {categories.map((category) => (
-                      <CarouselItem key={category.id} className="basis-2/3 pl-2">
-                        <CategoryCard category={category} />
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious className="hidden sm:flex" />
-                  <CarouselNext className="hidden sm:flex" />
-                </Carousel>
-              )}
+            <div className="relative w-full overflow-hidden marquee-container">
+              <div className="flex w-[200%]">
+                  <div className="marquee">
+                      {categories.map((category: Category) => (
+                          <div key={`${category.id}-1`} className="flex-shrink-0 w-60">
+                              <CategoryCard category={category} />
+                          </div>
+                      ))}
+                  </div>
+                  <div className="marquee" aria-hidden="true">
+                      {categories.map((category: Category) => (
+                           <div key={`${category.id}-2`} className="flex-shrink-0 w-60">
+                              <CategoryCard category={category} />
+                          </div>
+                      ))}
+                  </div>
+              </div>
             </div>
 
             <div className="text-center md:hidden">

@@ -221,20 +221,17 @@ body {
 
   .marquee {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1.25rem; /* 20px */
-      width: 100%;
-      animation: marquee 25s linear infinite;
+      gap: 1.5rem; /* 24px */
+      animation: marquee 40s linear infinite;
+  }
+  
+  .marquee-container:hover .marquee {
+      animation-play-state: paused;
   }
 
   @keyframes marquee {
     from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-
-  .marquee-content:hover .marquee {
-    animation-play-state: paused;
+    to { transform: translateX(-100%); }
   }
 }
 
