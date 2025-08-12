@@ -165,7 +165,7 @@ export default function Home() {
     if (selectedCategory) {
         prods = prods.filter(p => p.categoryId === selectedCategory);
     }
-    return prods.slice(0, 4); // Show only 4 products on homepage
+    return prods;
   }, [products, searchQuery, selectedCategory]);
 
   const selectedCategoryName = useMemo(() => {
@@ -221,7 +221,9 @@ export default function Home() {
                 </Button>
               </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            
+            {/* Desktop Category Grid */}
+            <div className="hidden lg:grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                     <Skeleton key={i} className="aspect-[3/4] w-full rounded-xl" />
@@ -232,7 +234,31 @@ export default function Home() {
                 ))
                 )}
             </div>
-              <div className="text-center md:hidden">
+
+            {/* Mobile Category Carousel */}
+            <div className="lg:hidden">
+              {loading ? (
+                <div className="flex space-x-4 overflow-hidden">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                      <Skeleton key={i} className="aspect-[3/4] w-2/3 flex-shrink-0 rounded-xl" />
+                  ))}
+                </div>
+              ) : (
+                <Carousel opts={{ align: "start" }} className="w-full">
+                  <CarouselContent className="-ml-2">
+                    {categories.map((category) => (
+                      <CarouselItem key={category.id} className="basis-2/3 pl-2">
+                        <CategoryCard category={category} />
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="hidden sm:flex" />
+                  <CarouselNext className="hidden sm:flex" />
+                </Carousel>
+              )}
+            </div>
+
+            <div className="text-center md:hidden">
                 <Button asChild>
                     <Link href="/categories">
                         {t('HomePage.viewAllCategories')} <ArrowRight className="ml-2 h-4 w-4" />
@@ -289,7 +315,8 @@ export default function Home() {
                   </DropdownMenu>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {/* Desktop Product Grid */}
+              <div className="hidden sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {loading ? (
                   Array.from({ length: 4 }).map((_, i) => (
                       <div key={i} className="flex flex-col space-y-3">
@@ -301,11 +328,33 @@ export default function Home() {
                       </div>
                   ))
                   ) : (
-                  filteredProducts.map((product: Product) => (
+                  filteredProducts.slice(0, 8).map((product: Product) => (
                       <ProductCard key={product.id} product={product} />
                   ))
                   )}
               </div>
+              
+              {/* Mobile Product Carousel */}
+               <div className="sm:hidden">
+                  {loading ? (
+                    <div className="flex space-x-4 overflow-hidden">
+                      {Array.from({ length: 2 }).map((_, i) => (
+                          <Skeleton key={i} className="h-80 w-5/6 flex-shrink-0 rounded-xl" />
+                      ))}
+                    </div>
+                  ) : (
+                    <Carousel opts={{ align: "start" }} className="w-full">
+                      <CarouselContent className="-ml-4">
+                        {filteredProducts.slice(0, 6).map((product) => (
+                          <CarouselItem key={product.id} className="basis-5/6 pl-4">
+                            <ProductCard product={product} />
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                    </Carousel>
+                  )}
+                </div>
+
               <div className="text-center pt-4">
                   <Button asChild variant="outline">
                       <Link href="/products">
