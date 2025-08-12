@@ -221,7 +221,6 @@ body {
 
   .marquee {
       display: flex;
-      gap: 1.5rem; /* 24px */
       animation: marquee 40s linear infinite;
   }
   

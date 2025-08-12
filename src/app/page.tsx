@@ -213,17 +213,17 @@ export default function Home() {
             </div>
             
             <div className="relative w-full overflow-hidden marquee-container">
-              <div className="flex w-[200%]">
+              <div className="flex w-fit">
                   <div className="marquee">
                       {categories.map((category: Category) => (
-                          <div key={`${category.id}-1`} className="flex-shrink-0 w-60">
+                          <div key={`${category.id}-1`} className="flex-shrink-0 w-60 px-3">
                               <CategoryCard category={category} />
                           </div>
                       ))}
                   </div>
                   <div className="marquee" aria-hidden="true">
                       {categories.map((category: Category) => (
-                           <div key={`${category.id}-2`} className="flex-shrink-0 w-60">
+                           <div key={`${category.id}-2`} className="flex-shrink-0 w-60 px-3">
                               <CategoryCard category={category} />
                           </div>
                       ))}
