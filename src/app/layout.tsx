@@ -30,16 +30,13 @@ const inter = Inter({
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings(['siteTitle', 'faviconUrl']);
   const siteTitle = settings.siteTitle || 'Valhalla Shop';
-  const faviconUrl = settings.faviconUrl || '/favicon.ico';
   
   return {
     title: {
       default: siteTitle,
       template: `%s | ${siteTitle}`,
     },
-    icons: {
-      icon: faviconUrl,
-    },
+    // The icon is now handled statically in the head tag below for faster loading.
   };
 }
 
@@ -80,6 +77,9 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={cn(inter.variable, 'dark')} style={themeStyle}>
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </head>
       <body>
         <Providers>
           <AnnouncementBar settings={announcementSettings} />
