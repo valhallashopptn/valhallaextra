@@ -97,7 +97,7 @@ export function ProductCard({ product }: ProductCardProps) {
     <Card className={cn(
       "group flex flex-col overflow-hidden transition-all duration-300 hover:border-primary hover:-translate-y-1 w-full"
       )}>
-      <CardContent className="p-4 flex flex-col flex-grow">
+      <CardContent className="p-2 md:p-4 flex flex-col flex-grow">
         <Link href={`/product/${product.id}`} className="block">
             <div className="aspect-[3/2] relative rounded-md overflow-hidden">
                 <Image
@@ -115,17 +115,17 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
         </Link>
         
-        <div className="mt-4 flex flex-col flex-grow">
+        <div className="mt-2 md:mt-4 flex flex-col flex-grow">
           <Link href={`/product/${product.id}`} className="block flex-grow">
               <div className="flex justify-between items-start gap-2">
-                  <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors pr-2">{product.name}</h3>
-                  <Badge variant="secondary" className="flex-shrink-0">{product.categoryName}</Badge>
+                  <h3 className="text-sm md:text-lg font-bold text-foreground group-hover:text-primary transition-colors pr-2">{product.name}</h3>
+                  <Badge variant="secondary" className="text-xs md:text-xs flex-shrink-0">{product.categoryName}</Badge>
               </div>
-              <p className="text-sm text-muted-foreground mt-2 flex-grow">{shortDescription}</p>
+              <p className="text-xs md:text-sm text-muted-foreground mt-2 flex-grow">{shortDescription}</p>
           </Link>
         </div>
         
-        <div className="mt-auto pt-4 space-y-3">
+        <div className="mt-auto pt-2 md:pt-4 space-y-2 md:space-y-3">
            {loadingReviews ? (
               <div className="h-5 w-24 bg-muted rounded-md animate-pulse" />
            ) : reviews.length > 0 ? (
@@ -141,26 +141,26 @@ export function ProductCard({ product }: ProductCardProps) {
            )}
            <div className="space-y-2">
                 <div className="flex items-baseline gap-2">
-                    <p className="text-xl font-bold text-primary">
+                    <p className="text-base md:text-xl font-bold text-primary">
                         {product.variants && product.variants.length > 0 ? "From " : ""}{formatPrice(displayPrice)}
                     </p>
                     {originalPrice && (
                         <>
                         <Separator orientation="vertical" className="h-4" />
-                        <p className="text-base text-muted-foreground line-through">
+                        <p className="text-sm md:text-base text-muted-foreground line-through">
                             {formatPrice(originalPrice)}
                         </p>
                         </>
                     )}
                 </div>
               <div className="flex items-center gap-2">
-                  <Button asChild variant="default" size="sm" className="w-full bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                  <Button asChild variant="default" size="sm" className="w-full bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors h-9 text-xs md:text-sm">
                       <Link href={`/product/${product.id}`} onClick={handleBuyNowClick}>
                           <ShoppingCart className="mr-2 h-4 w-4" />
                           Buy Now
                       </Link>
                   </Button>
-                  <Button name="wishlist" onClick={handleWishlistClick} variant="outline" size="icon" className="flex-shrink-0">
+                  <Button name="wishlist" onClick={handleWishlistClick} variant="outline" size="icon" className="flex-shrink-0 h-9 w-9">
                       <Heart className={cn("h-4 w-4", isWishlisted && "text-primary fill-current")} />
                   </Button>
               </div>

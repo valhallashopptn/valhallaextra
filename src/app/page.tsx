@@ -307,26 +307,24 @@ export default function Home() {
                   )}
               </div>
               
-              {/* Mobile Product Carousel */}
-               <div className="sm:hidden">
-                  {loading ? (
-                    <div className="flex space-x-4 overflow-hidden">
-                      {Array.from({ length: 2 }).map((_, i) => (
-                          <Skeleton key={i} className="h-80 w-5/6 flex-shrink-0 rounded-xl" />
-                      ))}
+              {/* Mobile Product Grid */}
+              <div className="grid grid-cols-2 gap-4 sm:hidden">
+                {loading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="flex flex-col space-y-3">
+                      <Skeleton className="h-[125px] w-full rounded-xl" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-2/3" />
+                      </div>
                     </div>
-                  ) : (
-                    <Carousel opts={{ align: "start" }} className="w-full">
-                      <CarouselContent className="-ml-4">
-                        {filteredProducts.slice(0, 6).map((product) => (
-                          <CarouselItem key={product.id} className="basis-5/6 pl-4">
-                            <ProductCard product={product} />
-                          </CarouselItem>
-                        ))}
-                      </CarouselContent>
-                    </Carousel>
-                  )}
-                </div>
+                  ))
+                ) : (
+                  filteredProducts.slice(0, 6).map((product: Product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))
+                )}
+              </div>
 
               <div className="text-center pt-4">
                   <Button asChild variant="outline">
