@@ -28,12 +28,14 @@ const inter = Inter({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { siteTitle, faviconUrl } = await getSettings(['siteTitle', 'faviconUrl']);
+  const settings = await getSettings(['siteTitle', 'faviconUrl']);
+  const siteTitle = settings.siteTitle || 'Valhalla Shop';
+  const faviconUrl = settings.faviconUrl || '/favicon.ico';
   
   return {
     title: {
-      default: siteTitle || 'Valhalla Shop',
-      template: `%s | ${siteTitle || 'Valhalla Shop'}`,
+      default: siteTitle,
+      template: `%s | ${siteTitle}`,
     },
     icons: {
       icon: faviconUrl,
