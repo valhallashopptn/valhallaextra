@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import * as z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,13 +19,14 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/context/AuthContext';
-import { Star, MessageSquare } from 'lucide-react';
+import { Star, MessageSquare, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { getProducts } from '@/services/productService';
 import { addReview } from '@/services/reviewService';
 import type { Product } from '@/lib/types';
 import { useRouter } from 'next/navigation';
+import { Input } from '@/components/ui/input';
 
 const reviewSchema = z.object({
   productId: z.string().min(1, 'Please select a product.'),
@@ -43,6 +44,7 @@ export function LeaveReviewDialog({ onReviewSubmitted }: LeaveReviewDialogProps)
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [hoverRating, setHoverRating] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const { user } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
@@ -65,6 +67,15 @@ export function LeaveReviewDialog({ onReviewSubmitted }: LeaveReviewDialogProps)
       comment: '',
     },
   });
+  
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery) {
+        return products;
+    }
+    return products.filter(product => 
+        product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [products, searchQuery]);
 
   const handleTriggerClick = () => {
     if (!user) {
@@ -99,6 +110,7 @@ export function LeaveReviewDialog({ onReviewSubmitted }: LeaveReviewDialogProps)
       });
       toast({ title: 'Success', description: 'Your review has been submitted!' });
       form.reset();
+      setSearchQuery('');
       setIsDialogOpen(false);
       onReviewSubmitted();
     } catch (error) {
@@ -137,9 +149,23 @@ export function LeaveReviewDialog({ onReviewSubmitted }: LeaveReviewDialogProps)
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {products.map(product => (
+                        <div className="p-2">
+                           <div className="relative">
+                               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                               <Input 
+                                   placeholder="Search for a product..."
+                                   className="pl-8"
+                                   value={searchQuery}
+                                   onChange={(e) => setSearchQuery(e.target.value)}
+                               />
+                           </div>
+                        </div>
+                      {filteredProducts.map(product => (
                         <SelectItem key={product.id} value={product.id}>{product.name}</SelectItem>
                       ))}
+                      {filteredProducts.length === 0 && (
+                        <div className="py-2 px-4 text-center text-sm text-muted-foreground">No products found.</div>
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -200,7 +226,7 @@ export function LeaveReviewDialog({ onReviewSubmitted }: LeaveReviewDialogProps)
             />
 
             <DialogFooter>
-               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+               <Button type="button" variant="outline" onClick={() => { setIsDialogOpen(false); setSearchQuery('')}}>Cancel</Button>
               <Button type="submit" disabled={form.formState.isSubmitting}>
                 {form.formState.isSubmitting ? 'Submitting...' : 'Submit Review'}
               </Button>
@@ -211,5 +237,3 @@ export function LeaveReviewDialog({ onReviewSubmitted }: LeaveReviewDialogProps)
     </Dialog>
   );
 }
-
-    
