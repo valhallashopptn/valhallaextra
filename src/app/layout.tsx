@@ -80,7 +80,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className={cn(inter.variable, 'dark')} style={themeStyle}>
       <head>
-        {/* Favicon is now handled by generateMetadata for instant loading */}
+        {/* The dynamic favicon is handled by generateMetadata for optimal loading */}
       </head>
       <body>
         <Providers>
