@@ -36,7 +36,9 @@ export async function generateMetadata(): Promise<Metadata> {
       default: siteTitle,
       template: `%s | ${siteTitle}`,
     },
-    // The icon is now handled statically in the head tag below for faster loading.
+    icons: {
+      icon: settings.faviconUrl || '/favicon.ico',
+    },
   };
 }
 
@@ -78,7 +80,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className={cn(inter.variable, 'dark')} style={themeStyle}>
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        {/* Favicon is now handled by generateMetadata for instant loading */}
       </head>
       <body>
         <Providers>
