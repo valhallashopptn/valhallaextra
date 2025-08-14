@@ -127,7 +127,7 @@ export function LeaveReviewDialog({ onReviewSubmitted }: LeaveReviewDialogProps)
           Leave Your Own Review
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[480px]" onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Write a Review</DialogTitle>
           <DialogDescription>
