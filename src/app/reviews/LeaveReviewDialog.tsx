@@ -157,6 +157,7 @@ export function LeaveReviewDialog({ onReviewSubmitted }: LeaveReviewDialogProps)
                                    className="pl-8"
                                    value={searchQuery}
                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                   onKeyDown={(e) => e.stopPropagation()}
                                />
                            </div>
                         </div>
