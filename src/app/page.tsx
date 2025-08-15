@@ -308,7 +308,7 @@ export default function Home() {
               </div>
               
               {/* Mobile Product Grid */}
-              <div className="grid grid-cols-2 gap-4 sm:hidden">
+              <div className="grid grid-cols-1 gap-4 sm:hidden">
                 {loading ? (
                   Array.from({ length: 4 }).map((_, i) => (
                     <div key={i} className="flex flex-col space-y-3">
