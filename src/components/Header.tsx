@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, ShieldCheck, Search, Menu, Wallet, Star, Trophy, Crown, ShieldOff, Shield, Sword, Swords, Gem, Diamond, Hexagon } from 'lucide-react';
+import { ShoppingCart, User as UserIcon, LogOut, LayoutDashboard, ShieldCheck, Search, Menu, Wallet, Star, Trophy, Crown, ShieldOff, Shield, Sword, Swords, Gem, Diamond, Hexagon, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -130,6 +130,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setResults] = useState<Product[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -201,6 +202,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
   const handleSearchResultClick = () => {
     setSearchQuery('');
     setIsSearchOpen(false);
+    setIsMobileSearchOpen(false);
     setIsMobileMenuOpen(false);
   }
 
@@ -208,6 +210,8 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
     <header className="sticky top-0 z-50 w-full border-b border-border/10 bg-background/50 backdrop-blur-sm">
       <div className="container mx-auto px-4 flex h-14 items-center">
         
+        {!isMobileSearchOpen && (
+        <>
         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="md:hidden mr-2">
@@ -218,7 +222,6 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
           <SheetContent 
             side="left" 
             className="w-3/4 bg-background/50 backdrop-blur-sm"
-            onOpenAutoFocus={(e) => e.preventDefault()}
           >
             <SheetHeader>
                 <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
@@ -235,43 +238,6 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                     </span>
                 </div>
                 
-                <div className="relative w-full">
-                  <form onSubmit={(e) => { e.preventDefault(); router.push(`/products?q=${searchQuery}`); handleSearchResultClick(); }}>
-                    <div className="relative">
-                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        type="search"
-                        placeholder={t('Header.search')}
-                        className="w-full rounded-lg bg-background/80 pl-8"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onFocus={() => { if(searchQuery) setIsSearchOpen(true)}}
-                        autoFocus={false}
-                      />
-                       {isSearchOpen && searchResults.length > 0 && (
-                          <div className="absolute top-full mt-2 w-full rounded-md border bg-card text-card-foreground shadow-lg z-50 max-h-60 overflow-y-auto">
-                            <ul>
-                              {searchResults.map(product => (
-                                <li key={product.id}>
-                                  <Link href={`/product/${product.id}`} className="block hover:bg-muted" onClick={handleSearchResultClick}>
-                                    <div className="flex items-center gap-4 p-2">
-                                      <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="rounded-md object-cover" />
-                                      <div>
-                                        <p className="text-sm font-medium">{product.name}</p>
-                                        <p className="text-xs text-muted-foreground">{product.categoryName}</p>
-                                      </div>
-                                    </div>
-                                  </Link>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                    </div>
-                  </form>
-                </div>
-
-
                 <nav className="flex flex-col gap-4 mt-2">
                     <Link 
                     href="/" 
@@ -376,9 +342,12 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
             </Link>
             </nav>
         </div>
+        </>
+        )}
         
-        <div className="flex flex-1 items-center justify-end">
-          <div className="relative hidden md:block w-full max-w-sm" ref={searchRef}>
+        <div className={cn("flex flex-1 items-center justify-end", isMobileSearchOpen && "w-full")}>
+          
+          <div className={cn("relative hidden md:block w-full max-w-sm", isMobileSearchOpen && "block w-full")}>
             <form onSubmit={(e) => { e.preventDefault(); router.push(`/products?q=${searchQuery}`); handleSearchResultClick(); }}>
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -390,57 +359,77 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => { if(searchQuery) setIsSearchOpen(true)}}
                 />
-                 {isSearchOpen && searchResults.length > 0 && (
-                  <div className="absolute top-full mt-2 w-full rounded-md border bg-card text-card-foreground shadow-lg z-50 max-h-96 overflow-y-auto">
-                    <ul>
-                      {searchResults.map(product => (
-                        <li key={product.id}>
-                          <Link href={`/product/${product.id}`} className="block hover:bg-muted" onClick={handleSearchResultClick}>
-                            <div className="flex items-center gap-4 p-2">
-                               <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="rounded-md object-cover" />
-                               <div>
-                                 <p className="text-sm font-medium">{product.name}</p>
-                                 <p className="text-xs text-muted-foreground">{product.categoryName}</p>
-                               </div>
-                            </div>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
               </div>
             </form>
+            {isSearchOpen && searchResults.length > 0 && (
+              <div ref={searchRef} className="absolute top-full mt-2 w-full rounded-md border bg-card text-card-foreground shadow-lg z-50 max-h-96 overflow-y-auto">
+                <ul>
+                  {searchResults.map(product => (
+                    <li key={product.id}>
+                      <Link href={`/product/${product.id}`} className="block hover:bg-muted" onClick={handleSearchResultClick}>
+                        <div className="flex items-center gap-4 p-2">
+                           <Image src={product.imageUrl} alt={product.name} width={40} height={40} className="rounded-md object-cover" />
+                           <div>
+                             <p className="text-sm font-medium">{product.name}</p>
+                             <p className="text-xs text-muted-foreground">{product.categoryName}</p>
+                           </div>
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
           
           <div className="flex items-center space-x-1 ml-2">
-            <CurrencySwitcher />
-            <LanguageSwitcher />
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative"
-              onClick={openCart}
-              aria-label={`Shopping cart with ${cartCount} items`}
-            >
-              <ShoppingCart className="h-5 w-5" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                  {cartCount}
-                </span>
-              )}
-            </Button>
-            <CartPanel />
+            {!isMobileSearchOpen && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden"
+                  onClick={() => setIsMobileSearchOpen(true)}
+                >
+                  <Search className="h-5 w-5" />
+                  <span className="sr-only">Open Search</span>
+                </Button>
+                <CurrencySwitcher />
+                <LanguageSwitcher />
+              
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative"
+                  onClick={openCart}
+                  aria-label={`Shopping cart with ${cartCount} items`}
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                      {cartCount}
+                    </span>
+                  )}
+                </Button>
+                <CartPanel />
 
-            {user && userProfile && (
-              <Link href="/account" className="hidden md:flex items-center gap-2 border border-border rounded-md px-3 h-10 transition-colors hover:bg-muted">
-                    <Wallet className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-semibold">{formatPrice(userProfile.walletBalance)}</span>
-              </Link>
+                {user && userProfile && (
+                  <Link href="/account" className="hidden md:flex items-center gap-2 border border-border rounded-md px-3 h-10 transition-colors hover:bg-muted">
+                        <Wallet className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-semibold">{formatPrice(userProfile.walletBalance)}</span>
+                  </Link>
+                )}
+              </>
+            )}
+
+            {isMobileSearchOpen && (
+                <Button variant="ghost" size="icon" onClick={() => setIsMobileSearchOpen(false)}>
+                    <X className="h-5 w-5" />
+                    <span className="sr-only">Close Search</span>
+                </Button>
             )}
             
-            {user ? (
+            {!isMobileSearchOpen && user ? (
                <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -510,7 +499,7 @@ export function Header({ siteTitle = 'TopUp Hub', logoUrl }: HeaderProps) {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
+            ) : !isMobileSearchOpen && (
               <div className="hidden md:flex items-center gap-2">
                  <Button onClick={() => router.push('/login')} variant="outline">
                     <UserIcon className="mr-2 h-4 w-4" />
