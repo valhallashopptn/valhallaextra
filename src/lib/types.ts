@@ -192,6 +192,11 @@ export interface AnnouncementSettings {
     linkText: string;
 }
 
+export interface PaymentWarningSettings {
+    message: string;
+    color: string;
+}
+
 export interface HomePageFeature {
     id: string;
     title: string;

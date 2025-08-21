@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from '@/components/ui/button';
 import { getPaymentMethods, addPaymentMethod, updatePaymentMethod } from '@/services/paymentMethodService';
 import { getSetting, updateSetting } from '@/services/settingsService';
-import type { PaymentMethod } from '@/lib/types';
+import type { PaymentMethod, PaymentWarningSettings } from '@/lib/types';
 import { PlusCircle, Edit, AlertTriangle } from 'lucide-react';
 import { PaymentMethodForm } from './PaymentMethodForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -19,34 +19,43 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-
+import { Input } from '@/components/ui/input';
 
 const warningFormSchema = z.object({
   message: z.string().min(10, { message: "Warning must be at least 10 characters." }),
+  color: z.string().min(3, { message: "Please enter a valid color." }),
 });
 
 type WarningFormData = z.infer<typeof warningFormSchema>;
+
+const defaultWarning: PaymentWarningSettings = {
+  message: 'Please submit accurate payment details. Submitting fake information will result in order cancellation and may lead to account suspension.',
+  color: '#ef4444' // red-500
+};
 
 function PaymentWarningForm() {
   const { toast } = useToast();
   const form = useForm<WarningFormData>({
     resolver: zodResolver(warningFormSchema),
-    defaultValues: { message: "" },
+    defaultValues: { 
+      message: defaultWarning.message,
+      color: defaultWarning.color,
+     },
   });
 
   useEffect(() => {
-    getSetting('paymentWarningMessage').then(value => {
+    getSetting('paymentWarning').then(value => {
       if (value) {
-        form.setValue('message', value);
+        form.reset(value);
       } else {
-        form.setValue('message', 'Please submit accurate payment details. Submitting fake information will result in order cancellation and may lead to account suspension.');
+        form.reset(defaultWarning);
       }
     });
   }, [form]);
 
   const handleWarningSubmit = async (data: WarningFormData) => {
     try {
-      await updateSetting('paymentWarningMessage', data.message);
+      await updateSetting('paymentWarning', data);
       toast({ title: "Success", description: "Payment warning message updated." });
     } catch (error) {
       toast({ title: "Error", description: "Failed to update warning message.", variant: 'destructive' });
@@ -71,6 +80,22 @@ function PaymentWarningForm() {
                                   <FormLabel>Warning Message</FormLabel>
                                   <FormControl>
                                       <Textarea {...field} rows={4} />
+                                  </FormControl>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                      <FormField
+                          control={form.control}
+                          name="color"
+                          render={({ field }) => (
+                              <FormItem>
+                                  <FormLabel>Warning Color</FormLabel>
+                                  <FormControl>
+                                      <div className="flex items-center gap-2">
+                                          <Input {...field} placeholder="#ef4444" />
+                                          <div className="h-10 w-10 rounded-md border" style={{ backgroundColor: field.value }}></div>
+                                      </div>
                                   </FormControl>
                                   <FormMessage />
                               </FormItem>

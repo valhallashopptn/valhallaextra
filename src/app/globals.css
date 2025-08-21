@@ -122,20 +122,6 @@ body {
     animation: rgb-keyboard-flow 1.5s linear infinite;
   }
   
-  @keyframes rgb-border-flow {
-    0%, 100% { border-color: #ff0000; }
-    14% { border-color: #ff7300; }
-    28% { border-color: #fffb00; }
-    42% { border-color: #48ff00; }
-    57% { border-color: #00ffd5; }
-    71% { border-color: #002bff; }
-    85% { border-color: #7a00ff; }
-  }
-  
-  .border-rgb-animate {
-    animation: rgb-border-flow 1.5s linear infinite;
-  }
-
   .fixed-glow-b {
     color: #a855f7;
     text-shadow: 0 0 8px #a855f7;
@@ -322,28 +308,19 @@ body {
   .social-panel {
     position: fixed;
     top: 50%;
-    left: 1rem;
+    left: 0;
     transform: translateY(-50%);
     z-index: 50;
   }
-  
+
   [dir="rtl"] .social-panel {
-    left: 1rem;
-    right: auto;
+    left: auto;
+    right: 0;
   }
 
   .social-panel ul {
     list-style: none;
     padding: 0px;
-    transform: translateX(-270px);
-  }
-
-  [dir="rtl"] .social-panel ul {
-    transform: translateX(270px);
-  }
-  
-  [dir="rtl"] .social-panel ul li:hover {
-    transform: translateX(-110px);
   }
 
   .social-panel ul li {
@@ -351,7 +328,7 @@ body {
     margin: 5px;
     background: hsla(var(--card) / 0.5);
     backdrop-filter: blur(4px);
-    width: 300px;
+    width: 44px;
     text-align: right;
     padding: 8px;
     border-radius: 0 30px 30px 0;
@@ -363,9 +340,8 @@ body {
     border-radius: 30px 0 0 30px;
   }
 
-
   .social-panel ul li:hover {
-    transform: translateX(110px);
+    width: 300px;
     background: rgba(255, 255, 255, 0.4);
   }
   
@@ -404,9 +380,20 @@ body {
   }
 
   .social-link-text {
+    visibility: hidden;
+    opacity: 0;
+    width: 0;
+    transition: opacity 0.5s, width 0.5s;
+    white-space: nowrap;
     flex-grow: 1;
     text-align: right;
     padding-right: 16px;
+  }
+  
+  .social-panel li:hover .social-link-text {
+      visibility: visible;
+      opacity: 1;
+      width: auto;
   }
 
   [dir="rtl"] .social-link-text {

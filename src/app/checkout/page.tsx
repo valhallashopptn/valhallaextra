@@ -20,7 +20,7 @@ import { getUserProfile } from '@/services/walletService';
 import { getCouponByCode } from '@/services/couponService';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { PageWrapper } from '@/components/PageWrapper';
-import type { PaymentMethod, CartItem, Coupon, UserProfile, CustomField as CustomFieldType } from '@/lib/types';
+import type { PaymentMethod, CartItem, Coupon, UserProfile, CustomField as CustomFieldType, PaymentWarningSettings } from '@/lib/types';
 import { Lock, Info, Wallet, Tag, CheckCircle, Star, AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -139,7 +139,7 @@ export default function CheckoutPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [useWallet, setUseWallet] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-  const [paymentWarning, setPaymentWarning] = useState('');
+  const [paymentWarning, setPaymentWarning] = useState<PaymentWarningSettings | null>(null);
 
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
@@ -170,11 +170,11 @@ export default function CheckoutPage() {
           const [methods, profile, warning] = await Promise.all([
             getPaymentMethods(),
             getUserProfile(user.uid),
-            getSetting('paymentWarningMessage')
+            getSetting('paymentWarning')
           ]);
           setPaymentMethods(methods);
           setUserProfile(profile);
-          setPaymentWarning(warning || 'Please submit accurate payment details. Submitting fake information will result in order cancellation and may lead to account suspension.');
+          setPaymentWarning(warning || { message: 'Please submit accurate payment details. Submitting fake information will result in order cancellation and may lead to account suspension.', color: '#ef4444'});
           if (methods.length > 0) {
             setSelectedMethodId(methods[0].id)
           }
@@ -563,10 +563,17 @@ export default function CheckoutPage() {
               )}
 
               {!isFullPaymentByWallet && paymentWarning && (
-                <Alert variant="destructive" className="mt-4 border-rgb-animate">
-                    <AlertTriangle className="h-4 w-4 text-rgb-animate" />
-                    <AlertTitle className="text-rgb-animate">Important Notice</AlertTitle>
-                    <AlertDescription className="text-rgb-animate">{paymentWarning}</AlertDescription>
+                <Alert 
+                    variant="destructive" 
+                    className="mt-4" 
+                    style={{ 
+                        borderColor: paymentWarning.color,
+                        color: paymentWarning.color
+                    }}
+                >
+                    <AlertTriangle className="h-4 w-4" style={{ color: paymentWarning.color }}/>
+                    <AlertTitle style={{ color: paymentWarning.color }}>Important Notice</AlertTitle>
+                    <AlertDescription style={{ color: paymentWarning.color }}>{paymentWarning.message}</AlertDescription>
                 </Alert>
               )}
 
