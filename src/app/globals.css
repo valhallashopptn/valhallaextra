@@ -121,6 +121,20 @@ body {
   .text-rgb-animate {
     animation: rgb-keyboard-flow 1.5s linear infinite;
   }
+  
+  @keyframes rgb-border-flow {
+    0%, 100% { border-color: #ff0000; }
+    14% { border-color: #ff7300; }
+    28% { border-color: #fffb00; }
+    42% { border-color: #48ff00; }
+    57% { border-color: #00ffd5; }
+    71% { border-color: #002bff; }
+    85% { border-color: #7a00ff; }
+  }
+  
+  .border-rgb-animate {
+    animation: rgb-border-flow 1.5s linear infinite;
+  }
 
   .fixed-glow-b {
     color: #a855f7;

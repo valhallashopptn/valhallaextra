@@ -563,10 +563,10 @@ export default function CheckoutPage() {
               )}
 
               {!isFullPaymentByWallet && paymentWarning && (
-                <Alert variant="destructive" className="mt-4">
-                    <AlertTriangle className="h-4 w-4" />
+                <Alert variant="destructive" className="mt-4 border-rgb-animate">
+                    <AlertTriangle className="h-4 w-4 text-rgb-animate" />
                     <AlertTitle className="text-rgb-animate">Important Notice</AlertTitle>
-                    <AlertDescription>{paymentWarning}</AlertDescription>
+                    <AlertDescription className="text-rgb-animate">{paymentWarning}</AlertDescription>
                 </Alert>
               )}
 
