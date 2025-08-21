@@ -21,12 +21,13 @@ import { getCouponByCode } from '@/services/couponService';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { PageWrapper } from '@/components/PageWrapper';
 import type { PaymentMethod, CartItem, Coupon, UserProfile, CustomField as CustomFieldType } from '@/lib/types';
-import { Lock, Info, Wallet, Tag, CheckCircle, Star } from 'lucide-react';
+import { Lock, Info, Wallet, Tag, CheckCircle, Star, AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { OrderConfirmationDialog } from '@/components/OrderConfirmationDialog';
 import { Slider } from '@/components/ui/slider';
+import { getSetting } from '@/services/settingsService';
 
 
 const COINS_TO_USD_RATE = 500; // 500 coins = $1
@@ -138,6 +139,7 @@ export default function CheckoutPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [useWallet, setUseWallet] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [paymentWarning, setPaymentWarning] = useState('');
 
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
@@ -165,12 +167,14 @@ export default function CheckoutPage() {
     const fetchCheckoutData = async () => {
       if (user) {
         try {
-          const [methods, profile] = await Promise.all([
+          const [methods, profile, warning] = await Promise.all([
             getPaymentMethods(),
-            getUserProfile(user.uid)
+            getUserProfile(user.uid),
+            getSetting('paymentWarningMessage')
           ]);
           setPaymentMethods(methods);
           setUserProfile(profile);
+          setPaymentWarning(warning || 'Please submit accurate payment details. Submitting fake information will result in order cancellation and may lead to account suspension.');
           if (methods.length > 0) {
             setSelectedMethodId(methods[0].id)
           }
@@ -556,6 +560,14 @@ export default function CheckoutPage() {
                     />
                   ))}
                 </div>
+              )}
+
+              {!isFullPaymentByWallet && paymentWarning && (
+                <Alert variant="destructive" className="mt-4">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Important Notice</AlertTitle>
+                    <AlertDescription>{paymentWarning}</AlertDescription>
+                </Alert>
               )}
 
               {isFullPaymentByWallet && (

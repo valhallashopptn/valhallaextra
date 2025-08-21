@@ -6,13 +6,86 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { getPaymentMethods, addPaymentMethod, updatePaymentMethod } from '@/services/paymentMethodService';
+import { getSetting, updateSetting } from '@/services/settingsService';
 import type { PaymentMethod } from '@/lib/types';
-import { PlusCircle, Edit } from 'lucide-react';
+import { PlusCircle, Edit, AlertTriangle } from 'lucide-react';
 import { PaymentMethodForm } from './PaymentMethodForm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
+
+
+const warningFormSchema = z.object({
+  message: z.string().min(10, { message: "Warning must be at least 10 characters." }),
+});
+
+type WarningFormData = z.infer<typeof warningFormSchema>;
+
+function PaymentWarningForm() {
+  const { toast } = useToast();
+  const form = useForm<WarningFormData>({
+    resolver: zodResolver(warningFormSchema),
+    defaultValues: { message: "" },
+  });
+
+  useEffect(() => {
+    getSetting('paymentWarningMessage').then(value => {
+      if (value) {
+        form.setValue('message', value);
+      } else {
+        form.setValue('message', 'Please submit accurate payment details. Submitting fake information will result in order cancellation and may lead to account suspension.');
+      }
+    });
+  }, [form]);
+
+  const handleWarningSubmit = async (data: WarningFormData) => {
+    try {
+      await updateSetting('paymentWarningMessage', data.message);
+      toast({ title: "Success", description: "Payment warning message updated." });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to update warning message.", variant: 'destructive' });
+      console.error("Failed to update warning message", error);
+    }
+  };
+
+  return (
+      <Card>
+          <CardHeader>
+              <CardTitle className="flex items-center gap-2"><AlertTriangle className="text-destructive"/> Payment Warning Message</CardTitle>
+              <CardDescription>This message will be displayed to users on the checkout page to discourage fake payment submissions.</CardDescription>
+          </CardHeader>
+          <CardContent>
+              <Form {...form}>
+                  <form onSubmit={form.handleSubmit(handleWarningSubmit)} className="space-y-4">
+                      <FormField
+                          control={form.control}
+                          name="message"
+                          render={({ field }) => (
+                              <FormItem>
+                                  <FormLabel>Warning Message</FormLabel>
+                                  <FormControl>
+                                      <Textarea {...field} rows={4} />
+                                  </FormControl>
+                                  <FormMessage />
+                              </FormItem>
+                          )}
+                      />
+                      <Button type="submit" disabled={form.formState.isSubmitting}>
+                          {form.formState.isSubmitting ? "Saving..." : "Save Message"}
+                      </Button>
+                  </form>
+              </Form>
+          </CardContent>
+      </Card>
+  );
+}
+
 
 export default function PaymentsPage() {
   const { toast } = useToast();
@@ -129,6 +202,9 @@ export default function PaymentsPage() {
             </Table>
           </CardContent>
         </Card>
+        
+        <PaymentWarningForm />
+
       </div>
       
       <DialogContent className="sm:max-w-[480px]">
