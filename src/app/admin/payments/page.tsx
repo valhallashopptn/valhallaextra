@@ -232,15 +232,17 @@ export default function PaymentsPage() {
 
       </div>
       
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-xl h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{editingMethod ? 'Edit Payment Method' : 'Add New Payment Method'}</DialogTitle>
         </DialogHeader>
-        <PaymentMethodForm
-          onSubmit={handleFormSubmit}
-          initialData={editingMethod}
-          onCancel={() => setIsDialogOpen(false)}
-        />
+        <div className="flex-grow overflow-hidden">
+            <PaymentMethodForm
+            onSubmit={handleFormSubmit}
+            initialData={editingMethod}
+            onCancel={() => setIsDialogOpen(false)}
+            />
+        </div>
       </DialogContent>
     </Dialog>
   );
