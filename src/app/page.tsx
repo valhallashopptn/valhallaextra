@@ -31,7 +31,6 @@ import { Badge } from '@/components/ui/badge';
 import { useTranslation } from '@/context/TranslationContext';
 import { CategoryCard } from '@/components/CategoryCard';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { SocialSidePanel } from '@/components/SocialSidePanel';
 
 
 function FeatureCard({ icon, title, value, animationClass }: { icon: React.ReactNode, title: string, value: string, animationClass?: string }) {
@@ -112,7 +111,6 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [topUsers, setTopUsers] = useState<UserProfile[]>([]);
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [heroImageUrl, setHeroImageUrl] = useState('');
   const [featuresContent, setFeaturesContent] = useState<HomePageFeaturesContent>(defaultFeaturesContent);
   const [loading, setLoading] = useState(true);
@@ -128,13 +126,12 @@ export default function Home() {
             getProducts(),
             getAllReviews(),
             getTopUsers(3),
-            getSettings(['heroImageUrl', 'homePageFeatures', 'socialLinks'])
+            getSettings(['heroImageUrl', 'homePageFeatures'])
         ]);
         setCategories(categoriesFromDb);
         setProducts(productsFromDb);
         setReviews(reviewsFromDb);
         setTopUsers(topUsersFromDb);
-        setSocialLinks(settings.socialLinks || []);
         setHeroImageUrl(settings.heroImageUrl || 'https://placehold.co/1920x1080.png?text=TopUp+Hub');
         setFeaturesContent(settings.homePageFeatures || defaultFeaturesContent);
       } catch (error) {
@@ -166,7 +163,6 @@ export default function Home() {
 
   return (
     <>
-      <SocialSidePanel socialLinks={socialLinks} />
       <div className="space-y-16 pb-16">
         {/* Hero Section */}
         <section className="relative h-[400px] md:h-[500px] overflow-hidden -mt-16">

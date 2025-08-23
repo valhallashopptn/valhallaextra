@@ -51,6 +51,7 @@ export default async function RootLayout({
   const themeName = settings.theme || 'Night Runner';
   const activeTheme = themes.find(t => t.name === themeName) || themes[0];
   const announcementSettings = settings.announcement as AnnouncementSettings | null;
+  const socialLinks = settings.socialLinks as SocialLink[] | null;
   const maintenanceMode = settings.maintenanceMode as MaintenanceModeSettings | null;
   
   const themeStyle = {
@@ -92,7 +93,7 @@ export default async function RootLayout({
             </MaintenanceWrapper>
           </main>
           <Toaster />
-          <Footer siteTitle={settings.siteTitle} logoUrl={settings.logoUrl} />
+          <Footer siteTitle={settings.siteTitle} logoUrl={settings.logoUrl} socialLinks={socialLinks} />
           {settings.enableBackgroundMusic && settings.backgroundMusicUrl && (
             <MusicPlayer src={settings.backgroundMusicUrl} />
           )}

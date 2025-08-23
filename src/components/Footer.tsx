@@ -10,14 +10,16 @@ import Image from 'next/image';
 import { useTranslation } from '@/context/TranslationContext';
 import { useCart } from '@/context/CartContext';
 import type { SocialLink as SocialLinkType } from '@/lib/types';
+import { SocialLinks } from './SocialLinks';
 
 
 interface FooterProps {
     siteTitle?: string;
     logoUrl?: string;
+    socialLinks?: SocialLinkType[] | null;
 }
 
-export function Footer({ siteTitle = 'Valhalla Shop', logoUrl }: FooterProps) {
+export function Footer({ siteTitle = 'Valhalla Shop', logoUrl, socialLinks }: FooterProps) {
   const { t } = useTranslation();
   const { openCart } = useCart();
 
@@ -26,7 +28,7 @@ export function Footer({ siteTitle = 'Valhalla Shop', logoUrl }: FooterProps) {
       <div className="container mx-auto px-4 py-8 space-y-8">
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
-          <div className="flex flex-col items-center md:items-start md:col-span-2">
+          <div className="flex flex-col items-center md:items-start">
             <Link href="/" className="flex items-center space-x-2 mb-4">
                {logoUrl ? (
                 <Image src={logoUrl} alt={`${siteTitle} Logo`} width={32} height={32} className="h-8 w-8 text-primary" />
@@ -56,6 +58,11 @@ export function Footer({ siteTitle = 'Valhalla Shop', logoUrl }: FooterProps) {
                 <Link href="/account" className="text-muted-foreground hover:text-primary transition-colors">{t('Footer.myAccount')}</Link>
                  <button onClick={openCart} className="text-left text-muted-foreground hover:text-primary transition-colors">{t('Footer.cart')}</button>
              </nav>
+          </div>
+
+          <div className="flex flex-col items-center md:items-start">
+            <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
+            <SocialLinks socialLinks={socialLinks} />
           </div>
         </div>
         
