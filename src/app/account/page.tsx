@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getOrdersForUser } from '@/services/orderService';
-import { getUserProfile, getUserRank } from '@/services/walletService';
+import { getUserProfile, getUserRank, updateUserProfile } from '@/services/walletService';
 import type { Order, DeliveredAssetInfo, UserProfile } from '@/lib/types';
 import { getAvatarList } from '@/services/avatarService';
 import {

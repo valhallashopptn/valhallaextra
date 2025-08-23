@@ -1,7 +1,7 @@
 
 
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, updateDoc, increment, runTransaction, serverTimestamp, type Transaction, collection, query, orderBy, limit, getDocs, where, Timestamp, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, increment, runTransaction, serverTimestamp, type Transaction, collection, query, orderBy, limit, getDocs, where, Timestamp, arrayUnion, deleteDoc } from 'firebase/firestore';
 import { updateOrderStatus } from './orderService';
 import type { UserProfile, AdminPermission } from '@/lib/types';
 import { getAvatarList } from './avatarService';
