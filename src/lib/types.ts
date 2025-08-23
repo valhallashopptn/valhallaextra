@@ -81,6 +81,7 @@ export interface PaymentMethod {
   instructions: string;
   taxRate: number; // Stored as a percentage, e.g., 5 for 5%
   iconUrl?: string;
+  currency: 'TND' | 'USD';
   customFields?: CustomField[];
   createdAt: Timestamp;
 }

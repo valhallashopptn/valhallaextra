@@ -28,6 +28,7 @@ const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   instructions: z.string().min(10, { message: 'Instructions must be at least 10 characters.' }),
   taxRate: z.coerce.number().min(0, { message: 'Tax rate must be non-negative.' }).max(100, { message: 'Tax rate cannot exceed 100.' }),
+  currency: z.enum(['TND', 'USD'], { errorMap: () => ({ message: 'Please select a currency.' }) }),
   iconUrl: z.string().url({ message: 'Please enter a valid URL.' }).optional().or(z.literal('')),
   customFields: z.array(customFieldSchema).optional(),
 });
@@ -48,6 +49,7 @@ export function PaymentMethodForm({ onSubmit, initialData, onCancel }: PaymentMe
       instructions: '',
       taxRate: 0,
       iconUrl: '',
+      currency: 'TND',
       customFields: [],
     },
   });
@@ -64,6 +66,7 @@ export function PaymentMethodForm({ onSubmit, initialData, onCancel }: PaymentMe
         ...initialData,
         taxRate: Number(initialData.taxRate),
         iconUrl: initialData.iconUrl || '',
+        currency: initialData.currency || 'TND',
         customFields: initialData.customFields || [],
       });
     } else {
@@ -72,6 +75,7 @@ export function PaymentMethodForm({ onSubmit, initialData, onCancel }: PaymentMe
             instructions: '',
             taxRate: 0,
             iconUrl: '',
+            currency: 'TND',
             customFields: [],
         });
     }
@@ -110,19 +114,42 @@ export function PaymentMethodForm({ onSubmit, initialData, onCancel }: PaymentMe
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="taxRate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tax Rate (%)</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.1" placeholder="5" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+             <div className="grid grid-cols-2 gap-4">
+                <FormField
+                control={form.control}
+                name="taxRate"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Tax Rate (%)</FormLabel>
+                    <FormControl>
+                        <Input type="number" step="0.1" placeholder="5" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="currency"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Currency</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select currency" />
+                            </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem value="TND">TND</SelectItem>
+                                <SelectItem value="USD">USD</SelectItem>
+                            </SelectContent>
+                        </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+            </div>
             <FormField
               control={form.control}
               name="instructions"

@@ -192,6 +192,7 @@ export default function PaymentsPage() {
                 <TableRow>
                   <TableHead>Icon</TableHead>
                   <TableHead>Name</TableHead>
+                  <TableHead>Currency</TableHead>
                   <TableHead>Tax Rate</TableHead>
                   <TableHead>Instructions</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -200,7 +201,7 @@ export default function PaymentsPage() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center">Loading...</TableCell>
+                    <TableCell colSpan={6} className="text-center">Loading...</TableCell>
                   </TableRow>
                 ) : methods.map(method => (
                   <TableRow key={method.id}>
@@ -212,6 +213,9 @@ export default function PaymentsPage() {
                       )}
                     </TableCell>
                     <TableCell className="font-medium">{method.name}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{method.currency}</Badge>
+                    </TableCell>
                     <TableCell>
                       <Badge variant="secondary">{method.taxRate}%</Badge>
                     </TableCell>

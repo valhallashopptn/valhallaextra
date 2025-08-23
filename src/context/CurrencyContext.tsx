@@ -11,7 +11,7 @@ interface CurrencyContextType {
   currency: Currency;
   setCurrency: (currency: Currency) => void;
   formatPrice: (price: number, overrideCurrency?: Currency, isAlreadyConverted?: boolean) => string;
-  convertPrice: (price: number) => number;
+  convertPrice: (price: number, targetCurrency: Currency) => number;
   CONVERSION_RATE_USD_TO_TND: number;
 }
 
@@ -21,20 +21,19 @@ const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined
 export function CurrencyProvider({ children }: { children: ReactNode }) {
   const [currency, setCurrency] = useState<Currency>('TND');
 
-  const convertPrice = useCallback((priceInUsd: number) => {
-      if (currency === 'TND') {
+  const convertPrice = useCallback((priceInUsd: number, targetCurrency: Currency) => {
+      if (targetCurrency === 'TND') {
           return priceInUsd * CONVERSION_RATE_USD_TO_TND;
       }
       return priceInUsd;
-  }, [currency]);
+  }, []);
   
-  const formatPrice = useCallback((priceInUsd: number, overrideCurrency?: Currency, isAlreadyConverted = false) => {
-    const targetCurrency = overrideCurrency || currency;
-    let priceToFormat = priceInUsd;
+  const formatPrice = useCallback((price: number, targetCurrency: Currency = currency, isAlreadyConverted = false) => {
+    let priceToFormat = price;
 
     if (!isAlreadyConverted) {
       if (targetCurrency === 'TND') {
-        priceToFormat = priceInUsd * CONVERSION_RATE_USD_TO_TND;
+        priceToFormat = price * CONVERSION_RATE_USD_TO_TND;
       }
     }
     
@@ -69,5 +68,3 @@ export function useCurrency() {
   }
   return context;
 }
-
-    

@@ -130,7 +130,7 @@ function PaymentCustomFieldInput({ field, value, onChange }: { field: CustomFiel
 export default function CheckoutPage() {
   const { cartItems, cartTotal, clearCart, updateCartItemCustomData } = useCart();
   const { user, loading: authLoading } = useAuth();
-  const { currency, formatPrice, convertPrice, CONVERSION_RATE_USD_TO_TND } = useCurrency();
+  const { currency: globalCurrency, formatPrice, setCurrency } = useCurrency();
   const router = useRouter();
   const { toast } = useToast();
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
@@ -186,49 +186,52 @@ export default function CheckoutPage() {
     };
     fetchCheckoutData();
   }, [user, toast]);
-  
-  const convertedCartTotal = useMemo(() => {
-    return convertPrice(cartTotal);
-  }, [cartTotal, convertPrice]);
-  
-  const convertedWalletBalance = useMemo(() => {
-    if (userProfile === null) return null;
-    return convertPrice(userProfile.walletBalance);
-  }, [userProfile, convertPrice]);
 
   const selectedMethod = useMemo(() => {
     return paymentMethods.find(method => method.id === selectedMethodId);
   }, [paymentMethods, selectedMethodId]);
+
+  const effectiveCurrency = selectedMethod?.currency || globalCurrency;
+
+  useEffect(() => {
+    if (selectedMethod?.currency) {
+      setCurrency(selectedMethod.currency);
+    }
+  }, [selectedMethod, setCurrency]);
   
   const couponDiscountAmount = useMemo(() => {
     if (!appliedCoupon) return 0;
-
+    const rate = effectiveCurrency === 'TND' ? 3.1 : 1;
     let discount = 0;
     if (appliedCoupon.discountType === 'fixed') {
-      discount = convertPrice(appliedCoupon.discountValue);
+      discount = appliedCoupon.discountValue * rate;
     } else { // percentage
-      discount = convertedCartTotal * (appliedCoupon.discountValue / 100);
+      discount = (cartTotal * rate) * (appliedCoupon.discountValue / 100);
     }
-    return Math.min(discount, convertedCartTotal);
-  }, [appliedCoupon, convertedCartTotal, convertPrice]);
+    return Math.min(discount, cartTotal * rate);
+  }, [appliedCoupon, cartTotal, effectiveCurrency]);
   
   const subtotalAfterCoupon = useMemo(() => {
-    return convertedCartTotal - couponDiscountAmount;
-  }, [convertedCartTotal, couponDiscountAmount]);
+    const rate = effectiveCurrency === 'TND' ? 3.1 : 1;
+    return (cartTotal * rate) - couponDiscountAmount;
+  }, [cartTotal, couponDiscountAmount, effectiveCurrency]);
 
   const coinDiscountAmount = useMemo(() => {
     const discountInUSD = coinsToRedeem / COINS_TO_USD_RATE;
-    return convertPrice(discountInUSD);
-  }, [coinsToRedeem, convertPrice]);
+    const rate = effectiveCurrency === 'TND' ? 3.1 : 1;
+    return discountInUSD * rate;
+  }, [coinsToRedeem, effectiveCurrency]);
 
   const subtotalAfterCoins = useMemo(() => {
     return Math.max(0, subtotalAfterCoupon - coinDiscountAmount);
   }, [subtotalAfterCoupon, coinDiscountAmount]);
 
   const walletCredit = useMemo(() => {
-    if (!useWallet || convertedWalletBalance === null) return 0;
-    return Math.min(convertedWalletBalance, subtotalAfterCoins);
-  }, [useWallet, convertedWalletBalance, subtotalAfterCoins]);
+    if (!useWallet || !userProfile) return 0;
+    const rate = effectiveCurrency === 'TND' ? 3.1 : 1;
+    const walletBalanceInCurrentCurrency = userProfile.walletBalance * rate;
+    return Math.min(walletBalanceInCurrentCurrency, subtotalAfterCoins);
+  }, [useWallet, userProfile, subtotalAfterCoins, effectiveCurrency]);
 
   const subtotalAfterWallet = useMemo(() => {
     return subtotalAfterCoins - walletCredit;
@@ -255,11 +258,12 @@ export default function CheckoutPage() {
   }, [subtotalAfterTip, taxAmount]);
 
   const walletDeductionInUSD = useMemo(() => {
-    if (!useWallet || userProfile?.walletBalance === null) return 0;
-    const subtotalAfterCouponInUSD = cartTotal - (couponDiscountAmount / (currency === 'TND' ? CONVERSION_RATE_USD_TO_TND : 1));
-     const subtotalAfterCoinsInUSD = Math.max(0, subtotalAfterCouponInUSD - (coinsToRedeem / COINS_TO_USD_RATE));
-    return Math.min(userProfile!.walletBalance, subtotalAfterCoinsInUSD);
-  }, [useWallet, userProfile, cartTotal, couponDiscountAmount, currency, coinsToRedeem]);
+    if (!useWallet || !userProfile) return 0;
+    const couponDiscountUSD = couponDiscountAmount / (effectiveCurrency === 'TND' ? 3.1 : 1);
+    const subtotalAfterCouponInUSD = cartTotal - couponDiscountUSD;
+    const subtotalAfterCoinsInUSD = Math.max(0, subtotalAfterCouponInUSD - (coinsToRedeem / COINS_TO_USD_RATE));
+    return Math.min(userProfile.walletBalance, subtotalAfterCoinsInUSD);
+  }, [useWallet, userProfile, cartTotal, couponDiscountAmount, effectiveCurrency, coinsToRedeem]);
 
   const isFullPaymentByWallet = useMemo(() => {
       return walletCredit > 0 && finalTotal <= 0.001; // Use a small epsilon for floating point comparison
@@ -381,7 +385,7 @@ export default function CheckoutPage() {
         : { name: selectedMethod!.name, instructions: selectedMethod!.instructions ?? '' };
 
       // Convert displayed amounts back to USD for storage
-      const conversionRate = currency === 'TND' ? CONVERSION_RATE_USD_TO_TND : 1;
+      const conversionRate = effectiveCurrency === 'TND' ? 3.1 : 1;
       const finalTotalInUSD = finalTotal / conversionRate;
       const taxInUSD = taxAmount / conversionRate;
       const couponDiscountInUSD = couponDiscountAmount / conversionRate;
@@ -401,7 +405,7 @@ export default function CheckoutPage() {
         coinsRedeemed: coinsToRedeem,
         coinDiscount: coinDiscountInUSD,
         total: finalTotalInUSD,
-        currency: currency,
+        currency: effectiveCurrency,
         paymentMethod: paymentMethodDetails,
         paymentCustomData: paymentCustomData,
         status: isFullPaymentByWallet ? 'paid' : 'pending'
@@ -613,7 +617,7 @@ export default function CheckoutPage() {
                             </div>
                         )}
                      </div>
-                     <p className="font-semibold text-right flex-shrink-0">{formatPrice(item.price * item.quantity, undefined, false)}</p>
+                     <p className="font-semibold text-right flex-shrink-0">{formatPrice(item.price * item.quantity, effectiveCurrency)}</p>
                   </div>
                 ))}
                 <div className="animated-separator" />
@@ -637,7 +641,7 @@ export default function CheckoutPage() {
                     />
                      <div className="text-right text-sm text-muted-foreground">
                         <span>Discount: </span>
-                        <span className="font-semibold text-primary">{formatPrice(coinDiscountAmount, undefined, true)}</span>
+                        <span className="font-semibold text-primary">{formatPrice(coinDiscountAmount, effectiveCurrency, true)}</span>
                     </div>
                   </div>
                   <div className="animated-separator" />
@@ -695,50 +699,50 @@ export default function CheckoutPage() {
                 <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                         <span>Subtotal</span>
-                        <span>{formatPrice(cartTotal, undefined, false)}</span>
+                        <span>{formatPrice(cartTotal, effectiveCurrency)}</span>
                     </div>
                     {couponDiscountAmount > 0 && (
                        <div className="flex justify-between text-primary">
                             <span>Coupon Discount</span>
-                            <span>-{formatPrice(couponDiscountAmount, undefined, true)}</span>
+                            <span>-{formatPrice(couponDiscountAmount, effectiveCurrency, true)}</span>
                         </div>
                     )}
                      {coinDiscountAmount > 0 && (
                        <div className="flex justify-between text-primary">
                             <span>Valhalla Coins Discount</span>
-                            <span>-{formatPrice(coinDiscountAmount, undefined, true)}</span>
+                            <span>-{formatPrice(coinDiscountAmount, effectiveCurrency, true)}</span>
                         </div>
                     )}
                      {walletCredit > 0 && (
                        <div className="flex justify-between text-primary">
                             <span>Wallet Credit</span>
-                            <span>-{formatPrice(walletCredit, undefined, true)}</span>
+                            <span>-{formatPrice(walletCredit, effectiveCurrency, true)}</span>
                         </div>
                     )}
                      {tipAmount > 0 && (
                         <div className="flex justify-between">
                             <span>Tip</span>
-                            <span>{formatPrice(tipAmount, undefined, true)}</span>
+                            <span>{formatPrice(tipAmount, effectiveCurrency, true)}</span>
                         </div>
                     )}
                     {selectedMethod && !isFullPaymentByWallet && (
                         <div className="flex justify-between">
                             <span>Tax ({selectedMethod.taxRate}%)</span>
-                            <span>{formatPrice(taxAmount, undefined, true)}</span>
+                            <span>{formatPrice(taxAmount, effectiveCurrency, true)}</span>
                         </div>
                     )}
                 </div>
                  <div className="animated-separator" />
                  <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span className="text-primary">{formatPrice(finalTotal, undefined, true)}</span>
+                    <span className="text-primary">{formatPrice(finalTotal, effectiveCurrency, true)}</span>
                 </div>
               </div>
             </CardContent>
              <CardFooter className='flex-col items-stretch gap-4'>
                  <Button onClick={handleCheckout} className="w-full mt-2" size="lg" disabled={isPlacingOrder || (!selectedMethodId && !isFullPaymentByWallet) || !areAllCustomFieldsValid || !arePaymentCustomFieldsValid}>
                      <Lock className="mr-2 h-4 w-4" />
-                    {isPlacingOrder ? 'Processing...' : `Place Order for ${formatPrice(finalTotal, undefined, true)}`}
+                    {isPlacingOrder ? 'Processing...' : `Place Order for ${formatPrice(finalTotal, effectiveCurrency, true)}`}
                   </Button>
             </CardFooter>
            </Card>
