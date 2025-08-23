@@ -22,7 +22,7 @@ import { Separator } from '@/components/ui/separator';
 import { PageWrapper } from '@/components/PageWrapper';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Wallet, KeySquare, Copy, Check, Star, User, Camera, Link as LinkIcon, Handshake, Info, DollarSign } from 'lucide-react';
+import { Wallet, KeySquare, Copy, Check, Star, User, Camera, Link as LinkIcon, Handshake, Info, DollarSign, Shield } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { RankProgressCard } from './RankProgressCard';
@@ -30,6 +30,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ChangePasswordForm } from './ChangePasswordForm';
 
 function DeliveredAssetDialog({ asset, isOpen, onOpenChange }: { asset: DeliveredAssetInfo | null, isOpen: boolean, onOpenChange: (open: boolean) => void }) {
     const [isCopied, setIsCopied] = useState(false);
@@ -465,35 +467,60 @@ export default function AccountPage() {
 
           </div>
 
-          <div className="md:col-span-2 space-y-8">
-            {userProfile && <RankProgressCard xp={userProfile.xp} globalRank={globalRank ?? undefined} />}
-            {userProfile && <AffiliateCard profile={userProfile} />}
-            <Card>
-              <CardHeader>
-                <CardTitle>Order History</CardTitle>
-                <CardDescription>Review your past purchases</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {ordersLoading ? (
-                  <div className="text-center py-8">Loading your orders...</div>
-                ) : orders.length > 0 ? (
-                  <Accordion type="single" collapsible className="w-full">
-                    {orders.map(order => (
-                      <OrderItemCard 
-                        key={order.id}
-                        order={order}
-                        formatOrderPrice={formatOrderPrice}
-                        formatItemPrice={formatItemPrice}
-                        getStatusBadgeClass={getStatusBadgeClass}
-                        onViewAsset={handleViewAsset}
-                      />
-                    ))}
-                  </Accordion>
-                ) : (
-                  <p className="text-muted-foreground text-center py-8">You have no past orders.</p>
-                )}
-              </CardContent>
-            </Card>
+          <div className="md:col-span-2">
+            <Tabs defaultValue="profile">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="profile">Profile</TabsTrigger>
+                <TabsTrigger value="orders">Orders</TabsTrigger>
+                <TabsTrigger value="affiliate">Affiliate</TabsTrigger>
+                <TabsTrigger value="security">Security</TabsTrigger>
+              </TabsList>
+              <TabsContent value="profile" className="space-y-8">
+                {userProfile && <RankProgressCard xp={userProfile.xp} globalRank={globalRank ?? undefined} />}
+              </TabsContent>
+              <TabsContent value="orders">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Order History</CardTitle>
+                        <CardDescription>Review your past purchases</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {ordersLoading ? (
+                        <div className="text-center py-8">Loading your orders...</div>
+                        ) : orders.length > 0 ? (
+                        <Accordion type="single" collapsible className="w-full">
+                            {orders.map(order => (
+                            <OrderItemCard 
+                                key={order.id}
+                                order={order}
+                                formatOrderPrice={formatOrderPrice}
+                                formatItemPrice={formatItemPrice}
+                                getStatusBadgeClass={getStatusBadgeClass}
+                                onViewAsset={handleViewAsset}
+                            />
+                            ))}
+                        </Accordion>
+                        ) : (
+                        <p className="text-muted-foreground text-center py-8">You have no past orders.</p>
+                        )}
+                    </CardContent>
+                 </Card>
+              </TabsContent>
+              <TabsContent value="affiliate">
+                {userProfile && <AffiliateCard profile={userProfile} />}
+              </TabsContent>
+              <TabsContent value="security">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Shield /> Security</CardTitle>
+                        <CardDescription>Manage your account security settings.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChangePasswordForm />
+                    </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>

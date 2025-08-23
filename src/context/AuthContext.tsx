@@ -3,7 +3,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type Auth, type UserCredential } from 'firebase/auth';
+import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, type Auth, type UserCredential, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import type { User, UserProfile } from '@/lib/types';
 import { createUserProfile, getUserProfile } from '@/services/walletService';
@@ -15,6 +15,7 @@ interface AuthContextType {
   signUp: (email: string, pass: string, username: string, referredByCode?: string) => Promise<UserCredential>;
   logIn: (email: string, pass: string) => Promise<UserCredential>;
   logOut: () => Promise<void>;
+  reauthenticateAndChangePassword: (currentPass: string, newPass: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -79,12 +80,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return signOut(auth);
   }
 
+  const reauthenticateAndChangePassword = async (currentPass: string, newPass: string) => {
+    const currentUser = auth.currentUser;
+    if (!currentUser || !currentUser.email) {
+      throw new Error("No user is currently signed in.");
+    }
+    
+    const credential = EmailAuthProvider.credential(currentUser.email, currentPass);
+    
+    // Re-authenticate the user
+    await reauthenticateWithCredential(currentUser, credential);
+    
+    // If re-authentication is successful, update the password
+    await updatePassword(currentUser, newPass);
+  };
+
   const value = {
     user,
     loading,
     signUp,
     logIn,
-    logOut
+    logOut,
+    reauthenticateAndChangePassword,
   };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
