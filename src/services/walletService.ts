@@ -51,9 +51,13 @@ export const createUserProfile = async (userId: string, email: string, username:
       reviewPromptedOrderIds: [],
       affiliateStatus: 'none',
       affiliateEarnings: 0,
-      referredBy: referredByCode || undefined,
       createdAt: createdAt as any, // Temporary cast
+    };
+
+    if (referredByCode) {
+      newUserProfile.referredBy = referredByCode;
     }
+
     await setDoc(userDocRef, newUserProfile);
     if (auth.currentUser) {
         await updateProfile(auth.currentUser, { photoURL: randomAvatarUrl });
