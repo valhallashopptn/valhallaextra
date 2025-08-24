@@ -332,20 +332,18 @@ export default function AccountPage() {
   }, [user]);
   
   const formatOrderPrice = (total: number, orderCurrency: 'TND' | 'USD') => {
-    let displayTotal = total;
-    if (currentDisplayCurrency === 'TND') {
-      displayTotal = convertPrice(total);
-    }
-    return formatCurrency(displayTotal, currentDisplayCurrency, true);
-  }
+    const rate = orderCurrency === 'TND' ? 3.1 : 1;
+    // The price is always stored in USD, so we convert it to the order's currency for display
+    const displayTotal = total * rate;
+    return formatCurrency(displayTotal, orderCurrency, true);
+  };
 
   const formatItemPrice = (price: number, quantity: number, orderCurrency: 'TND' | 'USD') => {
-    let displayPrice = price * quantity;
-    if (currentDisplayCurrency === 'TND') {
-        displayPrice = convertPrice(price) * quantity;
-    }
-    return formatCurrency(displayPrice, currentDisplayCurrency, true);
-  }
+    const rate = orderCurrency === 'TND' ? 3.1 : 1;
+    // The price is always stored in USD, so we convert it to the order's currency for display
+    const displayTotal = price * quantity * rate;
+    return formatCurrency(displayTotal, orderCurrency, true);
+  };
 
   if (loading || !user || !userProfile) {
     return <div className="text-center container mx-auto px-4 py-8">Loading account details...</div>;

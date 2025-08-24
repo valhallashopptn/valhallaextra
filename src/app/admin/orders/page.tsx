@@ -140,19 +140,17 @@ export default function OrdersPage() {
 
 
   const formatOrderPrice = (total: number, orderCurrency: 'TND' | 'USD') => {
-    let displayTotal = total;
-    if (currentDisplayCurrency === 'TND') {
-      displayTotal = convertPrice(total);
-    }
-    return formatPrice(displayTotal, currentDisplayCurrency, true);
-  }
+    // The price is always stored in USD, so we convert it to the order's currency for display
+    const rate = orderCurrency === 'TND' ? 3.1 : 1;
+    const displayTotal = total * rate;
+    return formatPrice(displayTotal, orderCurrency, true);
+  };
    const formatItemPrice = (price: number, quantity: number, orderCurrency: 'TND' | 'USD') => {
-    let displayPrice = price * quantity;
-    if (currentDisplayCurrency === 'TND') {
-        displayPrice = convertPrice(price) * quantity;
-    }
-    return formatPrice(displayPrice, currentDisplayCurrency, true);
-  }
+    // The price is always stored in USD, so we convert it to the order's currency for display
+    const rate = orderCurrency === 'TND' ? 3.1 : 1;
+    const displayTotal = price * quantity * rate;
+    return formatPrice(displayTotal, orderCurrency, true);
+  };
 
   const fetchOrders = useCallback(async () => {
     try {
